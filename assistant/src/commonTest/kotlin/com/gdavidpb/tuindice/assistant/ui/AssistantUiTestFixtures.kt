@@ -5,7 +5,6 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
-import com.gdavidpb.tuindice.assistant.presentation.model.ChatContextItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
@@ -20,7 +19,7 @@ internal const val INTENT_ID = "intent-1"
 
 internal fun contentState(
 	items: List<ChatItem> = emptyList(),
-	context: ChatContextItem? = null,
+	context: AssistantScreenContext? = null,
 	composer: ChatComposerItem = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false),
 	suggestions: List<ChatSuggestionItem> = emptyList(),
 	isGuided: Boolean = false
@@ -49,11 +48,7 @@ internal fun agentMessage(
 		copyText = text
 	)
 
-internal fun contextChip(): ChatContextItem =
-	ChatContextItem(
-		label = "Evaluaciones",
-		context = AssistantScreenContext(screen = AssistantScreen.EVALUATIONS)
-	)
+internal fun screenContext(): AssistantScreenContext = AssistantScreenContext(screen = AssistantScreen.EVALUATIONS)
 
 internal fun intentCard(
 	status: IntentCardStatus = IntentCardStatus.Open,

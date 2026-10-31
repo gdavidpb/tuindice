@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -26,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
@@ -83,6 +86,10 @@ fun AssistantChatComposerView(
 			.testTag(AssistantUiTags.Composer),
 		enabled = composer.isEnabled,
 		textStyle = textStyle,
+		keyboardOptions = KeyboardOptions(
+			capitalization = KeyboardCapitalization.Sentences,
+			autoCorrectEnabled = true
+		),
 		cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
 		maxLines = COMPOSER_MAX_LINES,
 		interactionSource = interactionSource,
@@ -146,6 +153,7 @@ private fun ComposerBody(
 			if (!isOpen) endIcons()
 		}
 		if (isOpen) {
+			Spacer(modifier = Modifier.height(TuIndiceSpacing.Medium))
 			Row(verticalAlignment = Alignment.CenterVertically) {
 				startIcon()
 				Spacer(modifier = Modifier.weight(1f))

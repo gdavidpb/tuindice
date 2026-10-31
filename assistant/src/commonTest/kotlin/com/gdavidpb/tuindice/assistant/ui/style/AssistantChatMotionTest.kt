@@ -35,4 +35,13 @@ class AssistantChatMotionTest {
 		// One word: its reveal is only its own fade, which the next part overlaps, so only the stagger remains.
 		assertEquals(plan.partDelays[1] + AssistantChatMotion.StaggerMillis, plan.actionsDelay)
 	}
+
+	@Test
+	fun when_boldMarkersStandAlone_then_theyDoNotCountAsWordsInTheReveal() {
+		val marked = planAgentEntrance(listOf(ChatPartItem.Text("** una respuesta **"), ChatPartItem.Text("fin")))
+		val plain = planAgentEntrance(listOf(ChatPartItem.Text("una respuesta"), ChatPartItem.Text("fin")))
+
+		assertEquals(plain.partDelays, marked.partDelays)
+		assertEquals(plain.actionsDelay, marked.actionsDelay)
+	}
 }

@@ -176,9 +176,10 @@ class AssistantChatComposerViewUiTest {
 		val clip = onNodeWithTag(AssistantUiTags.PhotoButton).fetchSemanticsNode().boundsInRoot
 		val text = onNodeWithText(PLACEHOLDER, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
+		val gap = minOf(clip.top, send.top) - text.bottom
 		assertTrue(
-			send.top >= text.bottom,
-			"the send button starts at ${send.top}, above the text that ends at ${text.bottom}"
+			gap >= with(density) { 8.dp.toPx() } - PIXEL_TOLERANCE,
+			"the text needs at least 8 dp of space before the buttons, but the gap is $gap px"
 		)
 		assertEquals(clip.center.y, send.center.y, absoluteTolerance = PIXEL_TOLERANCE)
 		// Open, the text has the field's width to itself: it starts 12 dp in from the field.

@@ -31,6 +31,7 @@ final class AssistantScenarioTests: ScenarioTestCase {
     func test_assistant_guided_suggestions() { runScenario("assistant-guided-suggestions") }
     func test_assistant_open_component_sheet() { runScenario("assistant-open-component-sheet") }
     func test_assistant_open_screen() { runScenario("assistant-open-screen") }
+    func test_assistant_progress_stream() { runScenario("assistant-progress-stream") }
     func test_assistant_reopen_with_consent() { runScenario("assistant-reopen-with-consent") }
     func test_assistant_report_message() { runScenario("assistant-report-message") }
     func test_assistant_retry_turn() { runScenario("assistant-retry-turn") }

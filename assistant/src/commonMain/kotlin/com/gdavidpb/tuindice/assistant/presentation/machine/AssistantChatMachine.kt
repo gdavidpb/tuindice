@@ -14,7 +14,6 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.Assista
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatTurns
 import com.gdavidpb.tuindice.assistant.presentation.mapper.presentedContent
 import com.gdavidpb.tuindice.assistant.presentation.mapper.runFailed
-import com.gdavidpb.tuindice.assistant.presentation.mapper.toChatContextItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.transition.assistantChatAnyStateTransitions
@@ -103,7 +102,7 @@ class AssistantChatMachine(
 		}
 
 		val emptyContent = AssistantChat.State.Content(
-			context = session.openedContext?.toChatContextItem(texts),
+			context = session.openedContext,
 			items = emptyList(),
 			progressLabel = null,
 			composer = ChatComposerItem(text = "", isEnabled = false, isSendEnabled = false),

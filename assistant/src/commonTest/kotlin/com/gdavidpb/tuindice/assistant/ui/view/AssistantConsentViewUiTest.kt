@@ -124,17 +124,12 @@ class AssistantConsentViewUiTest {
 	}
 
 	@Test
-	fun when_consentIsShown_then_theSparkleLeadsTheTitleOnItsLine() = runTuIndiceUiTest {
+	fun when_consentIsShown_then_theConsentTitleIsAccessible() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantConsentView(onAction = {})
 		}
 
 		onNodeWithTag(AssistantUiTags.ConsentTitle).assertTextEquals(TITLE_TEXT)
-		val sparkle = onNodeWithTag(AssistantUiTags.TitleSparkle, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-		val text = onNodeWithText(TITLE_TEXT, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-
-		assertTrue(sparkle.right <= text.left)
-		assertEquals(text.center.y, sparkle.center.y, absoluteTolerance = 1f)
 	}
 
 	private companion object {

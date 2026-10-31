@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/assistant/v1/events/turns/turn-progress",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/event-stream"
+    },
+    "bodyFileName": "assistant/events-progress.sse",
+    "chunkedDribbleDelay": {
+      "numberOfChunks": 4,
+      "totalDuration": 16000
+    }
+  }
+}

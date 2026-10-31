@@ -26,7 +26,8 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.agentMessage
 import com.gdavidpb.tuindice.assistant.ui.contentState
-import com.gdavidpb.tuindice.assistant.ui.contextChip
+import com.gdavidpb.tuindice.assistant.ui.screen.AssistantChatScreen
+import com.gdavidpb.tuindice.assistant.ui.screenContext
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -37,6 +38,21 @@ import kotlin.test.assertTrue
 // closes; a change inside its last item leaves the list where the person has put it.
 @OptIn(ExperimentalTestApi::class)
 class AssistantChatConversationViewUiTest {
+	@Test
+	fun when_theScreenHasContext_then_theConversationStartsBelowTheTitleWithoutAContextCard() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatScreen(
+				state = contentState(context = screenContext(), items = listOf(agentMessage())),
+				onAction = {},
+				modifier = Modifier.height(CONTAINER_HEIGHT)
+			)
+		}
+
+		val title = onNodeWithTag(AssistantUiTags.ChatTitle).fetchSemanticsNode().boundsInRoot
+		val messages = onNodeWithTag(AssistantUiTags.MessageList).fetchSemanticsNode().boundsInRoot
+		assertTrue(messages.top - title.bottom in 0f..with(density) { 40.dp.toPx() })
+	}
+
 	@Test
 	fun when_theLastMessageChangesInside_then_theListStaysWhereItIs() = runTuIndiceUiTest {
 		val content = mutableStateOf(conversation(lastUseful = null))
@@ -131,7 +147,7 @@ class AssistantChatConversationViewUiTest {
 				AssistantChatConversationView(
 					content = contentState(
 						items = listOf(ChatItem.User(id = "question", text = "Falla una vez", isFailed = true)),
-						context = contextChip()
+						context = screenContext()
 					).copy(notice = ChatNoticeItem.TurnFailed(message = FAILED_MESSAGE, canRetry = true)),
 					onAction = { actions.add(it) },
 					modifier = Modifier.height(SHORT_CONTAINER_DP.dp)
@@ -243,6 +259,144 @@ class AssistantChatConversationViewUiTest {
 		onNodeWithTag(AssistantUiTags.ProgressLabel, useUnmergedTree = true).assertIsDisplayed()
 	}
 
+	@Test
+	fun when_aStudentWaitsForAnAnswer_then_progressFollowsTheirMessage() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatConversationView(
+				content = waitingConversation(FIRST_PROGRESS),
+				onAction = {},
+				modifier = Modifier.height(CONTAINER_HEIGHT)
+			)
+		}
+		waitForIdle()
+
+		val question = onNodeWithTag(AssistantUiTags.Message.bubble(QUESTION_ID)).fetchSemanticsNode().boundsInRoot
+		val progress = onNodeWithTag(AssistantUiTags.ProgressContainer).fetchSemanticsNode().boundsInRoot
+		val composer = onNodeWithTag(AssistantUiTags.Composer).fetchSemanticsNode().boundsInRoot
+
+		assertTrue(progress.top >= question.bottom, "The progress appears above the student's message.")
+		assertTrue(
+			progress.top - question.bottom <= with(density) { 24.dp.toPx() },
+			"The progress is detached from the message."
+		)
+		assertTrue(
+			composer.top - progress.bottom >= with(density) { 40.dp.toPx() },
+			"The progress is pinned to the composer."
+		)
+	}
+
+	@Test
+	fun when_progressChanges_then_theLabelUpdatesBelowTheSameMessage() = runTuIndiceUiTest {
+		val content = mutableStateOf(waitingConversation(FIRST_PROGRESS))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+		onNodeWithText(FIRST_PROGRESS, useUnmergedTree = true).assertIsDisplayed()
+
+		content.value = content.value.copy(progressLabel = SECOND_PROGRESS)
+		waitForIdle()
+
+		onNodeWithText(FIRST_PROGRESS, useUnmergedTree = true).assertDoesNotExist()
+		onNodeWithText(SECOND_PROGRESS, useUnmergedTree = true).assertIsDisplayed()
+		val question = onNodeWithTag(AssistantUiTags.Message.bubble(QUESTION_ID)).fetchSemanticsNode().boundsInRoot
+		val progress = onNodeWithTag(AssistantUiTags.ProgressContainer).fetchSemanticsNode().boundsInRoot
+		assertTrue(progress.top - question.bottom in 0f..with(density) { 24.dp.toPx() })
+	}
+
+	@Test
+	fun when_theAnswerArrivesBeforeTheTurnEnds_then_progressStaysBelowTheStudent() = runTuIndiceUiTest {
+		val waiting = waitingConversation(FIRST_PROGRESS)
+		setTuIndiceTestContent {
+			AssistantChatConversationView(
+				content = waiting.copy(items = waiting.items + agentMessage(id = "reply", text = "Respuesta")),
+				onAction = {},
+				modifier = Modifier.height(CONTAINER_HEIGHT)
+			)
+		}
+		waitForIdle()
+
+		val question = onNodeWithTag(AssistantUiTags.Message.bubble(QUESTION_ID)).fetchSemanticsNode().boundsInRoot
+		val progress = onNodeWithTag(AssistantUiTags.ProgressContainer).fetchSemanticsNode().boundsInRoot
+		val reply = onNodeWithTag(AssistantUiTags.Message.agent("reply")).fetchSemanticsNode().boundsInRoot
+		assertTrue(progress.top >= question.bottom, "The progress appears above the student's message.")
+		assertTrue(progress.bottom <= reply.top, "The progress moved below the assistant's answer.")
+	}
+
+	@Test
+	fun when_aPhotoIsBeingRead_then_progressFollowsTheLatestMessage() = runTuIndiceUiTest {
+		val waiting = waitingConversation(FIRST_PROGRESS)
+		setTuIndiceTestContent {
+			AssistantChatConversationView(
+				content = waiting.copy(
+					items = waiting.items + agentMessage(id = "reply", text = "Respuesta"),
+					progressLabel = null,
+					isExtracting = true,
+					composer = waiting.composer.copy(isStoppable = false)
+				),
+				onAction = {},
+				modifier = Modifier.height(CONTAINER_HEIGHT)
+			)
+		}
+		waitForIdle()
+
+		val reply = onNodeWithTag(AssistantUiTags.Message.agent("reply")).fetchSemanticsNode().boundsInRoot
+		val progress = onNodeWithTag(AssistantUiTags.ProgressContainer).fetchSemanticsNode().boundsInRoot
+		assertTrue(progress.top >= reply.bottom, "The photo status appears before the latest message.")
+	}
+
+	@Test
+	fun when_aNewQuestionStartsWaiting_then_itsProgressIsVisibleAtTheEnd() = runTuIndiceUiTest {
+		val content = mutableStateOf(conversation(lastUseful = null))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+
+		content.value = content.value.copy(
+			items = content.value.items + ChatItem.User(id = QUESTION_ID, text = QUESTION, isFailed = false),
+			progressLabel = FIRST_PROGRESS,
+			composer = content.value.composer.copy(isStoppable = true)
+		)
+		waitForIdle()
+
+		onNodeWithTag(AssistantUiTags.Message.bubble(QUESTION_ID)).assertIsDisplayed()
+		onNodeWithTag(AssistantUiTags.ProgressContainer).assertIsDisplayed()
+		val progress = onNodeWithTag(AssistantUiTags.ProgressContainer).fetchSemanticsNode().boundsInRoot
+		val list = onNodeWithTag(AssistantUiTags.MessageList).fetchSemanticsNode().boundsInRoot
+		assertTrue(progress.bottom <= list.bottom, "The message list cuts off the progress label.")
+	}
+
+	@Test
+	fun when_progressChangesWhileReadingHistory_then_theListStaysWhereItIs() = runTuIndiceUiTest {
+		val history = conversation(lastUseful = null)
+		val content = mutableStateOf(
+			history.copy(
+				items = history.items + ChatItem.User(id = QUESTION_ID, text = QUESTION, isFailed = false),
+				progressLabel = FIRST_PROGRESS,
+				composer = history.composer.copy(isStoppable = true)
+			)
+		)
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+		scrollToTop()
+		onNodeWithText(FIRST_TEXT).assertIsDisplayed()
+
+		content.value = content.value.copy(progressLabel = SECOND_PROGRESS)
+		waitForIdle()
+
+		onNodeWithText(FIRST_TEXT).assertIsDisplayed()
+	}
+
+	private fun waitingConversation(label: String): AssistantChat.State.Content =
+		contentState(items = listOf(ChatItem.User(id = QUESTION_ID, text = QUESTION, isFailed = false)))
+			.copy(
+				progressLabel = label,
+				composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isStoppable = true)
+			)
+
 	private fun ComposeUiTest.setShortChatWithKeyboardOpen() {
 		val keyboard = FakeKeyboardInsets().apply { bottomPx = SHORT_KEYBOARD_PX }
 
@@ -296,6 +450,10 @@ class AssistantChatConversationViewUiTest {
 		const val OFFER_TITLE = "Avisos de tu informe"
 		const val LAST_SUGGESTION = "¿Cuál es mi ritmo de créditos?"
 		const val TYPED_TEXT = "¿Puedo retirar"
+		const val QUESTION_ID = "question-waiting"
+		const val QUESTION = "¿Cómo va mi trimestre?"
+		const val FIRST_PROGRESS = "Revisando tus materias"
+		const val SECOND_PROGRESS = "Revisando tus evaluaciones"
 		val SUGGESTIONS = listOf(
 			ChatSuggestionItem(id = "trimestre", label = "¿Cómo voy este trimestre?"),
 			ChatSuggestionItem(id = "atencion", label = "¿Qué necesita mi atención?"),

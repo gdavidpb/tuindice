@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.ui.style
 
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
+import com.gdavidpb.tuindice.base.ui.view.toBoldMarkerAnnotatedText
 
 /**
  * When each part of an answer starts entering, and when its actions do: the text reveals first, the next part starts
@@ -20,7 +21,7 @@ internal fun planAgentEntrance(parts: List<ChatPartItem>): AgentEntrancePlan {
 		val delay = cursor
 
 		cursor += if (part is ChatPartItem.Text) {
-			val total = revealTotalMillis(wordRanges(part.text).size).toInt()
+			val total = revealTotalMillis(wordRanges(part.text.toBoldMarkerAnnotatedText().text).size).toInt()
 			(total - AssistantChatMotion.WordFadeMillis).coerceAtLeast(0) + AssistantChatMotion.StaggerMillis
 		} else {
 			AssistantChatMotion.StaggerMillis

@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.scenariokit.dsl.foreground
 import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
-import com.gdavidpb.tuindice.scenariokit.dsl.swipePoints
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
@@ -30,16 +29,10 @@ import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.showGradedEvaluation
 import com.gdavidpb.tuindice.scenarios.shared.showWeekOfGradedEvaluation
 
-// The sheet fills the available window, so the 8 % point lands on its drag handle rather than a tappable scrim.
-// Drag down from that handle to dismiss it.
-private const val CHAT_SHEET_HANDLE_X = 0.5
-private const val CHAT_SHEET_HANDLE_Y = 0.08
-private const val CHAT_SHEET_DISMISS_DRAG_Y = 0.6
-
-/** Taps the assistant's sparkle in the top bar and waits for the chat sheet. */
+/** Taps the assistant's sparkle in the top bar and waits for the chat screen. */
 private fun StepBuilder.openAssistant() {
 	tap(BaseUiTags.topBarActionButton(TopBarAction.AssistantAction))
-	waitVisible(AssistantUiTags.ChatSheet, Within.Wait)
+	waitVisible(AssistantUiTags.ChatScreen, Within.Wait)
 }
 
 /** Accepts the consent the sheet asks for at its first opening, then waits for the composer. */
@@ -78,10 +71,19 @@ private val assistantSmoke = scenario(
 
 	openAssistant()
 	acceptConsent()
+	waitVisible(AssistantUiTags.Chat.suggestion("sq.summary.attention"), Within.Action)
 	tap(AssistantUiTags.Chat.suggestion("sq.summary.term"))
 	waitAgentMessage("msg-suggestion")
+	waitGone(AssistantUiTags.ProgressContainer, Within.Action)
+	waitGone(AssistantUiTags.Chat.suggestion("sq.summary.attention"), Within.Action)
+	// Focusing expands the composer; both controls remain reachable above the keyboard.
+	tap(AssistantUiTags.Composer)
+	waitVisible(AssistantUiTags.PhotoButton, Within.Action)
+	waitVisible(AssistantUiTags.SendButton, Within.Action)
 	sendText("¿Y mis evaluaciones?")
 	waitAgentMessage("msg-followup")
+	// The server marks a phrase as bold; the student reads the phrase without the markers.
+	waitVisible(text(Copy.AssistantFollowupDisplayed), Within.Action)
 	tap(AssistantUiTags.Message.copy("msg-followup"))
 	waitVisible(AssistantUiTags.ChatSnackbar, Within.Action)
 	waitVisible(text(Copy.AssistantCopied), Within.Assert)
@@ -90,6 +92,25 @@ private val assistantSmoke = scenario(
 	waitGone(AssistantUiTags.ChatSnackbar, Within.Long)
 	tap(AssistantUiTags.Message.useful("msg-followup"))
 	expectRequest("POST", "/assistant/v1/feedback", status = 204)
+}
+
+// The server sends separate progress events while the answer is still being prepared.
+private val assistantProgressStream = scenario(
+	"assistant-progress-stream",
+	"assistant",
+	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
+) {
+	covers("assistant.AssistantChat.AcceptConsent", "assistant.AssistantChat.ChangeText", "assistant.AssistantChat.Send")
+	account(E2eAccounts.Canonical.id)
+
+	openAssistant()
+	acceptConsent()
+	sendText("Revisa mi progreso")
+	waitVisible(AssistantUiTags.ProgressContainer, Within.Action)
+	waitVisible(text(Copy.AssistantProgressFirst), Within.Wait)
+	waitVisible(text(Copy.AssistantProgressSecond), Within.Wait)
+	waitAgentMessage("msg-progress")
+	waitGone(AssistantUiTags.ProgressContainer, Within.Action)
 }
 
 private val assistantConfirmAddEvaluation = scenario(
@@ -167,7 +188,6 @@ private val assistantAskAboutEvaluation = scenario(
 	"assistant",
 	Start.Seeded(E2eAccounts.Canonical, section = MainSection.EVALUATIONS).toLaunchSpec()
 ) {
-	covers("assistant.AssistantChat.RemoveContext")
 	account(E2eAccounts.Canonical.id)
 
 	val card = EvaluationsUiTags.evaluationItemCard(E2eFixtures.GradedEvaluation.value)
@@ -178,11 +198,12 @@ private val assistantAskAboutEvaluation = scenario(
 	waitVisible(EvaluationsUiTags.EvaluationSwipeAskAction, Within.Action)
 	tap(EvaluationsUiTags.EvaluationSwipeAskAction)
 	acceptConsent()
-	waitVisible(AssistantUiTags.ContextChip, Within.Action)
+	// The answer's fixture only accepts this question with the evaluation's screen and entity in its hidden context.
 	sendText("¿Cuánto necesito?")
 	waitAgentMessage("msg-ask")
-	tap(AssistantUiTags.ContextRemove)
-	waitGone(AssistantUiTags.ContextChip, Within.Assert)
+	expectRequest("POST", "/assistant/v1/turns", status = 202)
+	tap(AssistantUiTags.ChatBack)
+	waitVisible(EvaluationsUiTags.EvaluationSwipeToDismissContainer, Within.Action)
 }
 
 private val assistantServerDisabled = scenario(
@@ -196,7 +217,7 @@ private val assistantServerDisabled = scenario(
 	acceptConsent()
 	mockState("assistant-turns", "Disabled")
 	sendText("Hola sin servicio")
-	waitGone(AssistantUiTags.ChatSheet, Within.Action)
+	waitGone(AssistantUiTags.ChatScreen, Within.Action)
 	waitGone(BaseUiTags.topBarActionButton(TopBarAction.AssistantAction), Within.Assert)
 }
 
@@ -229,7 +250,7 @@ private val assistantDeclineConsent = scenario(
 	openAssistant()
 	waitVisible(AssistantUiTags.ConsentView, Within.Wait)
 	tap(AssistantUiTags.ConsentDecline)
-	waitGone(AssistantUiTags.ChatSheet, Within.Action)
+	waitGone(AssistantUiTags.ChatScreen, Within.Action)
 }
 
 private val assistantConsentPrivacyPolicy = scenario(
@@ -347,8 +368,8 @@ private val assistantEvaluationsCard = scenario(
 	waitVisible(text(Copy.EvaluationNoGrade), Within.Assert)
 	waitGone(text(Copy.AssistantEvaluationPending), Within.Assert)
 	// The tab, on the week of that evaluation, shows it the same way.
-	swipePoints(CHAT_SHEET_HANDLE_X, CHAT_SHEET_HANDLE_Y, 0.0, CHAT_SHEET_DISMISS_DRAG_Y)
-	waitGone(AssistantUiTags.ChatSheet, Within.Action)
+	tap(AssistantUiTags.ChatBack)
+	waitGone(AssistantUiTags.ChatScreen, Within.Action)
 	showWeekOfGradedEvaluation()
 	waitVisible(EvaluationsUiTags.evaluationItemCard(overdue), Within.Action)
 	waitVisible(text(E2eFixtures.GradedEvaluationName.value), Within.Assert)
@@ -381,10 +402,9 @@ private val assistantReopenWithConsent = scenario(
 
 	openAssistant()
 	acceptConsent()
-	// Drag down from the handle to close the sheet. Consent is given, so the sparkle
-	// reopens straight into the conversation with the composer in view.
-	swipePoints(CHAT_SHEET_HANDLE_X, CHAT_SHEET_HANDLE_Y, 0.0, CHAT_SHEET_DISMISS_DRAG_Y)
-	waitGone(AssistantUiTags.ChatSheet, Within.Action)
+	// Return to the previous screen. Consent is given, so reopening shows the composer directly.
+	tap(AssistantUiTags.ChatBack)
+	waitGone(AssistantUiTags.ChatScreen, Within.Action)
 	openAssistant()
 	waitVisible(AssistantUiTags.Composer, Within.Action)
 }
@@ -402,7 +422,8 @@ private val assistantAskAboutRecordSubject = scenario(
 	tap(card)
 	tap(BaseUiTags.askAssistant("menu_item"))
 	acceptConsent()
-	waitVisible(AssistantUiTags.ContextChip, Within.Action)
+	tap(AssistantUiTags.ChatBack)
+	waitVisible(card, Within.Action)
 }
 
 // The answer of this send waits in its stream, so the stop button stays on the composer until the student stops
@@ -451,6 +472,7 @@ private val assistantAppealRestriction = scenario(
 /** The scenarios of the `assistant` module; list every new one here. */
 val assistantScenarios: List<Scenario> = listOf(
 	assistantSmoke,
+	assistantProgressStream,
 	assistantConfirmAddEvaluation,
 	assistantConfirmDestructiveDelete,
 	assistantDismissIntent,

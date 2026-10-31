@@ -39,10 +39,12 @@ internal suspend fun AssistantChatSession.presentedContent(
 	val guided = guidedByMode || guidedByServer
 	// A restriction whose end has passed no longer holds the composer: the next send reads the standing again.
 	val restricted = restrictionAt(clock.now().toEpochMilliseconds())
-	// The screen is the one the chip shows: once the chip is removed, the questions are the general ones.
-	val screen = content.context?.context?.toScreenContext()?.screen
+	// The opening screen still chooses the suggested questions even though its context is not shown in the chat.
+	val screen = content.context?.toScreenContext()?.screen
 
 	val items = presentedItems(texts, nowMillis = clock.now().toEpochMilliseconds())
+	// Guided mode needs suggestions to keep asking. In open chat they belong only to the empty conversation.
+	val showSuggestions = !busy && restricted == null && (guided || items.isEmpty())
 
 	return content.copy(
 		items = items,
@@ -52,8 +54,7 @@ internal suspend fun AssistantChatSession.presentedContent(
 		// Once the student writes, the card steps aside for the rest of the sheet: it is only for the empty chat.
 		notificationOffer = notificationOfferShown && items.isEmpty() && !sending,
 		composer = presentedComposer(draftText = draftText, draftRevision = draftRevision, restricted = restricted),
-		// A restriction in force offers no suggestion, in the chat and in its sheet alike; they return once it lifts.
-		suggestions = if (busy || restricted != null) emptyList() else presentedSuggestions(screen = screen, guided = guided),
+		suggestions = if (showSuggestions) presentedSuggestions(screen = screen, guided = guided) else emptyList(),
 		notice = presentedNotice(texts = texts, guided = guided, restricted = restricted, clock = clock),
 		isGuided = guided
 	)

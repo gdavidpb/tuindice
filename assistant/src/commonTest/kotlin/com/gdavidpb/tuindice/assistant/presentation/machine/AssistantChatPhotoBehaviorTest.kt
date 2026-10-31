@@ -21,6 +21,9 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.sendMessageAction
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.assistant.testing.assistantIntent
 import com.gdavidpb.tuindice.assistant.testing.assistantStatus
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.chatcontract.context.ScreenId
 import com.gdavidpb.tuindice.chatcontract.error.AssistantErrorCodes
 import com.gdavidpb.tuindice.chatcontract.event.RunError
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
@@ -39,6 +42,18 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class AssistantChatPhotoBehaviorTest {
+	@Test
+	fun when_aPhotoIsRead_then_theScreenContextIsSentWithIt() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		viewModel.openAction(AssistantScreenContext(AssistantScreen.EVALUATIONS, visibleFields = mapOf("term" to "2026")))
+
+		viewModel.dispatch(AssistantChat.Action.AttachPhoto(photo()))
+
+		val context = fixture.extraction.requests.single().screenContext
+		assertEquals(ScreenId.EVALUATIONS, context?.screen)
+		assertEquals(mapOf("term" to "2026"), context?.visibleFields)
+	}
+
 	@Test
 	fun when_aPhotoIsRead_then_theProposalAndItsIntentReachTheChat() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
@@ -221,15 +236,14 @@ class AssistantChatPhotoBehaviorTest {
 		reading.complete(Unit)
 	}
 
-	// The suggestions are not offered while a photo is read: the send they start waits for the reading, and they come back
-	// once it ends.
+	// The empty chat's suggestions wait while a photo is read and return if the reading fails without adding a message.
 	@Test
 	fun aPhotoBeingRead_offersNoSuggestions_andTheyComeBackWhenItEnds() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
-		fixture.conversation.conversation.value = assistantConversation(items = listOf(suggestingAgent()))
 		viewModel.openAction(null)
+		assertTrue(viewModel.content().suggestions.isNotEmpty())
 		val reading = CompletableDeferred<Unit>()
-		// A reading that fails adds no answer to the conversation, so the suggestions of its last answer come back.
+		// A reading that fails adds no answer to the empty conversation.
 		fixture.extraction.failure = IllegalStateException("offline")
 		fixture.extraction.gate = reading
 

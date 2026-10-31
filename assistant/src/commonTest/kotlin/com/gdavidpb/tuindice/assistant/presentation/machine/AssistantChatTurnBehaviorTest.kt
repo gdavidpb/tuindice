@@ -20,7 +20,6 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.chatTest
 import com.gdavidpb.tuindice.assistant.presentation.testing.content
 import com.gdavidpb.tuindice.assistant.presentation.testing.openAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.pickSuggestionAction
-import com.gdavidpb.tuindice.assistant.presentation.testing.removeContextAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.retryTurnAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.sendMessageAction
 import com.gdavidpb.tuindice.assistant.testing.assistantStatus
@@ -115,10 +114,10 @@ class AssistantChatTurnBehaviorTest {
 	}
 
 	@Test
-	fun otherFailure_offersARetry_andRetryResendsTheFailedText() = chatTest { fixture, viewModel ->
+	fun otherFailure_offersARetry_andRetryResendsTheFailedTextAndContext() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.turns.sendError = AssistantRequestRefusedException("unknown", null, "unknown")
-		viewModel.openAction(null)
+		viewModel.openAction(AssistantScreenContext(AssistantScreen.RECORD, visibleFields = mapOf("termLabel" to "2026")))
 		viewModel.changeTextAction("hola")
 		viewModel.sendMessageAction()
 		assertEquals(ChatNoticeItem.TurnFailed(message = "send-failed", canRetry = true), viewModel.content().notice)
@@ -129,6 +128,9 @@ class AssistantChatTurnBehaviorTest {
 		viewModel.retryTurnAction()
 
 		assertEquals(listOf("hola", "hola"), fixture.turns.requests.map { request -> request.message.text })
+		assertTrue(
+			fixture.turns.requests.all { request -> request.screenContext?.visibleFields == mapOf("termLabel" to "2026") }
+		)
 		assertNull(viewModel.content().notice)
 	}
 
@@ -595,11 +597,10 @@ class AssistantChatTurnBehaviorTest {
 	}
 
 	@Test
-	fun removingTheContext_sendsTheTurnWithoutIt() = chatTest { fixture, viewModel ->
+	fun openingWithoutScreenContext_sendsTheTurnWithoutIt() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
-		viewModel.openAction(AssistantScreenContext(AssistantScreen.RECORD))
+		viewModel.openAction(null)
 
-		viewModel.removeContextAction()
 		viewModel.changeTextAction("hola")
 		viewModel.sendMessageAction()
 

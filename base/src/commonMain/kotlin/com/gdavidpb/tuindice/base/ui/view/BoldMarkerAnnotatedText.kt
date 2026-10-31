@@ -22,41 +22,31 @@ fun AnnotatedString.Builder.appendWithBoldMarkers(
 ) {
 	val marker = "**"
 	var currentIndex = 0
-	var isBold = false
 
 	while (currentIndex < text.length) {
-		val markerIndex = text.indexOf(marker, currentIndex)
-		if (markerIndex < 0) {
-			appendStyledSegment(
-				text = text.substring(currentIndex),
-				isBold = isBold,
-				boldFontWeight = boldFontWeight
-			)
+		val opening = text.indexOf(marker, currentIndex)
+		val closing = if (opening >= 0) text.indexOf(marker, opening + marker.length) else -1
+		if (closing < 0) {
+			append(text.substring(currentIndex))
 			return
 		}
 
+		append(text.substring(currentIndex, opening))
 		appendStyledSegment(
-			text = text.substring(currentIndex, markerIndex),
-			isBold = isBold,
+			text = text.substring(opening + marker.length, closing),
 			boldFontWeight = boldFontWeight
 		)
-		isBold = !isBold
-		currentIndex = markerIndex + marker.length
+		currentIndex = closing + marker.length
 	}
 }
 
 private fun AnnotatedString.Builder.appendStyledSegment(
 	text: String,
-	isBold: Boolean,
 	boldFontWeight: FontWeight
 ) {
 	if (text.isEmpty()) return
 
-	if (isBold) {
-		pushStyle(SpanStyle(fontWeight = boldFontWeight))
-		append(text)
-		pop()
-	} else {
-		append(text)
-	}
+	pushStyle(SpanStyle(fontWeight = boldFontWeight))
+	append(text)
+	pop()
 }

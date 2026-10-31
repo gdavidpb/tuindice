@@ -16,7 +16,7 @@ import com.gdavidpb.tuindice.assistant.ui.style.AssistantChatMotion
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
-// A place of the conversation's column that comes and goes (the context chip, the offer, the progress label, the
+// A place of the conversation's column that comes and goes (the offer, the progress label, the
 // notice, the suggestions). It carries the 16 dp that separates it from what is above it, so that, while it is gone,
 // it leaves no gap behind: a column that spaced its children would keep the gap of an empty slot.
 //

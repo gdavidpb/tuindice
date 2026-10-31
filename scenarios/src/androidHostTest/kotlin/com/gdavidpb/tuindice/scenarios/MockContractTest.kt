@@ -61,6 +61,24 @@ class MockContractTest {
 	}
 
 	@Test
+	fun theAssistantProgressStreamKeepsEachEventInItsOwnWireMockChunk() {
+		val mapping = RepoFiles.file("mocks/mappings/assistant/events-progress-get.json").readText()
+		val body = RepoFiles.file("mocks/__files/assistant/events-progress.sse").readBytes()
+		val chunks = PROGRESS_CHUNKS
+		assertTrue("\"numberOfChunks\": $chunks" in mapping)
+		assertEquals(0, body.size % chunks)
+		val parts = body.toList().chunked(body.size / chunks).map { it.toByteArray().decodeToString() }
+		assertTrue(parts.all { it.endsWith("\n\n") })
+		val start = parts.first()
+		val (first, second) = parts.drop(1)
+		val end = parts.last()
+		assertTrue("\"type\":\"run_started\"" in start)
+		assertTrue("Revisando tu expediente" in first)
+		assertTrue("Buscando tus evaluaciones" in second)
+		assertTrue("\"type\":\"message_completed\"" in end && "\"type\":\"run_finished\"" in end)
+	}
+
+	@Test
 	fun staleRetryMappingsStayDeleted() {
 		staleMappings.forEach { path ->
 			assertTrue(!RepoFiles.file("mocks/mappings/$path").exists(), "$path should not exist")
@@ -130,6 +148,7 @@ class MockContractTest {
 
 	private companion object {
 		const val MINIMUM_MAPPINGS = 100
+		const val PROGRESS_CHUNKS = 4
 		const val UNAVAILABLE_BODY = "\"bodyFileName\": \"sync/post-sync-record-unavailable.json\""
 
 		private const val SYNC_RECORD_RETRY = "sync/post-sync-record-refresh-retry-unavailable"

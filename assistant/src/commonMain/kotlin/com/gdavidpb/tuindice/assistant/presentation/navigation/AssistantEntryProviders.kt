@@ -24,20 +24,26 @@ fun EntryProviderScope<NavKey>.assistantEntries(
 	shellBindings: NavShellBindings,
 	dependencies: AssistantNavDependencies
 ) {
-	chatEntry(navActions = navActions, dependencies = dependencies)
+	chatEntry(navActions = navActions, shellBindings = shellBindings, dependencies = dependencies)
 	componentSheetEntry(navActions = navActions, dependencies = dependencies)
 	memoryEntry(navActions = navActions, shellBindings = shellBindings)
 	clearMemoryConfirmationDialogEntry(navActions = navActions)
 }
 
-// The chat sheet shows its notices on its own host, so it takes no snackbar from the shell.
+// The chat has its own header and snackbar. Its state hides the shell's bars while this entry is current.
 private fun EntryProviderScope<NavKey>.chatEntry(
 	navActions: TuIndiceNavActions,
+	shellBindings: NavShellBindings,
 	dependencies: AssistantNavDependencies
 ) {
-	entry<AssistantDestination.Chat>(metadata = dialogMetadata()) { key ->
+	entry<AssistantDestination.Chat> { key ->
+		val viewModel = koinViewModel<AssistantChatViewModel>()
+		val viewState by viewModel.state.collectAsStateWithLifecycle()
+
+		CollectCurrentEntryValueWithLifecycle(value = viewState, onValue = shellBindings.onViewStateChanged)
+
 		AssistantChatRoute(
-			viewModel = koinViewModel<AssistantChatViewModel>(),
+			viewModel = viewModel,
 			context = key.context,
 			navActions = navActions,
 			dependencies = dependencies

@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.assistant.presentation.contract
 
 import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
-import com.gdavidpb.tuindice.assistant.presentation.model.ChatContextItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
@@ -29,8 +28,8 @@ object AssistantChat {
 		data object Unavailable : State()
 
 		data class Content(
-			// The screen the sheet was opened from, as a chip the student can remove. Null once removed.
-			val context: ChatContextItem?,
+			// The screen the sheet was opened from; used for suggestions and requests, without a visible card.
+			val context: AssistantScreenContext?,
 			// The conversation, oldest first: the student's bubbles and the agent's messages.
 			val items: List<ChatItem>,
 			// The impersonal label of the running turn («Revisando tu pensum…»), shown with the atom; null when idle.
@@ -56,7 +55,6 @@ object AssistantChat {
 		class ChangeText(val text: String) : Action()
 		data object Send : Action()
 		class PickSuggestion(val suggestionId: String) : Action()
-		data object RemoveContext : Action()
 
 		// Opens the camera, or the gallery, to read the evaluations of a photo of the plan.
 		class RequestPhoto(val fromCamera: Boolean) : Action()

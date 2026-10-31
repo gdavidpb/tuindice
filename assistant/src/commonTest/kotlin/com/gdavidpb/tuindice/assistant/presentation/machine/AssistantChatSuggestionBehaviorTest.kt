@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantActiveTurn
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
 import com.gdavidpb.tuindice.assistant.presentation.testing.assistantConversation
@@ -9,7 +11,6 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.chatTest
 import com.gdavidpb.tuindice.assistant.presentation.testing.content
 import com.gdavidpb.tuindice.assistant.presentation.testing.openAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.pickSuggestionAction
-import com.gdavidpb.tuindice.assistant.presentation.testing.removeContextAction
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
@@ -20,7 +21,6 @@ import com.gdavidpb.tuindice.chatcontract.message.Suggestions
 import com.gdavidpb.tuindice.chatcontract.message.Text
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 // The questions of the shared catalog (SuggestedQuestions): the chat offers them when it starts and in guided mode.
@@ -56,18 +56,7 @@ class AssistantChatSuggestionBehaviorTest {
 	}
 
 	@Test
-	fun removingTheChip_offersTheGeneralQuestions() = chatTest { fixture, viewModel ->
-		fixture.consent.setAssistantConsentGranted(true)
-		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
-
-		viewModel.removeContextAction()
-
-		assertNull(viewModel.content().context)
-		assertEquals(generalQuestions, viewModel.content().suggestions)
-	}
-
-	@Test
-	fun agentSuggestions_areOfferedInsteadOfTheQuestionsOfTheScreen() = chatTest { fixture, viewModel ->
+	fun agentSuggestions_areNotOfferedInAnOpenChatWithMessages() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.conversation.conversation.value = assistantConversation(
 			items = listOf(
@@ -81,7 +70,22 @@ class AssistantChatSuggestionBehaviorTest {
 
 		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
 
-		assertEquals(listOf(ChatSuggestionItem(id = "s1", label = "Sí")), viewModel.content().suggestions)
+		assertTrue(viewModel.content().suggestions.isEmpty())
+	}
+
+	@Test
+	fun firstUserMessage_hidesTheQuestions_andAnEmptyConversationOffersThemAgain() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
+		assertEquals(summaryQuestions, viewModel.content().suggestions)
+
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(AssistantConversationItem.User(AssistantUserMessage(id = "u1", text = "Hola", createdAtMillis = 0)))
+		)
+		assertTrue(viewModel.content().suggestions.isEmpty())
+
+		fixture.conversation.conversation.value = assistantConversation()
+		assertEquals(summaryQuestions, viewModel.content().suggestions)
 	}
 
 	@Test

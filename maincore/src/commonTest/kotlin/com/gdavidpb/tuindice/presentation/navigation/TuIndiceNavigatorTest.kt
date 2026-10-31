@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.RecordAttemptFocusRequest
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.presentation.navigation.DialogDestination
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResult
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResultStore
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
@@ -502,6 +503,35 @@ class TuIndiceNavigatorTest {
 		navigator.openAssistant(context = null)
 
 		assertEquals(AssistantDestination.Chat(context = null), navigator.currentKey)
+	}
+
+	@Test
+	fun when_assistantOpensFromADetail_then_backReturnsToThatDetail() {
+		val navigator = createNavigator(currentTab = MainSection.PENSUM)
+		val detail = SubjectsDestination.SubjectDetail(subjectCode = "MA1111")
+		val context = AssistantScreenContext(screen = AssistantScreen.SUBJECT_DETAIL)
+		navigator.push(detail)
+
+		navigator.openAssistant(context)
+
+		assertFalse(navigator.currentKey is DialogDestination)
+		assertEquals(AssistantDestination.Chat(context), navigator.currentKey)
+		assertTrue(navigator.pop())
+		assertEquals(detail, navigator.currentKey)
+	}
+
+	@Test
+	fun when_aComponentSheetOpensFromTheChat_then_backReturnsToTheChatBeforeItsOrigin() {
+		val navigator = createNavigator(currentTab = MainSection.RECORD)
+		val origin = RecordDestination.ScheduleDialog
+		navigator.push(origin)
+		navigator.openAssistant(context = null)
+		navigator.push(AssistantDestination.ComponentSheet(messageId = "message-1", componentId = "component-1"))
+
+		assertTrue(navigator.pop())
+		assertEquals(AssistantDestination.Chat(context = null), navigator.currentKey)
+		assertTrue(navigator.pop())
+		assertEquals(origin, navigator.currentKey)
 	}
 
 	@Test

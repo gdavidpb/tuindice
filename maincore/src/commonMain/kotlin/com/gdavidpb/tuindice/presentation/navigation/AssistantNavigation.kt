@@ -28,7 +28,7 @@ import org.koin.compose.getKoin
 
 /**
  * What the assistant's screens ask of the host, connected to this navigator. Every screen the assistant can open
- * goes to its jump in the app, and the chat sheet is closed first, so it is not left parked on the tab it came
+ * goes to its jump in the app, and the chat screen is closed first, so it is not left parked on the tab it came
  * from. A reference the target needs and the assistant did not send falls back to the tab of that screen.
  * Sign-in and the password dialog are not opened from the assistant.
  */
@@ -146,7 +146,7 @@ private fun NavTarget.destinationKeys(refs: List<EntityRef>): List<Destination> 
 // The id of the first reference of [kind] the assistant sent, if it sent one.
 private fun List<EntityRef>.idOf(kind: EntityKind): String? = firstOrNull { ref -> ref.kind == kind }?.id
 
-// Closes the assistant's sheets on top of the tab (the chat, and a component sheet opened from it), goes to [section]
+// Closes the assistant's chat and any component sheet on top of it, goes to [section]
 // when there is one, and opens [keys] over it. It is one change of the observable stack, so no frame shows the sheet
 // parked on the tab it came from. The tab is switched without writing the section the app opens on, as the hub does.
 private fun TuIndiceNavigator.goFromAssistant(section: MainSection?, keys: List<Destination> = emptyList()) {

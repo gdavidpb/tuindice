@@ -7,10 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 
-internal const val SWEEP_MILLIS = 1600
-internal const val SWEEP_TRAVEL = 2f
-internal const val SWEEP_HIGHLIGHT_STOP = 0.5f
-
 // The label of a running turn with a light that sweeps across it. With animations off it is plain text.
 @Composable
 fun AssistantShimmerLabelView(

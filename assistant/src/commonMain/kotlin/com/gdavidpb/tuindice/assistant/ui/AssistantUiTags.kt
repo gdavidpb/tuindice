@@ -3,13 +3,12 @@ package com.gdavidpb.tuindice.assistant.ui
 import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 
 object AssistantUiTags {
-	const val ChatSheet = "assistant_chat_sheet"
+	const val ChatScreen = "assistant_chat_screen"
+	const val ChatBack = "assistant_chat_back"
 	const val ChatTitle = "assistant_chat_title"
 	const val ConsentTitle = "assistant_consent_title"
 	const val TitleSparkle = "assistant_title_sparkle"
 	const val MessageList = "assistant_message_list"
-	const val ContextChip = "assistant_context_chip"
-	const val ContextRemove = "assistant_context_remove"
 	const val Composer = "assistant_composer"
 	const val StopButton = "assistant_stop_button"
 	const val SendButton = "assistant_send_button"
@@ -21,7 +20,7 @@ object AssistantUiTags {
 	const val ProgressAtom = "assistant_progress_atom"
 	const val ProgressLabel = "assistant_progress_label"
 
-	// The snackbar of the chat sheet: its host, and the message it shows.
+	// The snackbar of the chat screen: its host, and the message it shows.
 	const val ChatSnackbar = "assistant_chat_snackbar"
 	const val ChatSnackbarMessage = "assistant_chat_snackbar_message"
 	const val Notice = "assistant_notice"

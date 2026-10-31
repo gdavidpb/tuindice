@@ -27,7 +27,6 @@ import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
-import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.domain.repository.AssistantAvailabilityRepository
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseAppeal
@@ -74,7 +73,6 @@ internal class FakeAssistantChatTexts :
 	AssistantChatTexts,
 	AssistantChatPartTexts by FakeAssistantChatPartTexts,
 	AssistantChatIntentTexts by FakeAssistantChatIntentTexts {
-	override suspend fun screenName(screen: AssistantScreen): String = "screen:${screen.name}"
 
 	override suspend fun evaluationTypeName(evaluationType: String): String = "type:$evaluationType"
 
@@ -508,9 +506,6 @@ internal fun AssistantChatViewModel.sendMessageAction() =
 
 internal fun AssistantChatViewModel.pickSuggestionAction(suggestionId: String) =
 	dispatch(AssistantChat.Action.PickSuggestion(suggestionId))
-
-internal fun AssistantChatViewModel.removeContextAction() =
-	dispatch(AssistantChat.Action.RemoveContext)
 
 internal fun AssistantChatViewModel.retryTurnAction() =
 	dispatch(AssistantChat.Action.RetryTurn)

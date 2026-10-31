@@ -252,8 +252,10 @@ private val pensumAskAssistantSubject = scenario(
 	tap(PensumUiTags.SubjectDetailAskAssistant)
 	waitVisible(AssistantUiTags.ConsentView, Within.Wait)
 	tap(AssistantUiTags.ConsentAccept)
-	waitVisible(AssistantUiTags.ChatSheet, Within.Action)
-	waitVisible(AssistantUiTags.ContextChip, Within.Action)
+	waitVisible(AssistantUiTags.ChatScreen, Within.Action)
+	waitVisible(AssistantUiTags.Composer, Within.Action)
+	tap(AssistantUiTags.ChatBack)
+	waitVisible(PensumUiTags.SubjectDetailSheet, Within.Action)
 }
 
 /** The scenarios of this module; list every new one here. */

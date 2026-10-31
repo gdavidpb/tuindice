@@ -19,19 +19,18 @@ class AssistantChatViewModelContractTest {
 	}
 
 	@Test
-	fun open_withConsent_showsTheContent_withTheChipOfTheScreen() = chatTest { fixture, viewModel ->
+	fun open_withConsent_preservesTheScreenContextInTheContent() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 
-		viewModel.openAction(
-			AssistantScreenContext(
-				screen = AssistantScreen.EVALUATION_DETAIL,
-				entities = listOf(AssistantEntityRef(kind = AssistantEntityKind.SUBJECT, id = "CI4325")),
-				visibleFields = mapOf("title" to "PARCIAL 1", "points" to "15 / 20", "grade" to "15.00")
-			)
+		val context = AssistantScreenContext(
+			screen = AssistantScreen.EVALUATION_DETAIL,
+			entities = listOf(AssistantEntityRef(kind = AssistantEntityKind.SUBJECT, id = "CI4325")),
+			visibleFields = mapOf("title" to "PARCIAL 1", "points" to "15 / 20", "grade" to "15.00")
 		)
+		viewModel.openAction(context)
 
 		assertTrue(viewModel.state.value is AssistantChat.State.Content)
-		assertEquals("screen:EVALUATION_DETAIL · CI4325 PARCIAL 1", viewModel.content().context?.label)
+		assertEquals(context, viewModel.content().context)
 	}
 
 	@Test

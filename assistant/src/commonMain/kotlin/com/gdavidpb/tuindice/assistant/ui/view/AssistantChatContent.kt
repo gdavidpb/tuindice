@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 
-// The sheet's body by state: the consent comes first, then the conversation. The closed states draw nothing.
+// The screen's body by state: the consent comes first, then the conversation. The closed states draw nothing.
 @Composable
 fun AssistantChatContent(
 	state: AssistantChat.State,
@@ -21,7 +21,7 @@ fun AssistantChatContent(
 	when (state) {
 		AssistantChat.State.Idle, AssistantChat.State.Unavailable -> Spacer(modifier = modifier)
 
-		// The consent text may be taller than a medium sheet on a small screen, so it scrolls.
+		// The consent text can be taller than a small screen, so it scrolls.
 		AssistantChat.State.ConsentRequired, AssistantChat.State.ConsentFailed -> AssistantConsentView(
 			failed = state == AssistantChat.State.ConsentFailed,
 			onAction = onAction,

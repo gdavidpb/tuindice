@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.assistant.presentation.resource
 
-import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
@@ -24,16 +23,6 @@ import tuindice.assistant.generated.resources.assistant_chat_max_grade
 import tuindice.assistant.generated.resources.assistant_chat_message_too_long
 import tuindice.assistant.generated.resources.assistant_chat_quota_exhausted
 import tuindice.assistant.generated.resources.assistant_chat_quota_exhausted_wait
-import tuindice.assistant.generated.resources.assistant_chat_screen_about
-import tuindice.assistant.generated.resources.assistant_chat_screen_evaluation_detail
-import tuindice.assistant.generated.resources.assistant_chat_screen_evaluations
-import tuindice.assistant.generated.resources.assistant_chat_screen_pensum
-import tuindice.assistant.generated.resources.assistant_chat_screen_record
-import tuindice.assistant.generated.resources.assistant_chat_screen_statistics
-import tuindice.assistant.generated.resources.assistant_chat_screen_subject_detail
-import tuindice.assistant.generated.resources.assistant_chat_screen_subject_search
-import tuindice.assistant.generated.resources.assistant_chat_screen_summary
-import tuindice.assistant.generated.resources.assistant_chat_screen_term_report
 import tuindice.assistant.generated.resources.assistant_chat_send_failed
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_cancelled
 import tuindice.assistant.generated.resources.assistant_chat_turn_failed_disabled
@@ -52,21 +41,6 @@ class AssistantChatResourceTexts :
 	AssistantChatTexts,
 	AssistantChatPartTexts by AssistantChatPartResourceTexts(),
 	AssistantChatIntentTexts by AssistantChatIntentResourceTexts() {
-	override suspend fun screenName(screen: AssistantScreen): String = getString(
-		when (screen) {
-			AssistantScreen.SUMMARY -> Res.string.assistant_chat_screen_summary
-			AssistantScreen.STATISTICS -> Res.string.assistant_chat_screen_statistics
-			AssistantScreen.RECORD -> Res.string.assistant_chat_screen_record
-			AssistantScreen.PENSUM -> Res.string.assistant_chat_screen_pensum
-			AssistantScreen.EVALUATIONS -> Res.string.assistant_chat_screen_evaluations
-			AssistantScreen.EVALUATION_DETAIL -> Res.string.assistant_chat_screen_evaluation_detail
-			AssistantScreen.SUBJECT_DETAIL -> Res.string.assistant_chat_screen_subject_detail
-			AssistantScreen.SUBJECT_SEARCH -> Res.string.assistant_chat_screen_subject_search
-			AssistantScreen.ABOUT -> Res.string.assistant_chat_screen_about
-			AssistantScreen.TERM_REPORT -> Res.string.assistant_chat_screen_term_report
-		}
-	)
-
 	override suspend fun evaluationTypeName(evaluationType: String): String {
 		return getString(EVALUATION_TYPES[evaluationType] ?: Res.string.assistant_chat_evaluation_type_other)
 	}

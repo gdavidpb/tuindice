@@ -10,6 +10,15 @@
           "expression": "$.message.text",
           "equalTo": "¿Cuánto necesito?"
         }
+      },
+      {
+        "matchesJsonPath": {
+          "expression": "$.screenContext.screen",
+          "equalTo": "evaluation_detail"
+        }
+      },
+      {
+        "matchesJsonPath": "$.screenContext.entities[?(@.kind == 'evaluation' && @.id == '741ee22ed3a76b1bbd7deb77e9490435')]"
       }
     ],
     "headers": {

@@ -14,7 +14,7 @@ object AssistantChatMotion {
 	/** A message entering: the student's bubble and each part of an answer fade in while rising [MessageRise]. */
 	const val MessageEnterMillis = TuIndiceAnimation.StandardMillis
 
-	/** A small item entering: the notice, the offer, the context chip, the progress label. */
+	/** A small item entering: the notice, the offer, the progress label. */
 	const val SmallEnterMillis = TuIndiceAnimation.CrossfadeMillis
 
 	/** Anything leaving, and the swap of an icon or a tint. */

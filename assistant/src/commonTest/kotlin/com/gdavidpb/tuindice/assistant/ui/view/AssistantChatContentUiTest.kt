@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -20,8 +22,8 @@ import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.INTENT_ID
 import com.gdavidpb.tuindice.assistant.ui.agentMessage
 import com.gdavidpb.tuindice.assistant.ui.contentState
-import com.gdavidpb.tuindice.assistant.ui.contextChip
 import com.gdavidpb.tuindice.assistant.ui.intentCard
+import com.gdavidpb.tuindice.assistant.ui.screenContext
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeEnabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -56,20 +58,19 @@ class AssistantChatContentUiTest {
 	}
 
 	@Test
-	fun when_contextChipIsRemoved_then_dispatchesRemoveContext() = runTuIndiceUiTest {
-		val actions = mutableListOf<AssistantChat.Action>()
+	fun when_theScreenHasContext_then_noContextCardIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatContent(
-				state = contentState(context = contextChip()),
-				onAction = { actions.add(it) },
+				state = contentState(context = screenContext()),
+				onAction = {},
 				modifier = Modifier.fillMaxSize()
 			)
 		}
 
-		assertNodeVisible(AssistantUiTags.ContextChip)
-		onNodeWithTag(AssistantUiTags.ContextRemove).performClick()
-
-		assertIs<AssistantChat.Action.RemoveContext>(actions.single())
+		onNodeWithText("Pregúntame sobre").assertDoesNotExist()
+		onNodeWithText("Evaluaciones").assertDoesNotExist()
+		onAllNodes(hasContentDescription("Quitar contexto"), useUnmergedTree = true).assertCountEquals(0)
+		assertNodeVisible(AssistantUiTags.Composer)
 	}
 
 	@Test

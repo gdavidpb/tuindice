@@ -120,7 +120,6 @@ class AssistantChatStateMachineContractTest {
 			AssistantChat.Action.ChangeText(text = "hola"),
 			AssistantChat.Action.Send,
 			AssistantChat.Action.PickSuggestion(suggestionId = "s1"),
-			AssistantChat.Action.RemoveContext,
 			AssistantChat.Action.RetryTurn,
 			AssistantChat.Action.ConfirmIntent(intentId = "i1"),
 			AssistantChat.Action.DismissIntent(intentId = "i1"),

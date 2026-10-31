@@ -21,19 +21,21 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import com.gdavidpb.tuindice.assistant.ui.style.AssistantChatMotion
 import com.gdavidpb.tuindice.assistant.ui.style.revealStepMillis
 import com.gdavidpb.tuindice.assistant.ui.style.revealTotalMillis
 import com.gdavidpb.tuindice.assistant.ui.style.wordRanges
 import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
+import com.gdavidpb.tuindice.base.ui.view.toBoldMarkerAnnotatedText
 import kotlinx.coroutines.delay
 
 // The text of an answer that is typed in: the words appear one after another, each fading in, starting
 // [delayMillis] after it is composed, in the colour of [style]. The whole text is laid out and exposed to
 // accessibility from the first frame. While the words fade in, the text is drawn once, in its final colour, and
 // each word that has not fully appeared is erased from it in the draw phase: no frame of the reveal recomposes the
-// view or lays the text out again. With [animate] false, or with animations off, it is plain text.
+// view or lays the text out again. Bold markers are interpreted before laying out or revealing the text.
 @Composable
 fun AssistantRevealedTextView(
 	text: String,
@@ -44,17 +46,18 @@ fun AssistantRevealedTextView(
 ) {
 	ReportComposition("revealed-text")
 
-	val words = remember(text) { wordRanges(text) }
+	val formatted = remember(text) { text.toBoldMarkerAnnotatedText(boldFontWeight = FontWeight.Bold) }
+	val words = remember(formatted) { wordRanges(formatted.text) }
 
 	if (!animate || !LocalTuIndiceAnimationsEnabled.current || words.isEmpty()) {
-		Text(text = text, modifier = modifier, style = style)
+		Text(text = formatted, modifier = modifier, style = style)
 		return
 	}
 
 	val step = revealStepMillis(words.size)
 	val total = revealTotalMillis(words.size)
 	val elapsed = remember { Animatable(0f) }
-	// Changes once, when the reveal ends: the view recomposes then, and only then, to show the plain text.
+	// Changes once, when the reveal ends: the view recomposes then, and only then, to show the formatted text.
 	val isRevealed by remember(total) { derivedStateOf { elapsed.value >= total } }
 	val layout = remember { mutableStateOf<TextLayoutResult?>(null) }
 
@@ -67,12 +70,12 @@ fun AssistantRevealedTextView(
 	}
 
 	if (isRevealed) {
-		Text(text = text, modifier = modifier, style = style)
+		Text(text = formatted, modifier = modifier, style = style)
 		return
 	}
 
 	Text(
-		text = text,
+		text = formatted,
 		modifier = modifier
 			.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
 			.drawWithCache {

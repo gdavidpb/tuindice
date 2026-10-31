@@ -24,7 +24,6 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.content
 import com.gdavidpb.tuindice.assistant.presentation.testing.dismissIntentAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.intentCard
 import com.gdavidpb.tuindice.assistant.presentation.testing.openAction
-import com.gdavidpb.tuindice.assistant.presentation.testing.removeContextAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.reportMessageAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.retryTurnAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.sendMessageAction
@@ -306,7 +305,11 @@ class AssistantChatLeavingContentBehaviorTest {
 		fixture.standing.answer = restrictedUntil(NOW_MILLIS + 10_000L)
 		fixture.standing.gate = CompletableDeferred()
 		fixture.turns.sendError = AssistantRequestRefusedException(AssistantErrorCodes.CONSENT_REQUIRED, null, "consent")
-		viewModel.removeContextAction()
+		// A conversation update presents the chat again after the first restriction has ended.
+		val conversation = fixture.conversation.conversation.value
+		fixture.conversation.conversation.value = conversation.copy(
+			items = conversation.items + agentMessage("a1", Text("Listo"))
+		)
 		viewModel.changeTextAction("hola")
 		viewModel.sendMessageAction()
 		assertEquals(AssistantChat.State.ConsentRequired, viewModel.state.value)

@@ -82,8 +82,6 @@ private fun ContentTransitions.contentComposerRows(
 		)
 	}
 
-	on<AssistantChat.Action.RemoveContext> { state, _ -> machine.refreshed(state.copy(context = null)) }
-
 	// The student stops the turn that runs or is being sent. A turn that has no stop target has nothing to stop.
 	on<AssistantChat.Action.CancelTurn> { state, _ ->
 		val turnId = machine.session.stopTarget() ?: return@on state
@@ -109,7 +107,7 @@ private fun ContentTransitions.contentSendRows(
 			params = SendAssistantMessageParams(
 				text = draftText.trim(),
 				suggestionId = null,
-				screenContext = state.context?.context
+				screenContext = state.context
 			),
 			draftText = draftText
 		)
@@ -126,7 +124,7 @@ private fun ContentTransitions.contentSendRows(
 			params = SendAssistantMessageParams(
 				text = text,
 				suggestionId = action.suggestionId,
-				screenContext = state.context?.context
+				screenContext = state.context
 			),
 			draftText = machine.draft.text.value
 		)
@@ -138,7 +136,7 @@ private fun ContentTransitions.contentSendRows(
 
 		if (failed == null || machine.session.sendIsBusy()) return@on state
 
-		machine.retryFailedSend(host = host, failed = failed, context = state.context?.context)
+		machine.retryFailedSend(host = host, failed = failed, context = state.context)
 		machine.refreshed(state)
 	}
 
@@ -177,7 +175,7 @@ private fun ContentTransitions.contentPhotoRows(
 
 		machine.session.photoFailure = null
 		machine.session.photoExtracting = true
-		machine.turns.extractPhoto(host = host, file = action.file, context = state.context?.context)
+		machine.turns.extractPhoto(host = host, file = action.file, context = state.context)
 		machine.refreshed(state)
 	}
 

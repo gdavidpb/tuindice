@@ -18,7 +18,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.LinearGradientShader
 import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.lerp
 import com.gdavidpb.tuindice.base.ui.ReportComposition
+
+internal const val SWEEP_MILLIS = 1600
+private const val SWEEP_BASE_SOFTENING = 0.12f
+private const val SWEEP_WIDTH_FRACTION = 0.65f
+private const val SWEEP_HIGHLIGHT_START = 0.35f
+private const val SWEEP_HIGHLIGHT_END = 0.65f
 
 @Composable
 internal fun SweepingLabel(
@@ -36,11 +43,15 @@ internal fun SweepingLabel(
 		),
 		label = "AssistantLabelSweepProgress"
 	)
-	val baseColor = MaterialTheme.colorScheme.onSurfaceVariant
-	val lightColor = MaterialTheme.colorScheme.onSurface
+	val baseColor = lerp(
+		MaterialTheme.colorScheme.onSurfaceVariant,
+		MaterialTheme.colorScheme.background,
+		SWEEP_BASE_SOFTENING
+	)
+	val highlightColor = MaterialTheme.colorScheme.onSurface
 	// The same brush while the colors hold. The text asks it for a shader when it draws, and the shader reads the sweep
 	// then: each frame of the sweep redraws the label and composes none of it.
-	val brush = remember(baseColor, lightColor) { SweepingLabelBrush(sweep, baseColor, lightColor) }
+	val brush = remember(sweep, baseColor, highlightColor) { SweepingLabelBrush(sweep, baseColor, highlightColor) }
 
 	Text(
 		text = text,
@@ -49,22 +60,21 @@ internal fun SweepingLabel(
 	)
 }
 
-// The highlight of the sweep, with the base color on both sides of it. Its shader is made with the sweep of the frame
-// being drawn. The first frame's edge pixels differ from the version this replaces; the later frames paint the same
-// pixels as that version.
+// A concentrated band of light travels from one edge of the label to the other.
 private class SweepingLabelBrush(
 	private val sweep: State<Float>,
 	private val baseColor: Color,
-	private val lightColor: Color
+	private val highlightColor: Color
 ) : ShaderBrush() {
 	override fun createShader(size: Size): Shader {
 		val width = size.width
-		val shift = width * SWEEP_TRAVEL * sweep.value
+		val bandWidth = width * SWEEP_WIDTH_FRACTION
+		val start = (width + bandWidth) * sweep.value - bandWidth
 		return LinearGradientShader(
-			from = Offset(x = shift - width, y = 0f),
-			to = Offset(x = shift, y = 0f),
-			colors = listOf(baseColor, lightColor, baseColor),
-			colorStops = listOf(0f, SWEEP_HIGHLIGHT_STOP, 1f)
+			from = Offset(x = start, y = 0f),
+			to = Offset(x = start + bandWidth, y = 0f),
+			colors = listOf(baseColor, highlightColor, highlightColor, baseColor),
+			colorStops = listOf(0f, SWEEP_HIGHLIGHT_START, SWEEP_HIGHLIGHT_END, 1f)
 		)
 	}
 }

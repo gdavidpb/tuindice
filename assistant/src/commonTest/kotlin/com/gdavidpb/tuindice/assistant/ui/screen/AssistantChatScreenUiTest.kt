@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.assistant.ui.dialog
+package com.gdavidpb.tuindice.assistant.ui.screen
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
@@ -13,15 +13,12 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeDown
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.agentMessage
 import com.gdavidpb.tuindice.assistant.ui.contentState
-import com.gdavidpb.tuindice.assistant.ui.contextChip
+import com.gdavidpb.tuindice.assistant.ui.screenContext
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
-import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -31,17 +28,29 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class AssistantChatSheetUiTest {
+class AssistantChatScreenUiTest {
 	@Test
-	fun when_conversationIsOpen_then_theSheetNeverNamesTheAssistant() = runTuIndiceUiTest {
+	fun when_theScreenIsLoading_then_itsHeaderAndBackButtonAreAvailable() = runTuIndiceUiTest {
+		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			AssistantChatSheet(
+			AssistantChatScreen(state = AssistantChat.State.Idle, onAction = { actions.add(it) })
+		}
+
+		assertNodeVisible(AssistantUiTags.ChatTitle)
+		onNodeWithTag(AssistantUiTags.ChatBack).performClick()
+		assertIs<AssistantChat.Action.Dismiss>(actions.single())
+	}
+
+	@Test
+	fun when_conversationIsOpen_then_theScreenDoesNotNameTheApp() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatScreen(
 				state = contentState(items = listOf(agentMessage())),
 				onAction = {}
 			)
 		}
 
-		assertNodeVisible(AssistantUiTags.ChatSheet)
+		assertNodeVisible(AssistantUiTags.ChatScreen)
 		onAllNodes(hasText("TuIndice", substring = true, ignoreCase = true), useUnmergedTree = true)
 			.assertCountEquals(0)
 		onAllNodes(hasContentDescription("TuIndice", substring = true, ignoreCase = true), useUnmergedTree = true)
@@ -49,10 +58,10 @@ class AssistantChatSheetUiTest {
 	}
 
 	@Test
-	fun when_conversationIsOpen_then_theTitleAsistenteSitsAboveTheContextChip_afterTheSparkle() = runTuIndiceUiTest {
+	fun when_conversationIsOpen_then_theTitleSitsAboveTheMessages_afterTheSparkle() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			AssistantChatSheet(
-				state = contentState(context = contextChip(), items = listOf(agentMessage())),
+			AssistantChatScreen(
+				state = contentState(context = screenContext(), items = listOf(agentMessage())),
 				onAction = {}
 			)
 		}
@@ -62,10 +71,11 @@ class AssistantChatSheetUiTest {
 		val title = onNodeWithTag(AssistantUiTags.ChatTitle).fetchSemanticsNode().boundsInRoot
 		val sparkle = onNodeWithTag(AssistantUiTags.TitleSparkle, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 		val text = onNodeWithText(TITLE_TEXT, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-		val chip = onNodeWithTag(AssistantUiTags.ContextChip).fetchSemanticsNode().boundsInRoot
+		val messages = onNodeWithTag(AssistantUiTags.MessageList).fetchSemanticsNode().boundsInRoot
+		val back = onNodeWithTag(AssistantUiTags.ChatBack).fetchSemanticsNode().boundsInRoot
 
-		assertTrue(title.bottom <= chip.top)
-		assertEquals(chip.left, title.left)
+		assertTrue(title.bottom <= messages.top)
+		assertTrue(back.right <= title.left)
 		// The sparkle leads the title on its own line, centred on the text.
 		assertEquals(title.left, sparkle.left)
 		assertTrue(sparkle.right <= text.left)
@@ -73,23 +83,24 @@ class AssistantChatSheetUiTest {
 	}
 
 	@Test
-	fun when_consentIsRequired_then_theConsentTitleIsTheOnlyTitle() = runTuIndiceUiTest {
+	fun when_consentIsRequired_then_theScreenHeaderAndConsentTitleAreVisible() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			AssistantChatSheet(
+			AssistantChatScreen(
 				state = AssistantChat.State.ConsentRequired,
 				onAction = {}
 			)
 		}
 
 		assertNodeVisible(AssistantUiTags.ConsentView)
-		assertNodeHidden(AssistantUiTags.ChatTitle)
+		assertNodeVisible(AssistantUiTags.ChatTitle)
+		assertNodeVisible(AssistantUiTags.ConsentTitle)
 	}
 
 	@Test
-	fun when_consentIsRequired_then_theSheetAsksForAcceptance() = runTuIndiceUiTest {
+	fun when_consentIsRequired_then_theScreenAsksForAcceptance() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			AssistantChatSheet(
+			AssistantChatScreen(
 				state = AssistantChat.State.ConsentRequired,
 				onAction = { actions.add(it) }
 			)
@@ -102,48 +113,43 @@ class AssistantChatSheetUiTest {
 	}
 
 	@Test
-	fun when_theConversationArrivesWithAnimationsOff_then_theWholeSheetIsOnScreen_composerIncluded() = runTuIndiceUiTest {
-		// The opening as the route lives it with consent given: the sheet opens on Idle while the status is read, and the
-		// conversation arrives afterwards. With animations off nothing settles the sheet any further than it opens.
+	fun when_theConversationArrivesWithAnimationsOff_then_theComposerIsOnScreen() = runTuIndiceUiTest {
+		// The route opens on Idle while status is read; the conversation arrives afterwards.
 		val state = mutableStateOf<AssistantChat.State>(AssistantChat.State.Idle)
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
-				AssistantChatSheet(state = state.value, onAction = {})
+				AssistantChatScreen(state = state.value, onAction = {})
 			}
 		}
 
 		waitForIdle()
-		state.value = contentState(context = contextChip())
+		state.value = contentState(context = screenContext())
 		waitForIdle()
 
-		// The body takes the whole window: a sheet left half open would push the composer below the screen.
 		onNodeWithTag(AssistantUiTags.Composer).assertIsDisplayed()
 		onNodeWithTag(AssistantUiTags.SendButton).assertIsDisplayed()
 	}
 
 	@Test
-	fun when_theSheetIsDraggedDown_then_theChatIsDismissed() = runTuIndiceUiTest {
+	fun when_backIsTapped_then_theChatIsDismissed() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			AssistantChatSheet(
-				state = contentState(context = contextChip(), items = listOf(agentMessage())),
+			AssistantChatScreen(
+				state = contentState(context = screenContext(), items = listOf(agentMessage())),
 				onAction = { actions.add(it) }
 			)
 		}
 
-		waitForIdle()
-		// The body takes the whole window, so there is no scrim left above it to tap: the sheet is closed by dragging it
-		// down from its title.
-		onNodeWithText(TITLE_TEXT).performTouchInput { swipeDown() }
+		onNodeWithTag(AssistantUiTags.ChatBack).performClick()
 		waitForIdle()
 
 		assertTrue(actions.any { it is AssistantChat.Action.Dismiss }, "actions were $actions")
 	}
 
 	@Test
-	fun when_aNoticeIsShown_then_itSitsInsideTheSheetRightAboveTheComposer() = runTuIndiceUiTest {
-		// The route shows the notices through the sheet's host; the test shows one the same way, from a composition.
+	fun when_aNoticeIsShown_then_itSitsInsideTheScreenRightAboveTheComposer() = runTuIndiceUiTest {
+		// The route shows the notices through the screen's host; the test shows one the same way.
 		val hostState = SnackbarHostState()
 		val notice = mutableStateOf<String?>(null)
 
@@ -152,7 +158,7 @@ class AssistantChatSheetUiTest {
 				LaunchedEffect(notice.value) {
 					notice.value?.let { message -> hostState.showSnackbar(message) }
 				}
-				AssistantChatSheet(
+				AssistantChatScreen(
 					state = contentState(items = listOf(agentMessage())),
 					onAction = {},
 					snackbarHostState = hostState
@@ -170,7 +176,7 @@ class AssistantChatSheetUiTest {
 			.assertIsDisplayed()
 		onNodeWithTag(AssistantUiTags.Composer).assertIsDisplayed()
 
-		// Both are in the sheet's own window, so their bounds compare: the notice sits right above the composer.
+		// The notice sits right above the composer.
 		val snackbar = onNodeWithTag(AssistantUiTags.ChatSnackbar).fetchSemanticsNode().boundsInRoot
 		val composer = onNodeWithTag(AssistantUiTags.Composer).fetchSemanticsNode().boundsInRoot
 		assertTrue(snackbar.bottom <= composer.top, "the notice is not above the composer: $snackbar over $composer")

@@ -18,8 +18,7 @@ import com.gdavidpb.tuindice.base.ui.icon.rememberAssistantSparkleIcon
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
-// The title of the assistant's sheets (the chat and its consent): the sparkle in the accent, on the same line and at
-// the start, then the text with the style of the app's sheets (ConfirmationDialog). The row reads as its text alone.
+// The assistant's title: the sparkle in the accent on the same line as its name. The row reads as its text alone.
 @Composable
 fun AssistantSheetTitleView(
 	text: String,

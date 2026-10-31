@@ -9,12 +9,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.ui.style.AssistantChatMotion
 import com.gdavidpb.tuindice.base.ui.LocalTuIndiceCompositionProbe
@@ -29,6 +31,30 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class AssistantRevealedTextViewUiTest {
+	@Test
+	fun when_theAnswerHasBoldMarkers_then_itsVisibleTextHasBoldSpans() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantRevealedTextView(text = MARKED_TEXT, animate = false)
+		}
+
+		assertBoldAnswer()
+	}
+
+	@Test
+	fun when_aBoldAnswerIsRevealing_then_itsSpansRemainBoldFromStartToFinish() = runTuIndiceUiTest {
+		mainClock.autoAdvance = false
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides true) {
+				AssistantRevealedTextView(text = MARKED_TEXT, animate = true)
+			}
+		}
+		waitForIdle()
+		assertBoldAnswer()
+
+		advanceAnimationsBy(AssistantChatMotion.RevealMaxMillis.toLong() * 2)
+		assertBoldAnswer()
+	}
+
 	// A behavior test of the view, not a regression test: the whole text is in the node from the first frame.
 	@Test
 	fun when_textIsRevealing_then_theWholeTextIsThereFromTheFirstFrame() = runTuIndiceUiTest {
@@ -81,6 +107,15 @@ class AssistantRevealedTextViewUiTest {
 }
 
 @OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.assertBoldAnswer() {
+	val text = onNodeWithText(DISPLAYED_TEXT).fetchSemanticsNode().config[SemanticsProperties.Text].single()
+
+	assertEquals(DISPLAYED_TEXT, text.text)
+	assertEquals(listOf("promedio acumulado", "16,2"), text.spanStyles.map { text.text.substring(it.start, it.end) })
+	assertEquals(listOf(FontWeight.Bold, FontWeight.Bold), text.spanStyles.map { it.item.fontWeight })
+}
+
+@OptIn(ExperimentalTestApi::class)
 private fun ComposeUiTest.setRevealedTextHost() {
 	setTuIndiceTestContent {
 		CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides true) {
@@ -120,6 +155,8 @@ private fun Color.isStronglyDifferentFrom(other: Color): Boolean =
 
 // Seven words: the reveal lasts 300 ms, so the middle of it falls well inside the frames the test advances.
 private const val REVEALED_TEXT = "Una respuesta que llega palabra por palabra"
+private const val MARKED_TEXT = "Tu **promedio acumulado** es **16,2**."
+private const val DISPLAYED_TEXT = "Tu promedio acumulado es 16,2."
 private const val REVEALED_TEXT_PROBE_NAME = "revealed-text"
 private const val MID_REVEAL_MILLIS = 100L
 private const val HOST_TAG = "revealed_text_pixel_host"

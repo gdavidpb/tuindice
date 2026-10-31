@@ -9,3 +9,6 @@ and the reason no scenario does. `ActionDispositions.kt` in `scenarios/` names t
 listed there as a platform edge never also appears in a scenario's `covers`.
 
 A behavior that a scenario can drive does not belong here: it goes in the catalog (`e2e/README.md`, "Add a scenario").
+
+The [assistant keyboard note](assistant-keyboard.md) also records OS keyboard behavior that the deterministic typing
+scenario cannot verify; this does not introduce a separate presentation action.
