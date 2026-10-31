@@ -12,6 +12,11 @@ on:
         description: Production commit SHA to deploy. Defaults to the current workflow SHA.
         required: false
         type: string
+      diagnose_play_only:
+        description: Inspect Google Play without committing an edit.
+        required: false
+        type: boolean
+        default: false
 
 # Deploys queue instead of cancelling: an interrupted upload must finish (it
 # is idempotent) before the next deploy is evaluated.
@@ -35,8 +40,72 @@ env:
   TUINDICE_UPLOAD_CRASHLYTICS_MAPPING: "1"
 
 jobs:
+  diagnose-play:
+    name: Diagnose Google Play rejection
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.diagnose_play_only == true }}
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - name: Check out diagnostic branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Download the existing production release artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: production-release-a574257455be9561cc67dc74e8736416907d6d70
+          run-id: 41214852125
+          github-token: ${{ github.token }}
+          path: build/diagnostic-production-release
+
+      - name: Validate the existing release artifact
+        env:
+          TARGET_GIT_SHA: a574257455be9561cc67dc74e8736416907d6d70
+          RELEASE_ARTIFACT_DIR: build/diagnostic-production-release
+        run: bash ./.github/scripts/production-release-artifact.sh validate-manifest
+
+      - name: Authenticate to Google Play
+        id: google-auth
+        uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 # v2.1.10
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_PLAY_PUBLISHER_SERVICE_ACCOUNT }}
+          project_id: ${{ env.GCP_PROJECT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
+
+      - name: Inspect Play and reproduce without committing
+        env:
+          ANDROID_PUBLISHER_ACCESS_TOKEN: ${{ steps.google-auth.outputs.access_token }}
+          ANDROID_AAB_PATH: build/diagnostic-production-release/android/app-release.aab
+        run: |
+          set -euo pipefail
+          url="https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${ANDROID_PACKAGE_NAME}/tracks/${GOOGLE_PLAY_TRACK}/releases"
+          if curl --fail-with-body --silent --show-error -H "Authorization: Bearer ${ANDROID_PUBLISHER_ACCESS_TOKEN}" "$url" -o "${RUNNER_TEMP}/releases.json"; then
+            jq '[.releases[]? | {releaseName, releaseLifecycleState, activeArtifacts}]' "${RUNNER_TEMP}/releases.json"
+          else
+            printf 'Unable to list release summaries; continuing with the edit diagnostic.\n' >&2
+            cat "${RUNNER_TEMP}/releases.json" >&2 || true
+          fi
+
+          # Modify only this disposable runner checkout. Fail closed if the commit call changes.
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('.github/scripts/publish-google-play-draft.sh')
+          script = path.read_text()
+          commit = 'api_post "${API_ROOT}/edits/${EDIT_ID}:commit" >/dev/null'
+          assert script.count(commit) == 1, 'Cannot safely disable the edit commit'
+          script = script.replace(commit, 'info "Diagnostic only: discarding the edit before commit."\nexit 0')
+          marker = '# edits.tracks.update replaces the whole track resource'
+          assert script.count(marker) == 1, 'Cannot locate track state reporting point'
+          script = script.replace(marker, 'jq -c "[.releases[]? | {name, status, versionCodes}]" "$TRACK_STATE"\n' + marker)
+          path.write_text(script)
+          PY
+          bash ./.github/scripts/publish-google-play-draft.sh
+
   resolve-artifact:
     name: Resolve production artifact
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.diagnose_play_only != true }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     outputs:
