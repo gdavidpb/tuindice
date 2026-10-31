@@ -388,10 +388,23 @@ class AssistantChatTurnBehaviorTest {
 		)
 		viewModel.openAction(null)
 		assertTrue(viewModel.content().composer.isStoppable)
+		viewModel.changeTextAction("Otra pregunta")
 
 		viewModel.cancelTurnAction()
 
 		assertEquals(listOf("t1"), fixture.turns.cancelled)
+		assertFalse(viewModel.content().composer.isStoppable)
+		assertTrue(viewModel.content().composer.isSendEnabled)
+
+		fixture.conversation.conversation.value = assistantConversation(
+			activeTurn = AssistantActiveTurn(
+				turnId = "t1",
+				lastSeq = 4,
+				progressLabel = "Cancelando…",
+				status = AssistantTurnPhase.RUNNING
+			)
+		)
+		assertFalse(viewModel.content().composer.isStoppable)
 	}
 
 	@Test
