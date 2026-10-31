@@ -84,13 +84,35 @@ api_get_json() {
 api_put_json() {
 	local url="$1"
 	local json_file="$2"
-	curl --fail --silent --show-error \
-		-X PUT \
-		-H "Authorization: Bearer ${ACCESS_TOKEN}" \
-		-H "Accept: application/json" \
-		-H "Content-Type: application/json" \
-		--data-binary "@${json_file}" \
-		"$url"
+	local response_file
+	local status_code
+	local curl_status
+
+	response_file="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-play-response.XXXXXX")"
+	if status_code="$(
+		curl --silent --show-error \
+			-X PUT \
+			-H "Authorization: Bearer ${ACCESS_TOKEN}" \
+			-H "Accept: application/json" \
+			-H "Content-Type: application/json" \
+			--data-binary "@${json_file}" \
+			-o "$response_file" \
+			-w '%{http_code}' \
+			"$url"
+	)"; then
+		if [[ ! "$status_code" =~ ^2[0-9][0-9]$ ]]; then
+			cat "$response_file" >&2 || true
+			rm -f "$response_file"
+			die "Google Play API PUT failed with HTTP ${status_code}: ${url}"
+		fi
+		cat "$response_file"
+	else
+		curl_status="$?"
+		cat "$response_file" >&2 || true
+		rm -f "$response_file"
+		return "$curl_status"
+	fi
+	rm -f "$response_file"
 }
 
 api_delete() {

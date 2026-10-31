@@ -37,6 +37,8 @@ put_payload="${TUINDICE_GOOGLE_PLAY_TEST_PUT_PAYLOAD:-}"
 method="GET"
 output_file=""
 data_binary=""
+write_status=0
+fail_on_http=0
 url=""
 
 while [[ "$#" -gt 0 ]]; do
@@ -49,13 +51,20 @@ while [[ "$#" -gt 0 ]]; do
 			if [[ "$1" == "-o" ]]; then
 				output_file="$2"
 			fi
+			if [[ "$1" == "-w" ]]; then
+				write_status=1
+			fi
 			shift 2
 			;;
 		--data-binary)
 			data_binary="${2#@}"
 			shift 2
 			;;
-		--fail|--silent|--show-error)
+		--fail)
+			fail_on_http=1
+			shift
+			;;
+		--silent|--show-error)
 			shift
 			;;
 		*)
@@ -125,7 +134,25 @@ case "$method:$url" in
 			exit 1
 		}
 		cp "$data_binary" "$put_payload"
-		printf '{}\n'
+		if [[ "$mode" == "publish-put-error" ]]; then
+			if [[ "$fail_on_http" == "1" ]]; then
+				printf 'curl: (22) The requested URL returned error: 400\n' >&2
+				exit 22
+			fi
+			if [[ -n "$output_file" ]]; then
+				printf '{"error":{"message":"Play track rejects request"}}\n' >"$output_file"
+			else
+				printf '{"error":{"message":"Play track rejects request"}}\n'
+			fi
+			[[ "$write_status" != "1" ]] || printf '400'
+		else
+			if [[ -n "$output_file" ]]; then
+				printf '{}\n' >"$output_file"
+			else
+				printf '{}\n'
+			fi
+			[[ "$write_status" != "1" ]] || printf '200'
+		fi
 		;;
 	POST:*/edits/*:commit)
 		printf '{"id":"edit-1"}\n'
@@ -237,9 +264,45 @@ run_google_play_publish_fixture() {
 	fi
 }
 
+run_google_play_put_error_fixture() {
+	local temp_dir
+	temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-google-play-error-test.XXXXXX")"
+	mkdir -p "${temp_dir}/bin"
+	printf 'staged-bundle\n' >"${temp_dir}/app-release.aab"
+	write_google_play_curl_stub "${temp_dir}/bin"
+
+	if (
+		cd "$REPO_ROOT"
+		PATH="${temp_dir}/bin:${PATH}" \
+		RUNNER_TEMP="$temp_dir" \
+		ANDROID_PUBLISHER_ACCESS_TOKEN="test-token" \
+		ANDROID_AAB_PATH="${temp_dir}/app-release.aab" \
+		TUINDICE_GOOGLE_PLAY_TEST_MODE="publish-put-error" \
+		TUINDICE_GOOGLE_PLAY_TEST_VERSION_CODE="$ANDROID_VERSION_CODE" \
+		TUINDICE_GOOGLE_PLAY_TEST_PUT_PAYLOAD="${temp_dir}/payload.json" \
+			bash ./.github/scripts/publish-google-play-draft.sh
+	) >"${temp_dir}/output.log" 2>&1; then
+		printf 'Expected Google Play track update to fail.\n' >&2
+		exit 1
+	fi
+
+	if ! grep -Fq 'Play track rejects request' "${temp_dir}/output.log"; then
+		printf 'Expected the Google Play error response in the log, got:\n' >&2
+		cat "${temp_dir}/output.log" >&2
+		exit 1
+	fi
+	if ! grep -Fq 'Google Play API PUT failed with HTTP 400' "${temp_dir}/output.log" ||
+		! grep -Fq 'Deleting uncommitted Google Play edit' "${temp_dir}/output.log"; then
+		printf 'Expected the HTTP status and edit cleanup in the log, got:\n' >&2
+		cat "${temp_dir}/output.log" >&2
+		exit 1
+	fi
+}
+
 run_google_play_check_fixture missing false ""
 run_google_play_check_fixture exists true draft
 run_google_play_publish_fixture publish-preserves-releases "40,41,${ANDROID_VERSION_CODE}"
 run_google_play_publish_fixture publish-first-release "${ANDROID_VERSION_CODE}"
+run_google_play_put_error_fixture
 
 printf 'Google Play draft fixtures passed for %s (%s).\n' "$VERSION_NAME" "$ANDROID_VERSION_CODE"
