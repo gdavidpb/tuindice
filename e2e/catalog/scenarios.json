@@ -35222,14 +35222,17 @@
                     "type": "waitGone"
                 },
                 {
+                    "durationMs": 400,
+                    "dx": 0.0,
+                    "dy": 0.6,
+                    "from": null,
                     "fx": 0.5,
                     "fy": 0.08,
-                    "q": null,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AssistantScenarios.kt",
                         "line": 350
                     },
-                    "type": "tapAt"
+                    "type": "swipe"
                 },
                 {
                     "q": {
@@ -35306,7 +35309,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "dcfae16e10ffa7e8",
+            "stepsHash": "261f5fd815b7062c",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -35581,14 +35584,17 @@
                     "type": "waitVisible"
                 },
                 {
+                    "durationMs": 400,
+                    "dx": 0.0,
+                    "dy": 0.6,
+                    "from": null,
                     "fx": 0.5,
                     "fy": 0.08,
-                    "q": null,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AssistantScenarios.kt",
                         "line": 386
                     },
-                    "type": "tapAt"
+                    "type": "swipe"
                 },
                 {
                     "q": {
@@ -35639,7 +35645,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "211e47f266a485fe",
+            "stepsHash": "03e76ca591a705ae",
             "tags": [],
             "timeoutSeconds": 180
         },

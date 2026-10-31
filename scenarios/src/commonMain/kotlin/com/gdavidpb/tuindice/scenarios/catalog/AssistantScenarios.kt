@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.scenariokit.dsl.mockState
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
-import com.gdavidpb.tuindice.scenariokit.dsl.tapAtScreen
+import com.gdavidpb.tuindice.scenariokit.dsl.swipePoints
 import com.gdavidpb.tuindice.scenariokit.dsl.text
 import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
@@ -30,11 +30,11 @@ import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.showGradedEvaluation
 import com.gdavidpb.tuindice.scenarios.shared.showWeekOfGradedEvaluation
 
-// A point of the scrim above the chat sheet. The sheet fills the bottom nine tenths of the screen, so the scrim is
-// the top tenth, less the drag handle: the point lies under the status bar (about 7 % of the screen on notched
-// iPhones) and above the sheet's edge (about 9 %), at 8 % from the top.
-private const val SCRIM_ABOVE_SHEET_X = 0.5
-private const val SCRIM_ABOVE_SHEET_Y = 0.08
+// The sheet fills the available window, so the 8 % point lands on its drag handle rather than a tappable scrim.
+// Drag down from that handle to dismiss it.
+private const val CHAT_SHEET_HANDLE_X = 0.5
+private const val CHAT_SHEET_HANDLE_Y = 0.08
+private const val CHAT_SHEET_DISMISS_DRAG_Y = 0.6
 
 /** Taps the assistant's sparkle in the top bar and waits for the chat sheet. */
 private fun StepBuilder.openAssistant() {
@@ -347,7 +347,7 @@ private val assistantEvaluationsCard = scenario(
 	waitVisible(text(Copy.EvaluationNoGrade), Within.Assert)
 	waitGone(text(Copy.AssistantEvaluationPending), Within.Assert)
 	// The tab, on the week of that evaluation, shows it the same way.
-	tapAtScreen(SCRIM_ABOVE_SHEET_X, SCRIM_ABOVE_SHEET_Y)
+	swipePoints(CHAT_SHEET_HANDLE_X, CHAT_SHEET_HANDLE_Y, 0.0, CHAT_SHEET_DISMISS_DRAG_Y)
 	waitGone(AssistantUiTags.ChatSheet, Within.Action)
 	showWeekOfGradedEvaluation()
 	waitVisible(EvaluationsUiTags.evaluationItemCard(overdue), Within.Action)
@@ -381,9 +381,9 @@ private val assistantReopenWithConsent = scenario(
 
 	openAssistant()
 	acceptConsent()
-	// The sheet is closed by a tap on the scrim above it, and the sparkle opens it again: the consent is given, so it
-	// opens straight into the conversation, with the field in view.
-	tapAtScreen(SCRIM_ABOVE_SHEET_X, SCRIM_ABOVE_SHEET_Y)
+	// Drag down from the handle to close the sheet. Consent is given, so the sparkle reopens straight into the conversation,
+	// with the composer in view.
+	swipePoints(CHAT_SHEET_HANDLE_X, CHAT_SHEET_HANDLE_Y, 0.0, CHAT_SHEET_DISMISS_DRAG_Y)
 	waitGone(AssistantUiTags.ChatSheet, Within.Action)
 	openAssistant()
 	waitVisible(AssistantUiTags.Composer, Within.Action)
