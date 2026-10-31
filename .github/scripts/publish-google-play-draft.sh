@@ -138,6 +138,7 @@ trap cleanup_edit EXIT
 
 TRACK_STATE="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-play-track-state.XXXXXX")"
 TRACK_EXISTS=0
+DRAFT_TO_REPLACE='{}'
 if api_get_json "${API_ROOT}/edits/${EDIT_ID}/tracks/${GOOGLE_PLAY_TRACK}" "$TRACK_STATE"; then
 	TRACK_EXISTS=1
 	EXISTING_RELEASE_STATUS="$(
@@ -154,6 +155,23 @@ if api_get_json "${API_ROOT}/edits/${EDIT_ID}/tracks/${GOOGLE_PLAY_TRACK}" "$TRA
 		write_release_exists_state "true" "$EXISTING_RELEASE_STATUS"
 		info "Google Play release for ${VERSION_NAME} (${ANDROID_VERSION_CODE}) already exists on track ${GOOGLE_PLAY_TRACK} with status ${EXISTING_RELEASE_STATUS}; skipping bundle upload."
 		exit 0
+	fi
+
+	DRAFT_COUNT="$(jq '[.releases[]? | select(.status == "draft")] | length' "$TRACK_STATE")"
+	if (( DRAFT_COUNT > 1 )); then
+		die "Google Play track ${GOOGLE_PLAY_TRACK} has multiple draft releases; resolve them before publishing ${VERSION_NAME} (${ANDROID_VERSION_CODE})."
+	fi
+	if (( DRAFT_COUNT == 1 )); then
+		DRAFT_TO_REPLACE="$(jq -c '[.releases[]? | select(.status == "draft")][0]' "$TRACK_STATE")"
+		if ! jq -e --arg version_code "$ANDROID_VERSION_CODE" '
+			(.versionCodes // []) as $codes
+			| if ($codes | type) != "array" or ($codes | length) != 1 then false
+			  elif ($codes[0] | tostring | test("^[0-9]+$") | not) then false
+			  else ($codes[0] | tonumber) < ($version_code | tonumber) end
+		' <<<"$DRAFT_TO_REPLACE" >/dev/null; then
+			die "Google Play track ${GOOGLE_PLAY_TRACK} has a newer or ambiguous draft; refusing to replace it with ${VERSION_NAME} (${ANDROID_VERSION_CODE})."
+		fi
+		info "Replacing an older Google Play draft on track ${GOOGLE_PLAY_TRACK} with ${VERSION_NAME} (${ANDROID_VERSION_CODE})."
 	fi
 else
 	info "Google Play track ${GOOGLE_PLAY_TRACK} does not exist in edit ${EDIT_ID}; continuing with first draft upload."
@@ -183,8 +201,7 @@ UPLOADED_VERSION_CODE="$(
 [[ -n "$UPLOADED_VERSION_CODE" ]] || die "Google Play bundle upload did not return a versionCode."
 [[ "$UPLOADED_VERSION_CODE" == "$ANDROID_VERSION_CODE" ]] || die "Uploaded versionCode ${UPLOADED_VERSION_CODE} does not match $(app_version_file) androidVersionCode ${ANDROID_VERSION_CODE}."
 
-# edits.tracks.update replaces the whole track resource, so every release that
-# is not the one being published has to be sent back untouched.
+# Preserve the other releases returned for the track in the update request.
 PRESERVED_RELEASES='[]'
 if [[ "$TRACK_EXISTS" == "1" ]]; then
 	PRESERVED_RELEASES="$(
@@ -192,6 +209,7 @@ if [[ "$TRACK_EXISTS" == "1" ]]; then
 			--arg version_code "$ANDROID_VERSION_CODE" \
 			'[
 				.releases[]?
+				| select(.status != "draft")
 				| select(any(.versionCodes[]?; tostring == $version_code) | not)
 			]' \
 			"$TRACK_STATE"
@@ -204,15 +222,16 @@ jq -n \
 	--arg release_name "${VERSION_NAME} (${ANDROID_VERSION_CODE})" \
 	--arg version_code "$ANDROID_VERSION_CODE" \
 	--argjson preserved_releases "$PRESERVED_RELEASES" \
+	--argjson previous_draft "$DRAFT_TO_REPLACE" \
 	'{
 		track: $track,
 		releases: (
 			$preserved_releases + [
-				{
+				(($previous_draft | {releaseNotes, inAppUpdatePriority} | with_entries(select(.value != null))) + {
 					name: $release_name,
-					versionCodes: [($version_code | tonumber)],
+					versionCodes: [$version_code],
 					status: "draft"
-				}
+				})
 			]
 		)
 	}' >"$TRACK_PAYLOAD"

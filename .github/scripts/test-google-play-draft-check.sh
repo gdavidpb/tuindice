@@ -94,20 +94,22 @@ case "$method:$url" in
 					]
 				}' >"$output_file"
 				;;
-			publish-preserves-releases)
-				jq -n '{
-					releases: [
+			publish-preserves-releases|publish-replaces-draft|check-older-draft|newer-draft|unknown-draft|multiple-drafts|multiple-codes)
+				jq -n --arg mode "$mode" --argjson version_code "$version_code" '{
+					releases: ([
 						{
 							name: "6.0.0 (40)",
 							status: "completed",
 							versionCodes: [40]
 						},
-						{
+						({
 							name: "6.1.0 (41)",
-							status: "draft",
-							versionCodes: [41]
-						}
-					]
+							status: (if $mode == "publish-preserves-releases" then "inProgress" else "draft" end),
+							versionCodes: (if $mode == "newer-draft" then [($version_code + 1)] elif $mode == "unknown-draft" then [] elif $mode == "multiple-codes" then ["41", "42"] else ["41"] end),
+							releaseNotes: [{language: "es-419", text: "Notas anteriores"}],
+							inAppUpdatePriority: 1
+						} + (if $mode == "publish-preserves-releases" then {userFraction: 0.1} else {} end))
+					] + (if $mode == "multiple-drafts" then [{name: "Second draft", status: "draft", versionCodes: ["42"]}] else [] end))
 				}' >"$output_file"
 				;;
 			publish-first-release)
@@ -262,6 +264,25 @@ run_google_play_publish_fixture() {
 		printf 'Expected fixture %s to publish version code %s as a draft, got "%s".\n' "$name" "$ANDROID_VERSION_CODE" "$published_status" >&2
 		exit 1
 	fi
+	if [[ "$name" == "publish-preserves-releases" ]] && ! jq -e \
+		'any(.releases[]; .status == "completed" and .versionCodes == [40]) and
+		 any(.releases[]; .status == "inProgress" and .userFraction == 0.1 and .versionCodes == ["41"])' \
+		"$track_payload" >/dev/null; then
+		printf 'Expected existing production releases to remain unchanged, got:\n' >&2
+		cat "$track_payload" >&2
+		exit 1
+	fi
+	if [[ "$name" == "publish-replaces-draft" ]] && ! jq -e \
+		--arg version_code "$ANDROID_VERSION_CODE" \
+		--arg release_name "${VERSION_NAME} (${ANDROID_VERSION_CODE})" \
+		'([.releases[] | select(.status == "draft")] | length == 1) and
+		 any(.releases[]; .status == "draft" and (.versionCodes | map(tostring)) == [$version_code] and
+		   .name == $release_name and .releaseNotes == [{language: "es-419", text: "Notas anteriores"}] and .inAppUpdatePriority == 1)' \
+		"$track_payload" >/dev/null; then
+		printf 'Expected one updated draft retaining its notes and priority, got:\n' >&2
+		cat "$track_payload" >&2
+		exit 1
+	fi
 }
 
 run_google_play_put_error_fixture() {
@@ -299,10 +320,47 @@ run_google_play_put_error_fixture() {
 	fi
 }
 
+run_google_play_conflicting_draft_fixture() {
+	local mode="$1"
+	local temp_dir
+	temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-google-play-conflict-test.XXXXXX")"
+	mkdir -p "${temp_dir}/bin"
+	printf 'staged-bundle\n' >"${temp_dir}/app-release.aab"
+	write_google_play_curl_stub "${temp_dir}/bin"
+
+	if (
+		cd "$REPO_ROOT"
+		PATH="${temp_dir}/bin:${PATH}" \
+		RUNNER_TEMP="$temp_dir" \
+		ANDROID_PUBLISHER_ACCESS_TOKEN="test-token" \
+		ANDROID_AAB_PATH="${temp_dir}/app-release.aab" \
+		TUINDICE_GOOGLE_PLAY_TEST_MODE="$mode" \
+		TUINDICE_GOOGLE_PLAY_TEST_VERSION_CODE="$ANDROID_VERSION_CODE" \
+		TUINDICE_GOOGLE_PLAY_TEST_PUT_PAYLOAD="${temp_dir}/payload.json" \
+			bash ./.github/scripts/publish-google-play-draft.sh
+	) >"${temp_dir}/output.log" 2>&1; then
+		printf 'Expected ambiguous or newer drafts to block publishing.\n' >&2
+		exit 1
+	fi
+
+	if ! grep -Fq 'draft' "${temp_dir}/output.log" ||
+		grep -Fq 'Uploading ' "${temp_dir}/output.log" || [[ -e "${temp_dir}/payload.json" ]]; then
+		printf 'Expected an actionable conflict before uploading, got:\n' >&2
+		cat "${temp_dir}/output.log" >&2
+		exit 1
+	fi
+}
+
 run_google_play_check_fixture missing false ""
 run_google_play_check_fixture exists true draft
+run_google_play_check_fixture check-older-draft false ""
 run_google_play_publish_fixture publish-preserves-releases "40,41,${ANDROID_VERSION_CODE}"
 run_google_play_publish_fixture publish-first-release "${ANDROID_VERSION_CODE}"
+run_google_play_publish_fixture publish-replaces-draft "40,${ANDROID_VERSION_CODE}"
 run_google_play_put_error_fixture
+run_google_play_conflicting_draft_fixture newer-draft
+run_google_play_conflicting_draft_fixture unknown-draft
+run_google_play_conflicting_draft_fixture multiple-drafts
+run_google_play_conflicting_draft_fixture multiple-codes
 
 printf 'Google Play draft fixtures passed for %s (%s).\n' "$VERSION_NAME" "$ANDROID_VERSION_CODE"
