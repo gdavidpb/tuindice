@@ -32757,7 +32757,7 @@
                 {
                     "q": {
                         "type": "tag",
-                        "value": "assistant_photo_button"
+                        "value": "assistant_attach_button"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AssistantScenarios.kt",
@@ -32904,7 +32904,7 @@
                     "type": "expectRequest"
                 }
             ],
-            "stepsHash": "e53d974f121c54eb",
+            "stepsHash": "bda74c4d98763b56",
             "tags": [
                 "smoke"
             ],
