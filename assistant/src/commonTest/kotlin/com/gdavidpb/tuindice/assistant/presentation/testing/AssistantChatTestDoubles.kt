@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.testing
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantActiveTurn
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentFailure
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnFailure
@@ -70,8 +71,6 @@ internal object FakeAssistantChatIntentTexts : AssistantChatIntentTexts {
 }
 
 internal object FakeAssistantChatProgressTexts : AssistantChatProgressTexts {
-	override suspend fun photoReading(): String = "photo-reading"
-
 	override suspend fun sending(): String = "sending"
 }
 
@@ -89,6 +88,12 @@ internal class FakeAssistantChatTexts :
 	override suspend fun undated(): String = "undated"
 
 	override suspend fun guided(): String = "guided"
+
+	override suspend fun attachmentFailure(failure: AssistantAttachmentFailure): String = "failure:$failure"
+
+	override suspend fun attachmentPages(pages: Int): String = "pages:$pages"
+
+	override suspend fun attachmentLimit(): String = "attachment-limit"
 
 	override suspend fun quotaExhausted(retryAfterSeconds: Int?): String = "quota:$retryAfterSeconds"
 

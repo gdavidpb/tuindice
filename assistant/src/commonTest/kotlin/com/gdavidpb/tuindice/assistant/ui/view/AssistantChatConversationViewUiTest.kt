@@ -333,7 +333,6 @@ class AssistantChatConversationViewUiTest {
 					items = waiting.items + agentMessage(id = "reply", text = "Respuesta"),
 					progressLabel = PHOTO_PROGRESS,
 					progressAnchorId = "reply",
-					isExtracting = true,
 					composer = waiting.composer.copy(isStoppable = false)
 				),
 				onAction = {},

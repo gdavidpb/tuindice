@@ -346,7 +346,7 @@ class AssistantChatTurnBehaviorTest {
 		val content = viewModel.content()
 		assertTrue(content.isSending)
 		assertFalse(content.composer.isSendEnabled)
-		assertFalse(content.composer.isPhotoEnabled)
+		assertFalse(content.composer.isAttachEnabled)
 		assertTrue(content.suggestions.isEmpty())
 	}
 

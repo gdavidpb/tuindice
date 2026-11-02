@@ -16,28 +16,31 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmProjectionIntentUse
 import com.gdavidpb.tuindice.assistant.domain.usecase.ConfirmRememberIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DelegateEnrollmentProofIntentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseCase
-import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantEvaluationCardsUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.PrepareAssistantAttachmentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.RateAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ReportAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ResumeAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageHandling
 import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.UploadAssistantAttachmentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantAppealExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
-import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ExtractEvaluationsFromPhotoExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.PrepareAssistantAttachmentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ReportAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.SendAssistantMessageExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.UploadAssistantAttachmentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.AppealAssistantRestrictionParamsValidator
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.ReportAssistantMessageParamsValidator
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.SendAssistantMessageParamsValidator
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatAccess
+import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatAttachments
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatConversation
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatFeedback
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatIntents
@@ -50,9 +53,10 @@ import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewM
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantEvaluationCardRepository
 import com.gdavidpb.tuindice.assistant.testing.FixedClock
+import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantAttachmentFileRepository
+import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantAttachmentRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantConsentRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantEvaluationsRepository
-import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantFeedbackRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantMemoryRepository
@@ -109,7 +113,8 @@ internal class AssistantChatFixture(
 	val serverDisabled = RecordingAssistantServerDisabledRepository()
 	val clientState = FakeAssistantClientStateRepository()
 	val imageEncoder = RecordingImageEncoderRepository()
-	val extraction = RecordingAssistantExtractionRepository()
+	val attachmentRepository = RecordingAssistantAttachmentRepository()
+	val attachmentFiles = RecordingAssistantAttachmentFileRepository()
 	val appEnvironment = FakeAppEnvironmentRepository()
 	val effects = mutableListOf<AssistantChat.Effect>()
 
@@ -174,8 +179,25 @@ internal class AssistantChatFixture(
 		)
 	}
 
+	private fun createAttachments(): AssistantChatAttachments {
+		return AssistantChatAttachments(
+			prepareAssistantAttachmentUseCase = PrepareAssistantAttachmentUseCase(
+				imageEncoderRepository = imageEncoder,
+				fileRepository = attachmentFiles,
+				reportingRepository = reporting,
+				exceptionHandler = PrepareAssistantAttachmentExceptionHandler()
+			),
+			uploadAssistantAttachmentUseCase = UploadAssistantAttachmentUseCase(
+				attachmentRepository = attachmentRepository,
+				reportingRepository = reporting,
+				exceptionHandler = UploadAssistantAttachmentExceptionHandler()
+			)
+		)
+	}
+
 	private fun createTurns(turnStream: AssistantTurnStream): AssistantChatTurns {
 		return AssistantChatTurns(
+			attachments = createAttachments(),
 			conversation = AssistantChatConversation(
 				observeAssistantConversationUseCase = ObserveAssistantConversationUseCase(conversation, reporting),
 				getAssistantEvaluationCardsUseCase = GetAssistantEvaluationCardsUseCase(evaluationCards, reporting)
@@ -193,14 +215,6 @@ internal class AssistantChatFixture(
 					paramsValidator = SendAssistantMessageParamsValidator(),
 					exceptionHandler = SendAssistantMessageExceptionHandler()
 				)
-			),
-			extractEvaluationsFromPhotoUseCase = ExtractEvaluationsFromPhotoUseCase(
-				imageEncoderRepository = imageEncoder,
-				extractionRepository = extraction,
-				conversationRepository = conversation,
-				clock = clock,
-				reportingRepository = reporting,
-				exceptionHandler = ExtractEvaluationsFromPhotoExceptionHandler()
 			)
 		)
 	}

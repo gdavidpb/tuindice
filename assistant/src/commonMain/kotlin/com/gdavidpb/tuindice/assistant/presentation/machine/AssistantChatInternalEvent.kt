@@ -1,10 +1,14 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentFailure
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
-import com.gdavidpb.tuindice.assistant.domain.usecase.error.ExtractEvaluationsFromPhotoError
+import com.gdavidpb.tuindice.assistant.domain.model.PreparedAssistantAttachment
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
+import com.gdavidpb.tuindice.assistant.domain.usecase.error.UploadAssistantAttachmentError
 import com.gdavidpb.tuindice.base.ui.model.EvaluationCardItem
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseStanding
+import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentAccepted
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 
 /**
@@ -43,7 +47,8 @@ sealed interface AssistantChatInternalEvent {
 		val lastSeq: Long,
 		val text: String,
 		val clientTurnId: String,
-		val suggestionId: String? = null
+		val suggestionId: String? = null,
+		val attachments: List<AssistantAttachment> = emptyList()
 	) : AssistantChatInternalEvent
 
 	data object SendDisabled : AssistantChatInternalEvent
@@ -55,7 +60,8 @@ sealed interface AssistantChatInternalEvent {
 		val sentText: String,
 		val restoreText: String?,
 		val suggestionId: String?,
-		val clientTurnId: String
+		val clientTurnId: String,
+		val restoreAttachments: List<AssistantAttachment> = emptyList()
 	) : AssistantChatInternalEvent
 
 	// The turn [turnId] followed to its end with a RunError, or its stream broke.
@@ -123,11 +129,30 @@ sealed interface AssistantChatInternalEvent {
 
 	data class AppealRejected(val message: String) : AssistantChatInternalEvent
 
-	// A photo was read: its proposal is in the conversation, and the reading ends.
-	data object PhotoExtracted : AssistantChatInternalEvent
+	// A file was read on the device: the attachment [localId] is sent next, with what the upload sends.
+	data class AttachmentPrepared(
+		val localId: String,
+		val prepared: PreparedAssistantAttachment
+	) : AssistantChatInternalEvent
 
-	// A photo was not read: the error says which notice the student sees.
-	data class PhotoRejected(val error: ExtractEvaluationsFromPhotoError?) : AssistantChatInternalEvent
+	// The service kept the attachment [localId] under [accepted]: the message can carry it.
+	data class AttachmentUploaded(
+		val localId: String,
+		val accepted: AttachmentAccepted
+	) : AssistantChatInternalEvent
+
+	// The attachment [localId] was not read, or not kept, for [reason]: its tray item says why and offers the retry.
+	data class AttachmentFailed(
+		val localId: String,
+		val reason: AssistantAttachmentFailure
+	) : AssistantChatInternalEvent
+
+	// The service refused the upload of [localId] for a reason the whole chat answers: a quota, a restriction, or the
+	// guided mode. The attachment fails too, and the chat takes the notice of the refusal.
+	data class AttachmentRejected(
+		val localId: String,
+		val error: UploadAssistantAttachmentError
+	) : AssistantChatInternalEvent
 
 	// The platform's answer to whether the notification permission is offered now, read when the content opens.
 	data class NotificationOfferChecked(val needed: Boolean) : AssistantChatInternalEvent

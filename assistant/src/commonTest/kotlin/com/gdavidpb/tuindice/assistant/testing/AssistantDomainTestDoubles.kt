@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentRepo
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
-import com.gdavidpb.tuindice.assistant.domain.repository.AssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
@@ -37,8 +36,6 @@ import com.gdavidpb.tuindice.chatcontract.consent.ConsentStatus
 import com.gdavidpb.tuindice.chatcontract.context.ClientState
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.event.UsageSummary
-import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionRequest
-import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionResult
 import com.gdavidpb.tuindice.chatcontract.feedback.MessageFeedback
 import com.gdavidpb.tuindice.chatcontract.feedback.MessageReport
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
@@ -583,10 +580,12 @@ internal class RecordingAssistantAttachmentRepository : AssistantAttachmentRepos
 		name = "plan.jpg"
 	)
 	var failure: Throwable? = null
+	var gate: CompletableDeferred<Unit>? = null
 	val uploads = mutableListOf<Pair<AssistantAttachmentContent, String>>()
 
 	override suspend fun upload(content: AssistantAttachmentContent, name: String): AttachmentAccepted {
 		uploads += content to name
+		gate?.await()
 		failure?.let { error -> throw error }
 
 		return accepted
@@ -605,22 +604,6 @@ internal class RecordingAssistantAttachmentFileRepository : AssistantAttachmentF
 	}
 }
 
-internal class RecordingAssistantExtractionRepository : AssistantExtractionRepository {
-	var result = ExtractionResult(message = "Encontré 1 evaluación.")
-	var failure: Throwable? = null
-	var gate: CompletableDeferred<Unit>? = null
-	val requests = mutableListOf<ExtractionRequest>()
-
-	override suspend fun extract(request: ExtractionRequest): ExtractionResult {
-		requests += request
-		gate?.await()
-		failure?.let { error -> throw error }
-
-		return result
-	}
-}
-
-// The encoder of the photos: the bytes a photo is encoded to, and the specs it was asked for.
 internal class RecordingImageEncoderRepository : ImageEncoderRepository {
 	var content = byteArrayOf(1, 2, 3)
 	val specs = mutableListOf<ImageEncodingSpec>()

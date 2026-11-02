@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantNavDependencies
@@ -19,6 +20,7 @@ import com.gdavidpb.tuindice.base.domain.repository.NotificationPermissionReposi
 import com.gdavidpb.tuindice.base.presentation.navigation.TuIndiceNavActions
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.openCameraPicker
 import io.github.vinceglb.filekit.dialogs.openFilePicker
@@ -84,15 +86,9 @@ fun AssistantChatRoute(
 				AssistantDestination.ComponentSheet(messageId = effect.messageId, componentId = effect.componentId)
 			)
 
-			AssistantChat.Effect.OpenCamera ->
-				runCatching { FileKit.openCameraPicker() }
-					.getOrNull()
-					?.let { file -> viewModel.dispatch(AssistantChat.Action.AttachPhoto(file)) }
-
-			AssistantChat.Effect.OpenPhotoPicker ->
-				runCatching { FileKit.openFilePicker(type = FileKitType.Image) }
-					.getOrNull()
-					?.let { file -> viewModel.dispatch(AssistantChat.Action.AttachPhoto(file)) }
+			AssistantChat.Effect.OpenCamera,
+			is AssistantChat.Effect.OpenPhotoPicker,
+			is AssistantChat.Effect.OpenDocumentPicker -> pickAttachments(effect, viewModel)
 
 			AssistantChat.Effect.RequestNotificationPermission -> notificationPermission.requestPermission()
 		}
@@ -104,4 +100,42 @@ fun AssistantChatRoute(
 		isCameraAvailable = isCameraAvailable,
 		snackbarHostState = snackbarHostState
 	)
+}
+
+// The pickers answer with the files the student took. A picker that is closed, or that fails, answers with nothing.
+private suspend fun pickAttachments(effect: AssistantChat.Effect, viewModel: AssistantChatViewModel) {
+	when (effect) {
+		AssistantChat.Effect.OpenCamera -> {
+			val photo = runCatching { FileKit.openCameraPicker() }.getOrNull()
+
+			if (photo != null) {
+				viewModel.dispatch(AssistantChat.Action.AddAttachments(listOf(photo), AssistantAttachmentKind.PHOTO))
+			}
+		}
+
+		is AssistantChat.Effect.OpenPhotoPicker -> {
+			val photos = runCatching {
+				FileKit.openFilePicker(type = FileKitType.Image, mode = FileKitMode.Multiple(maxItems = effect.maxItems))
+			}.getOrNull()
+
+			if (photos != null) {
+				viewModel.dispatch(AssistantChat.Action.AddAttachments(photos, AssistantAttachmentKind.PHOTO))
+			}
+		}
+
+		is AssistantChat.Effect.OpenDocumentPicker -> {
+			val documents = runCatching {
+				FileKit.openFilePicker(
+					type = FileKitType.File(listOf("pdf")),
+					mode = FileKitMode.Multiple(maxItems = effect.maxItems)
+				)
+			}.getOrNull()
+
+			if (documents != null) {
+				viewModel.dispatch(AssistantChat.Action.AddAttachments(documents, AssistantAttachmentKind.PDF))
+			}
+		}
+
+		else -> Unit
+	}
 }

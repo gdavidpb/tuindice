@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantInputLimits
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.AssistantIntentError
@@ -14,6 +15,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.Assista
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatTurns
 import com.gdavidpb.tuindice.assistant.presentation.mapper.presentedContent
 import com.gdavidpb.tuindice.assistant.presentation.mapper.runFailed
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerInput
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.transition.assistantChatAnyStateTransitions
@@ -77,6 +79,7 @@ class AssistantChatMachine(
 			val availability = access.firstAvailability()
 			session.guidedByMode = availability.mode == AssistantMode.GUIDED
 			session.restriction = status?.standing?.let(access.restrictions::restrictionOf)
+			session.attachmentsEnabled = status?.attachmentsEnabled == true
 
 			host.processInternalEvent(
 				when {
@@ -114,19 +117,20 @@ class AssistantChatMachine(
 	}
 
 	// Leaving the content stops what observed it: the conversation and the turn are no longer followed, and a send that
-	// was waiting for its first event is no longer waited for. A photo still being read is no longer waited for either:
-	// its reading was stopped with the chat, so the chat does not show it as read when it comes back.
+	// was waiting for its first event is no longer waited for. The attachments being read or sent are no longer waited for
+	// either: its reading was stopped with the chat, so the chat does not show it as read when it comes back.
 	internal fun leaveContent() {
 		turns.stop()
 
 		session.sending = false
 		session.sendingTurnId = null
-		session.photoExtracting = false
+		turns.attachments.stop(draft)
 
 		// A message waiting for the recovery of its answer is dropped with it, and the recovery is stopped as well. Its text
 		// goes back to the composer, unless the student has written there meanwhile, as a recovery that does not confirm
 		// gives it back.
 		if (draft.text.value.isEmpty()) session.pendingSend?.restoreText?.let(draft::replace)
+		if (draft.attachments.value.isEmpty()) session.pendingSend?.restoreAttachments?.let(draft::setAttachments)
 		session.pendingSend = null
 
 		// The content that opens again offers the retry of its unconfirmed turn again, as its first observation does.
@@ -140,8 +144,11 @@ class AssistantChatMachine(
 	internal suspend fun refreshed(content: AssistantChat.State.Content): AssistantChat.State.Content {
 		return session.presentedContent(
 			texts = texts,
-			draftText = draft.text.value,
-			draftRevision = draft.revision,
+			input = ChatComposerInput(
+				text = draft.text.value,
+				revision = draft.revision,
+				attachments = draft.attachments.value
+			),
 			content = content,
 			clock = access.restrictions.clock
 		)
@@ -161,6 +168,9 @@ class AssistantChatMachine(
 		beginSend(host)
 
 		if (draftText != null) draft.replace("")
+
+		// A send that takes the message's attachments from the draft leaves the tray; a retry keeps what the draft holds.
+		if (draftText != null && params.attachments.isNotEmpty()) draft.setAttachments(emptyList())
 
 		turns.send(
 			host = host,
@@ -228,6 +238,7 @@ class AssistantChatMachine(
 			session.markSendFailed(event.sentText)
 			session.lastFailedSend = AssistantChatSession.FailedSend(
 				text = event.sentText,
+				attachments = event.restoreAttachments,
 				suggestionId = event.suggestionId,
 				clientTurnId = event.clientTurnId
 			)
@@ -240,7 +251,7 @@ class AssistantChatMachine(
 			error == SendAssistantMessageError.TurnInProgress ||
 			error == SendAssistantMessageError.GuidedOnly
 
-		if (keepsText && draft.text.value.isEmpty()) event.restoreText?.let(draft::replace)
+		if (keepsText) restoreDraft(text = event.restoreText, attachments = event.restoreAttachments)
 
 		when (error) {
 			is SendAssistantMessageError.QuotaExhausted -> {
@@ -289,13 +300,13 @@ class AssistantChatMachine(
 		}
 
 		session.turnFailure = null
-		session.photoFailure = null
 		session.quota = null
 		session.restriction = null
 		session.pendingFailedText = null
 		// The message the turn answers is kept under the turn, as it was sent: the retry of the turn sends it again.
 		session.sentByTurn[event.turnId] = AssistantChatSession.FailedSend(
 			text = event.text,
+			attachments = event.attachments,
 			suggestionId = event.suggestionId,
 			clientTurnId = event.clientTurnId
 		)
@@ -329,3 +340,10 @@ class AssistantChatMachine(
 
 // How long opening the chat waits for the status the server gives the student.
 private const val STATUS_OPEN_TIMEOUT_MILLIS = 3_000L
+
+// What a refused send gives back to the composer: the text and the attachments, each one unless the student has
+// written there meanwhile.
+private fun AssistantChatMachine.restoreDraft(text: String?, attachments: List<AssistantAttachment>) {
+	if (draft.text.value.isEmpty()) text?.let(draft::replace)
+	if (draft.attachments.value.isEmpty()) draft.setAttachments(attachments)
+}

@@ -17,7 +17,6 @@ import com.gdavidpb.tuindice.assistant.data.source.SseAssistantEventsDataSource
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentFileRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
-import com.gdavidpb.tuindice.assistant.domain.repository.AssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentOutboxRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
@@ -46,7 +45,6 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.DelegateEnrollmentProofInt
 import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantConversationsUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DeleteAssistantMemoryItemUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.DismissAssistantIntentUseCase
-import com.gdavidpb.tuindice.assistant.domain.usecase.ExtractEvaluationsFromPhotoUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.FollowAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantAcademicCalendarUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantEvaluationCardsUseCase
@@ -63,7 +61,6 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.UploadAssistantAttachmentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantAppealExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
-import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ExtractEvaluationsFromPhotoExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.PrepareAssistantAttachmentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ReportAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.SendAssistantMessageExceptionHandler
@@ -75,6 +72,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantComponentSheetMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantMemoryMachine
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatAccess
+import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatAttachments
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatConversation
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatFeedback
 import com.gdavidpb.tuindice.assistant.presentation.machine.collaborator.AssistantChatIntents
@@ -113,7 +111,6 @@ val assistantModule = module {
 		bind<AssistantIntentRepository>()
 		bind<AssistantFeedbackRepository>()
 		bind<AssistantStandingRepository>()
-		bind<AssistantExtractionRepository>()
 		bind<AssistantAttachmentRepository>()
 	}
 	factoryOf(::PlatformAttachmentFileDataSource) { bind<AssistantAttachmentFileRepository>() }
@@ -158,7 +155,6 @@ val assistantModule = module {
 	factoryOf(::SendAssistantMessageParamsValidator)
 	factoryOf(::SendAssistantMessageExceptionHandler)
 	factoryOf(::SendAssistantMessageHandling)
-	factoryOf(::ExtractEvaluationsFromPhotoExceptionHandler)
 	factoryOf(::PrepareAssistantAttachmentExceptionHandler)
 	factoryOf(::UploadAssistantAttachmentExceptionHandler)
 
@@ -168,7 +164,6 @@ val assistantModule = module {
 	factoryOf(::GetAssistantAcademicCalendarUseCase)
 	factoryOf(::GetAssistantEvaluationCardsUseCase)
 	factoryOf(::SendAssistantMessageUseCase)
-	factoryOf(::ExtractEvaluationsFromPhotoUseCase)
 	factoryOf(::PrepareAssistantAttachmentUseCase)
 	factoryOf(::UploadAssistantAttachmentUseCase)
 	factoryOf(::FollowAssistantTurnUseCase)
@@ -202,6 +197,7 @@ val assistantModule = module {
 	factoryOf(::AssistantChatMachine)
 	factoryOf(::AssistantChatConversation)
 	factoryOf(::AssistantChatTurns)
+	factoryOf(::AssistantChatAttachments)
 	factoryOf(::AssistantChatIntents)
 	factoryOf(::AssistantChatPlanIntents)
 	factoryOf(::AssistantChatProposals)

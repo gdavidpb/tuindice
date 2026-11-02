@@ -184,9 +184,9 @@ private fun ComposerStartIcon(
 	isCameraAvailable: Boolean,
 	onAction: (AssistantChat.Action) -> Unit
 ) {
-	if (composer.isEnabled) {
+	if (composer.isEnabled && composer.showsAttach) {
 		AssistantChatPhotoButtonView(
-			isEnabled = composer.isPhotoEnabled,
+			isEnabled = composer.isAttachEnabled,
 			isCameraAvailable = isCameraAvailable,
 			onAction = onAction
 		)

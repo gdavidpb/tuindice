@@ -1,12 +1,10 @@
 package com.gdavidpb.tuindice.assistant.presentation.transition
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
-import com.gdavidpb.tuindice.assistant.domain.usecase.error.ExtractEvaluationsFromPhotoError
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
-import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
 import com.gdavidpb.tuindice.assistant.presentation.machine.awaitsMemoryRead
 import com.gdavidpb.tuindice.assistant.presentation.machine.memoryAnswer
 import com.gdavidpb.tuindice.assistant.presentation.machine.nextMemoryRead
@@ -40,7 +38,8 @@ internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatContentT
 
 		contentComposerRows(machine, host)
 		contentSendRows(machine, host)
-		contentPhotoRows(machine, host)
+		contentAttachmentRows(machine, host)
+		contentAttachmentResultRows(machine, host)
 		contentMessageRows(machine, host)
 		contentIntentRows(machine, host)
 
@@ -78,7 +77,13 @@ private fun ContentTransitions.contentComposerRows(
 		val restricted = machine.session.restrictionAt(machine.access.restrictions.clock.now().toEpochMilliseconds())
 
 		state.copy(
-			composer = machine.session.presentedComposer(machine.draft.text.value, machine.draft.revision, restricted)
+			composer = machine.session.presentedComposer(
+					draftText = machine.draft.text.value,
+					draftRevision = machine.draft.revision,
+					restricted = restricted,
+					attachments = machine.draft.attachments.value,
+					texts = machine.texts
+				)
 		)
 	}
 
@@ -92,7 +97,7 @@ private fun ContentTransitions.contentComposerRows(
 }
 
 // The rows that start a text turn: the send, a suggestion and a retry. They wait for the same conditions: no message on
-// its way, no turn running, and no photo being read.
+// its way and no turn running.
 private fun ContentTransitions.contentSendRows(
 	machine: AssistantChatMachine,
 	host: MachineHost<AssistantChat.Effect>
@@ -106,6 +111,7 @@ private fun ContentTransitions.contentSendRows(
 			host = host,
 			params = SendAssistantMessageParams(
 				text = draftText.trim(),
+					attachments = machine.draft.attachments.value,
 				suggestionId = null,
 				screenContext = machine.session.openedContext
 			),
@@ -151,74 +157,6 @@ private fun ContentTransitions.contentSendRows(
 	on<AssistantChatInternalEvent.TurnNotRecovered> { state, event ->
 		machine.turnNotRecovered(event = event)
 		machine.refreshed(state)
-	}
-}
-
-private fun ContentTransitions.contentPhotoRows(
-	machine: AssistantChatMachine,
-	host: MachineHost<AssistantChat.Effect>
-) {
-	on<AssistantChat.Action.RequestPhoto>(
-		emits = setOf(AssistantChat.Effect.OpenCamera::class, AssistantChat.Effect.OpenPhotoPicker::class)
-	) { state, action ->
-		if (state.composer.isPhotoEnabled) {
-			host.sendEffect(
-				if (action.fromCamera) AssistantChat.Effect.OpenCamera else AssistantChat.Effect.OpenPhotoPicker
-			)
-		}
-
-		state
-	}
-
-	on<AssistantChat.Action.AttachPhoto> { state, action ->
-		if (!state.composer.isPhotoEnabled) return@on state
-
-		machine.session.photoFailure = null
-		machine.session.photoExtracting = true
-		machine.turns.extractPhoto(host = host, file = action.file, context = machine.session.openedContext)
-		machine.refreshed(state)
-	}
-
-	on<AssistantChatInternalEvent.PhotoExtracted> { state, _ ->
-		machine.session.photoExtracting = false
-		machine.refreshed(state)
-	}
-
-	on<AssistantChatInternalEvent.PhotoRejected> { state, event ->
-		machine.photoRejected(host = host, event = event)
-		machine.refreshed(state)
-	}
-}
-
-// A photo that was not read. Its notices are its own: the quota, the guided mode, a restriction, or a failure the
-// student can see. A photo has no text to send again, so its failure is never retryable. It never marks the failure
-// of a text turn: the failure of a text turn keeps its notice and its retry.
-private suspend fun AssistantChatMachine.photoRejected(
-	host: MachineHost<AssistantChat.Effect>,
-	event: AssistantChatInternalEvent.PhotoRejected
-) {
-	session.photoExtracting = false
-
-	when (val error = event.error) {
-		is ExtractEvaluationsFromPhotoError.QuotaExhausted -> {
-			session.quota = AssistantChatSession.Quota(retryAfterSeconds = error.retryAfterSeconds)
-		}
-
-		ExtractEvaluationsFromPhotoError.Restricted -> {
-			session.restriction = AssistantChatSession.Restriction(level = null, untilMillis = null, canAppeal = false)
-			access.restrictions.restrictionStatus(host)
-		}
-
-		// As a refused text send does, the status is read again: the service says the chat is guided now.
-		ExtractEvaluationsFromPhotoError.GuidedOnly -> {
-			session.guidedByServer = true
-			access.refreshStatus(host)
-		}
-
-		else -> session.photoFailure = AssistantChatSession.TurnFailure(
-			message = texts.sendFailed(),
-			retryable = false
-		)
 	}
 }
 

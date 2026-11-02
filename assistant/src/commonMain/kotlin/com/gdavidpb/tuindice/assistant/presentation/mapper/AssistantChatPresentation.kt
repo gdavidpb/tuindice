@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentState
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
@@ -8,6 +10,8 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.awaitsMemoryRead
 import com.gdavidpb.tuindice.assistant.presentation.machine.failedSendOf
 import com.gdavidpb.tuindice.assistant.presentation.machine.memoryAnswer
 import com.gdavidpb.tuindice.assistant.presentation.machine.sendIsBusy
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatAttachmentItem
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerInput
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
@@ -16,6 +20,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
 import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentLimits
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 import kotlin.time.Clock
 
@@ -24,14 +29,12 @@ import kotlin.time.Clock
 
 internal suspend fun AssistantChatSession.presentedContent(
 	texts: AssistantChatTexts,
-	draftText: String,
-	draftRevision: Int,
+	input: ChatComposerInput,
 	content: AssistantChat.State.Content,
 	clock: Clock
 ): AssistantChat.State.Content {
 	val running = isRunning()
-	val extracting = photoExtracting
-	// The criterion of the actions that send (PickSuggestion, RetryTurn): a photo being read counts too.
+	// The criterion of the actions that send (PickSuggestion, RetryTurn): a send on its way or a running turn counts.
 	val busy = sendIsBusy()
 	val guided = guidedByMode || guidedByServer
 	// A restriction whose end has passed no longer holds the composer: the next send reads the standing again.
@@ -39,17 +42,21 @@ internal suspend fun AssistantChatSession.presentedContent(
 	val items = presentedItems(texts, nowMillis = clock.now().toEpochMilliseconds())
 	// Guided mode needs suggestions to keep asking. In open chat they belong only to the empty conversation.
 	val showSuggestions = !busy && restricted == null && (guided || items.isEmpty())
-	val composer = presentedComposer(draftText = draftText, draftRevision = draftRevision, restricted = restricted)
-	// The label: the running turn's, else a photo being read, else a wait (a send, or a turn that can be stopped).
+	val composer = presentedComposer(
+		draftText = input.text,
+		draftRevision = input.revision,
+		restricted = restricted,
+		attachments = input.attachments,
+		texts = texts
+	)
+	// The label: the running turn's, else a wait (a send, or a turn that can be stopped).
 	val turnLabel = if (running) conversation?.activeTurn?.progressLabel else null
-	val reading = if (extracting) texts.photoReading() else null
 	val waiting = if (sending || composer.isStoppable) texts.sending() else null
 
 	return content.copy(
 		items = items,
-		progressLabel = turnLabel ?: reading ?: waiting,
-		progressAnchorId = progressAnchorOf(items = items, extracting = extracting, sending = sending),
-		isExtracting = extracting,
+		progressLabel = turnLabel ?: waiting,
+		progressAnchorId = progressAnchorOf(items = items, sending = sending),
 		isSending = sending,
 		// Once the student writes, the card steps aside for the rest of the chat: it is only for the empty chat.
 		notificationOffer = notificationOfferShown && items.isEmpty() && !sending,
@@ -60,34 +67,65 @@ internal suspend fun AssistantChatSession.presentedContent(
 	)
 }
 
-// The item the progress goes under. A text turn follows the student's last question; a photo being read follows the
-// latest item. So does a send whose answer has begun (the last item is the agent's): a send can start before its
-// question is stored, and until then the progress stays at the end.
-private fun progressAnchorOf(items: List<ChatItem>, extracting: Boolean, sending: Boolean): String? {
+// The item the progress goes under. A text turn follows the student's last question; a send whose answer has begun
+// follows the agent's last item, since a send can start before its question is stored. Until then the progress stays at
+// the end.
+private fun progressAnchorOf(items: List<ChatItem>, sending: Boolean): String? {
 	val last = items.lastOrNull()
-	if (extracting || (sending && last is ChatItem.Agent)) return last?.id
+	if (sending && last is ChatItem.Agent) return last.id
 	return items.lastOrNull { it is ChatItem.User }?.id ?: last?.id
 }
 
-// The composer: the text the student writes, and what the student can do with it. It takes the draft and the state of
-// the chat only, so a change of the text presents this alone (ChangeText), not the conversation.
-internal fun AssistantChatSession.presentedComposer(
+// The composer: the text the student writes, the attachments above it, and what the student can do with them. It takes
+// the
+// draft and the state of the chat only, so a change of the text presents this alone (ChangeText), not the conversation.
+internal suspend fun AssistantChatSession.presentedComposer(
 	draftText: String,
 	draftRevision: Int,
-	restricted: AssistantChatSession.Restriction?
+	restricted: AssistantChatSession.Restriction?,
+	attachments: List<AssistantAttachment>,
+	texts: AssistantChatTexts
 ): ChatComposerItem {
 	val guided = guidedByMode || guidedByServer
 	val busy = isRunning() || sending
 	val composerEnabled = !guided && restricted == null
+	// A message sends once every attachment is kept by the service; an attachment still being read or sent holds it.
+	val everyAttachmentKept = attachments.all { attachment -> attachment.state is AssistantAttachmentState.Ready }
+	val hasRoom = attachments.size < AttachmentLimits.MAX_PER_MESSAGE
 
 	return ChatComposerItem(
 		text = draftText,
 		textRevision = draftRevision,
 		isEnabled = composerEnabled,
-		isSendEnabled = composerEnabled && draftText.isNotBlank() && !busy && !photoExtracting,
-		isPhotoEnabled = composerEnabled && !busy && !photoExtracting,
+		isSendEnabled = composerEnabled && !busy && everyAttachmentKept &&
+			(draftText.isNotBlank() || attachments.isNotEmpty()),
+		showsAttach = attachmentsEnabled,
+		isAttachEnabled = composerEnabled && !busy && hasRoom && attachmentsEnabled,
+		attachments = attachments.presentedAttachments(texts = texts),
 		isStoppable = stopTarget() != null
 	)
+}
+
+// The tray of the message being written, as the student sees it: each attachment with its state, its detail once the
+// service reads its pages, and the reason it failed when it did.
+internal suspend fun List<AssistantAttachment>.presentedAttachments(
+	texts: AssistantChatTexts
+): List<ChatAttachmentItem> {
+	return map { attachment ->
+		val failure = (attachment.state as? AssistantAttachmentState.Failed)?.reason
+
+		ChatAttachmentItem(
+			localId = attachment.localId,
+			kind = attachment.kind,
+			name = attachment.name,
+			detail = attachment.pageCount?.let { pages -> texts.attachmentPages(pages) },
+			thumbnail = attachment.thumbnail,
+			isUploading = attachment.state == AssistantAttachmentState.Preparing ||
+				attachment.state == AssistantAttachmentState.Uploading,
+			isFailed = failure != null,
+			failureText = failure?.let { reason -> texts.attachmentFailure(reason) }
+		)
+	}
 }
 
 // The notice that limits the chat now. A restriction outranks the quota, the quota outranks the guided mode, and the
@@ -100,7 +138,6 @@ internal suspend fun AssistantChatSession.presentedNotice(
 ): ChatNoticeItem? {
 	val exhausted = quota
 	val failure = turnFailure
-	val photo = photoFailure
 	// A retry is offered only while no send is busy: RetryTurn is refused meanwhile, so a retry offered then does nothing.
 	val busy = sendIsBusy()
 	// The answer that failed keeps its notice, with the retry of that answer, for as long as the last failed send is its
@@ -135,9 +172,9 @@ internal suspend fun AssistantChatSession.presentedNotice(
 			canRetry = answer.failure.retryable && !busy
 		)
 
-		// A photo that was not read shows its own notice, once no text turn has failed: a failure of a text turn keeps its
-		// notice and its retry.
-		photo != null -> ChatNoticeItem.TurnFailed(message = photo.message, canRetry = false)
+		// The limit of the attachments shows once no text turn has failed: a failure of a text turn keeps its notice and
+		// retry.
+		attachmentLimitHit -> ChatNoticeItem.TurnFailed(message = texts.attachmentLimit(), canRetry = false)
 
 		else -> null
 	}

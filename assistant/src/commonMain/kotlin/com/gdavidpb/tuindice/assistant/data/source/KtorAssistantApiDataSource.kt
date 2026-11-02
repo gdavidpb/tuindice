@@ -6,14 +6,11 @@ import com.gdavidpb.tuindice.assistant.data.repository.AssistantServerDisabledDa
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentContent
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentRepository
-import com.gdavidpb.tuindice.assistant.domain.repository.AssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseAppeal
 import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentAccepted
-import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionRequest
-import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionResult
 import com.gdavidpb.tuindice.chatcontract.feedback.MessageFeedback
 import com.gdavidpb.tuindice.chatcontract.feedback.MessageReport
 import com.gdavidpb.tuindice.chatcontract.intent.IntentDecision
@@ -33,7 +30,6 @@ class KtorAssistantApiDataSource(
 ) : AssistantIntentRepository,
 	AssistantFeedbackRepository,
 	AssistantStandingRepository,
-	AssistantExtractionRepository,
 	AssistantAttachmentRepository {
 	override suspend fun decide(decision: IntentDecision): IntentDecisionResult = decideIntent(decision)
 
@@ -46,8 +42,6 @@ class KtorAssistantApiDataSource(
 	override suspend fun status(): AssistantStatus = getStatus()
 
 	override suspend fun appeal(appeal: AbuseAppeal) = postAbuseAppeal(appeal)
-
-	override suspend fun extract(request: ExtractionRequest): ExtractionResult = postExtraction(request)
 
 	override suspend fun upload(content: AssistantAttachmentContent, name: String): AttachmentAccepted {
 		return postAttachment(content = content, name = name)

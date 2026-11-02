@@ -1,13 +1,18 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
-import com.gdavidpb.tuindice.assistant.domain.usecase.error.ExtractEvaluationsFromPhotoError
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentContent
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentFailure
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
+import com.gdavidpb.tuindice.assistant.domain.model.PreparedAssistantAttachment
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
+import com.gdavidpb.tuindice.assistant.domain.usecase.error.UploadAssistantAttachmentError
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.presentation.testing.AssistantChatFixture
 import com.gdavidpb.tuindice.assistant.presentation.testing.emptyAssistantConversation
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentAccepted
 import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
@@ -85,6 +90,8 @@ class AssistantChatStateMachineContractTest {
 			screenMachine = AssistantChatFixture().machine,
 			sampleEvents = sampleEvents().filterNot { event -> event in closingEvents },
 			coroutineScope = backgroundScope,
+			// The attachment rows widened the table: a longer walk keeps the same floor over it.
+			steps = 1_200,
 			minRowCoverage = 0.6
 		)
 	}
@@ -138,9 +145,15 @@ class AssistantChatStateMachineContractTest {
 			AssistantChat.Action.Dismiss,
 			AssistantChat.Action.ActivateNotifications,
 			AssistantChat.Action.DismissNotificationOffer,
-			AssistantChat.Action.RequestPhoto(fromCamera = true),
-			AssistantChat.Action.RequestPhoto(fromCamera = false),
-			AssistantChat.Action.AttachPhoto(file = PlatformFile("assistant-plan.jpg"))
+			AssistantChat.Action.RequestAttachment(source = AssistantChat.AttachmentSource.CAMERA),
+			AssistantChat.Action.RequestAttachment(source = AssistantChat.AttachmentSource.GALLERY),
+			AssistantChat.Action.RequestAttachment(source = AssistantChat.AttachmentSource.FILES),
+			AssistantChat.Action.AddAttachments(
+				files = listOf(PlatformFile("assistant-plan.jpg")),
+				kind = AssistantAttachmentKind.PHOTO
+			),
+			AssistantChat.Action.RemoveAttachment(localId = "a1"),
+			AssistantChat.Action.RetryAttachment(localId = "a1")
 		)
 	}
 
@@ -191,10 +204,31 @@ class AssistantChatStateMachineContractTest {
 			AssistantChatInternalEvent.MessageReportRejected(message = "report-too-long"),
 			AssistantChatInternalEvent.AppealSent(message = "appeal-sent"),
 			AssistantChatInternalEvent.AppealRejected(message = "appeal-failed"),
-			AssistantChatInternalEvent.PhotoExtracted,
-			AssistantChatInternalEvent.PhotoRejected(error = ExtractEvaluationsFromPhotoError.QuotaExhausted(30)),
-			AssistantChatInternalEvent.PhotoRejected(error = null),
 			AssistantChatInternalEvent.NotificationOfferChecked(needed = true)
-		)
+		) + sampleAttachmentEvents()
 	}
+
+	private fun sampleAttachmentEvents(): List<AssistantChatInternalEvent> = listOf(
+			AssistantChatInternalEvent.AttachmentPrepared(
+				localId = "a1",
+				prepared = PreparedAssistantAttachment(
+					kind = AssistantAttachmentKind.PHOTO,
+					name = "foto.jpg",
+					content = AssistantAttachmentContent(mediaType = "image/jpeg", sha256 = "", bytes = byteArrayOf(1)),
+					thumbnail = null
+				)
+			),
+			AssistantChatInternalEvent.AttachmentUploaded(
+				localId = "a1",
+				accepted = AttachmentAccepted(attachmentId = "att-1", mediaType = "image/jpeg", sizeBytes = 1, expiresAtMillis = 0L)
+			),
+			AssistantChatInternalEvent.AttachmentFailed(
+				localId = "a1",
+				reason = AssistantAttachmentFailure.DailyLimit(retryAfterSeconds = 30)
+			),
+			AssistantChatInternalEvent.AttachmentRejected(
+				localId = "a1",
+				error = UploadAssistantAttachmentError.QuotaExhausted(retryAfterSeconds = 30)
+			),
+	)
 }

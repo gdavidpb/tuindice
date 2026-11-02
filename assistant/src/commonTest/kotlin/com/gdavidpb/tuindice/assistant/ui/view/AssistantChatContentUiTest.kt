@@ -112,8 +112,14 @@ class AssistantChatContentUiTest {
 		setTuIndiceTestContent {
 			AssistantChatContent(
 				state = contentState(
-					composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isPhotoEnabled = false)
-				).copy(isExtracting = true, progressLabel = PHOTO_PROGRESS),
+					composer = ChatComposerItem(
+						text = "",
+						isEnabled = true,
+						isSendEnabled = false,
+						showsAttach = true,
+						isAttachEnabled = false
+					)
+				).copy(progressLabel = PHOTO_PROGRESS),
 				onAction = {},
 				isCameraAvailable = true,
 				modifier = Modifier.fillMaxSize()

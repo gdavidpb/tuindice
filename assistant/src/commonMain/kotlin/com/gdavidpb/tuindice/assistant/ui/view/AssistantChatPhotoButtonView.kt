@@ -74,7 +74,7 @@ fun AssistantChatPhotoButtonView(
 					text = { Text(text = stringResource(Res.string.assistant_photo_take)) },
 					onClick = {
 						menuOpen.value = false
-						onAction(AssistantChat.Action.RequestPhoto(fromCamera = true))
+						onAction(AssistantChat.Action.RequestAttachment(source = AssistantChat.AttachmentSource.CAMERA))
 					},
 					modifier = Modifier.testTag(AssistantUiTags.PhotoTake)
 				)
@@ -84,7 +84,7 @@ fun AssistantChatPhotoButtonView(
 				text = { Text(text = stringResource(Res.string.assistant_photo_pick)) },
 				onClick = {
 					menuOpen.value = false
-					onAction(AssistantChat.Action.RequestPhoto(fromCamera = false))
+					onAction(AssistantChat.Action.RequestAttachment(source = AssistantChat.AttachmentSource.GALLERY))
 				},
 				modifier = Modifier.testTag(AssistantUiTags.PhotoPick)
 			)

@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerInput
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.FakeAssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
@@ -38,19 +39,6 @@ class AssistantChatProgressPresentationTest {
 
 		assertEquals(TURN_LABEL, content.progressLabel)
 		assertEquals(QUESTION_ID, content.progressAnchorId)
-	}
-
-	@Test
-	fun when_aPhotoIsBeingRead_then_itsLabelShowsUnderTheLatestItem() = runTest {
-		val session = AssistantChatSession().apply {
-			conversation = assistantConversation(items = listOf(question(QUESTION_ID), answer()))
-			photoExtracting = true
-		}
-
-		val content = session.presented()
-
-		assertEquals(PHOTO_READING, content.progressLabel)
-		assertEquals(ANSWER_ID, content.progressAnchorId)
 	}
 
 	@Test
@@ -131,7 +119,6 @@ class AssistantChatProgressPresentationTest {
 					status = AssistantTurnPhase.RUNNING
 				)
 			)
-			photoExtracting = true
 			sending = true
 		}
 
@@ -143,8 +130,7 @@ class AssistantChatProgressPresentationTest {
 	// The content the session presents from an open sheet with nothing in it, as the machine presents each change.
 	private suspend fun AssistantChatSession.presented(): AssistantChat.State.Content = presentedContent(
 		texts = FakeAssistantChatTexts(),
-		draftText = "",
-		draftRevision = 0,
+		input = ChatComposerInput(text = "", revision = 0, attachments = emptyList()),
 		content = AssistantChat.State.Content(
 			items = emptyList(),
 			progressLabel = null,

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.exception.AssistantRequestRefusedException
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -145,6 +146,7 @@ class AssistantChatLeavingContentBehaviorTest {
 	@Test
 	fun aConfirmationThatFails_whileTheChatAsksForConsent_givesItsCardItsButtonsBack() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(attachmentsEnabled = true)
 		val intent = rememberIntent(id = "i1")
 		fixture.conversation.conversation.value = assistantConversation(
 			items = listOf(agentMessage("a1", IntentPart(intent))),
@@ -167,6 +169,7 @@ class AssistantChatLeavingContentBehaviorTest {
 	@Test
 	fun aConfirmationThatEnds_whileTheChatAsksForConsent_leavesNoRunningMark() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(attachmentsEnabled = true)
 		val intent = rememberIntent(id = "i1")
 		fixture.conversation.conversation.value = assistantConversation(
 			items = listOf(agentMessage("a1", IntentPart(intent))),
@@ -185,6 +188,7 @@ class AssistantChatLeavingContentBehaviorTest {
 	@Test
 	fun aConfirmationStillRunning_whenTheChatAsksForConsent_staysRunningUntilItEnds() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(attachmentsEnabled = true)
 		val intent = rememberIntent(id = "i1")
 		fixture.conversation.conversation.value = assistantConversation(
 			items = listOf(agentMessage("a1", IntentPart(intent))),
@@ -208,6 +212,7 @@ class AssistantChatLeavingContentBehaviorTest {
 	@Test
 	fun leavingTheContent_dropsTheMarkOfAFinishedConfirmation_keepsARunningOne() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(attachmentsEnabled = true)
 		viewModel.openAction(null)
 		val session = fixture.machine.session
 		session.runningIntents["finished"] = Job().apply { complete() }
@@ -224,6 +229,7 @@ class AssistantChatLeavingContentBehaviorTest {
 	@Test
 	fun leavingTheContent_offersTheRetryAgain_whenTheContentOpensAgain() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(attachmentsEnabled = true)
 		viewModel.openAction(null)
 		viewModel.changeTextAction("hola")
 		viewModel.sendMessageAction()
@@ -232,8 +238,9 @@ class AssistantChatLeavingContentBehaviorTest {
 		fixture.turns.sendError = AssistantRequestRefusedException("unknown", null, "unknown")
 		viewModel.changeTextAction("adiós")
 		viewModel.sendMessageAction()
-		fixture.extraction.failure = AssistantRequestRefusedException(AssistantErrorCodes.CONSENT_REQUIRED, null, "consent")
-		viewModel.dispatch(AssistantChat.Action.AttachPhoto(photo()))
+		fixture.attachmentRepository.failure =
+			AssistantRequestRefusedException(AssistantErrorCodes.CONSENT_REQUIRED, null, "consent")
+		addPhoto(viewModel)
 		assertEquals(AssistantChat.State.ConsentRequired, viewModel.state.value)
 
 		fixture.turns.sendError = null
@@ -250,6 +257,7 @@ class AssistantChatLeavingContentBehaviorTest {
 	@Test
 	fun aNewMessageWaitingForARecovery_givesItsTextBack_whenTheContentIsLeft() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(attachmentsEnabled = true)
 		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t0", conversationId = "c1", lastSeq = 0)
 		viewModel.openAction(null)
 		viewModel.changeTextAction("hola")
@@ -272,6 +280,7 @@ class AssistantChatLeavingContentBehaviorTest {
 	@Test
 	fun aDismissalThatFails_onConsent_saysDismissFailedWhenTheStudentComesBack() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(attachmentsEnabled = true)
 		val intent = rememberIntent(id = "i1")
 		fixture.conversation.conversation.value = assistantConversation(
 			items = listOf(agentMessage("a1", IntentPart(intent))),
@@ -295,6 +304,7 @@ class AssistantChatLeavingContentBehaviorTest {
 	@Test
 	fun aRestrictionChecked_onConsent_isTheRestrictionTheStudentFinds() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(attachmentsEnabled = true)
 		viewModel.openAction(null)
 		fixture.standing.answer = restrictedUntil(NOW_MILLIS + 1_000L)
 		fixture.turns.sendError = AssistantRequestRefusedException(AssistantErrorCodes.SUSPENDED, null, "suspended")
@@ -326,6 +336,7 @@ class AssistantChatLeavingContentBehaviorTest {
 	@Test
 	fun aStillAppliesAnswerSaved_onConsent_isTheAnswerTheCardShows() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(attachmentsEnabled = true)
 		fixture.memories.memories = memoryList("mem1" to MemoryVocabulary.STATE_PENDING_CONFIRMATION)
 		fixture.conversation.conversation.value = assistantConversation(items = listOf(stillAppliesMessage("mem1")))
 		fixture.gatedMemories.gated = true
@@ -345,6 +356,7 @@ class AssistantChatLeavingContentBehaviorTest {
 	@Test
 	fun aReportRefused_whileTheChatAsksForConsent_saysSoWithItsSnackbar() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
+		fixture.standing.answer = assistantStatus().copy(attachmentsEnabled = true)
 		fixture.conversation.conversation.value = assistantConversation(items = listOf(agentMessage("a1", Text("hola"))))
 		fixture.feedback.reportError = IllegalStateException("offline")
 		fixture.feedback.reportGate = CompletableDeferred()
@@ -364,10 +376,11 @@ class AssistantChatLeavingContentBehaviorTest {
 	// once the reading ends.
 	private fun askConsentByPhoto(fixture: AssistantChatFixture, viewModel: AssistantChatViewModel) {
 		val reading = CompletableDeferred<Unit>()
-		fixture.extraction.gate = reading
-		fixture.extraction.failure = AssistantRequestRefusedException(AssistantErrorCodes.CONSENT_REQUIRED, null, "consent")
+		fixture.attachmentRepository.gate = reading
+		fixture.attachmentRepository.failure =
+			AssistantRequestRefusedException(AssistantErrorCodes.CONSENT_REQUIRED, null, "consent")
 
-		viewModel.dispatch(AssistantChat.Action.AttachPhoto(photo()))
+		addPhoto(viewModel)
 		reading.complete(Unit)
 
 		assertEquals(AssistantChat.State.ConsentRequired, viewModel.state.value)
@@ -381,10 +394,11 @@ class AssistantChatLeavingContentBehaviorTest {
 		intentId: String
 	) {
 		val reading = CompletableDeferred<Unit>()
-		fixture.extraction.gate = reading
-		fixture.extraction.failure = AssistantRequestRefusedException(AssistantErrorCodes.CONSENT_REQUIRED, null, "consent")
+		fixture.attachmentRepository.gate = reading
+		fixture.attachmentRepository.failure =
+			AssistantRequestRefusedException(AssistantErrorCodes.CONSENT_REQUIRED, null, "consent")
 
-		viewModel.dispatch(AssistantChat.Action.AttachPhoto(photo()))
+		addPhoto(viewModel)
 		viewModel.confirmIntentAction(intentId)
 		reading.complete(Unit)
 
@@ -442,4 +456,8 @@ class AssistantChatLeavingContentBehaviorTest {
 	}
 
 	private fun photo() = PlatformFile("assistant-plan.jpg")
+
+	private fun addPhoto(viewModel: AssistantChatViewModel) {
+		viewModel.dispatch(AssistantChat.Action.AddAttachments(files = listOf(photo()), kind = AssistantAttachmentKind.PHOTO))
+	}
 }

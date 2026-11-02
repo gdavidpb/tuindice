@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.contract
 
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
@@ -30,8 +31,8 @@ object AssistantChat {
 		data class Content(
 			// The conversation, oldest first: the student's bubbles and the agent's messages.
 			val items: List<ChatItem>,
-			// The label of the progress, already resolved: the running turn's («Revisando tu pensum…»), else a photo being
-			// read, else a send that waits; null when nothing waits.
+			// The label of the progress, already resolved: the running turn's («Revisando tu pensum…»), else a send that
+			// waits; null when nothing waits.
 			val progressLabel: String?,
 			// The id of the item the progress goes under. It is there with no label too, so the progress of a turn leaves
 			// from under its question, without a jump.
@@ -42,13 +43,18 @@ object AssistantChat {
 			val notice: ChatNoticeItem?,
 			// Guided mode: the composer is off and only the suggestions can start a turn.
 			val isGuided: Boolean,
-			// A photo of the plan is being read: its progress label shows, and the photo button is off.
-			val isExtracting: Boolean = false,
 			// A message was sent and its first event has not come yet: the progress shows, and nothing can be sent.
 			val isSending: Boolean = false,
 			// The empty chat offers the notification permission: the card shows above the conversation.
 			val notificationOffer: Boolean = false
 		) : State()
+	}
+
+	// Where the student takes an attachment from: the camera, the photos of the gallery, or the PDF files.
+	enum class AttachmentSource {
+		CAMERA,
+		GALLERY,
+		FILES
 	}
 
 	sealed class Action : ViewAction {
@@ -58,11 +64,17 @@ object AssistantChat {
 		data object Send : Action()
 		class PickSuggestion(val suggestionId: String) : Action()
 
-		// Opens the camera, or the gallery, to read the evaluations of a photo of the plan.
-		class RequestPhoto(val fromCamera: Boolean) : Action()
+		// Opens the camera, or a picker, to add attachments to the message being written: a photo, or a PDF.
+		class RequestAttachment(val source: AttachmentSource) : Action()
 
-		// The photo the student took or picked: it is read into the conversation as a proposal.
-		class AttachPhoto(val file: PlatformFile) : Action()
+		// The files the student took or picked, all of one [kind]: each one is read and kept with the message being written.
+		class AddAttachments(val files: List<PlatformFile>, val kind: AssistantAttachmentKind) : Action()
+
+		// Takes an attachment out of the message being written; an upload still running for it is stopped.
+		class RemoveAttachment(val localId: String) : Action()
+
+		// Tries an attachment again: one that could not be read is read again, one that could not be kept is sent again.
+		class RetryAttachment(val localId: String) : Action()
 
 		// Sends again the student's message whose turn failed.
 		data object RetryTurn : Action()
@@ -119,10 +131,13 @@ object AssistantChat {
 		data object OpenEnrollmentProof : Effect()
 		class OpenComponentSheet(val messageId: String, val componentId: String) : Effect()
 
-		// The route opens the camera, or the gallery of the system, and answers with AttachPhoto.
+		// The route opens the camera, or a picker of the system, and answers with AddAttachments. A picker takes at most
+		// [maxItems] files: the room the message has left.
 		data object OpenCamera : Effect()
 
-		data object OpenPhotoPicker : Effect()
+		class OpenPhotoPicker(val maxItems: Int) : Effect()
+
+		class OpenDocumentPicker(val maxItems: Int) : Effect()
 
 		// The system's request for the notification permission, asked on the student's word from the card.
 		data object RequestNotificationPermission : Effect()

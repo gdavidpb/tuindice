@@ -40,6 +40,7 @@ import tuindice.assistant.generated.resources.assistant_chat_wait_under_minute
 class AssistantChatResourceTexts :
 	AssistantChatTexts,
 	AssistantChatPartTexts by AssistantChatPartResourceTexts(),
+	AssistantChatAttachmentTexts by AssistantChatAttachmentResourceTexts(),
 	AssistantChatIntentTexts by AssistantChatIntentResourceTexts(),
 	AssistantChatProgressTexts by AssistantChatProgressResourceTexts() {
 	override suspend fun evaluationTypeName(evaluationType: String): String {
@@ -85,7 +86,6 @@ class AssistantChatResourceTexts :
 	override suspend fun messageTooLong(maxLength: Int): String {
 		return getString(Res.string.assistant_chat_message_too_long, maxLength)
 	}
-
 	private companion object {
 		val EVALUATION_TYPES: Map<String, StringResource> = mapOf(
 			"TEST" to Res.string.assistant_chat_evaluation_type_test,
@@ -106,7 +106,7 @@ class AssistantChatResourceTexts :
 }
 
 // "en 5 min", or "en menos de un minuto" for a wait under a minute.
-private suspend fun waitText(seconds: Int): String {
+internal suspend fun waitText(seconds: Int): String {
 	if (seconds <= SECONDS_PER_MINUTE) return getString(Res.string.assistant_chat_wait_under_minute)
 
 	val minutes = (seconds + SECONDS_PER_MINUTE - 1) / SECONDS_PER_MINUTE

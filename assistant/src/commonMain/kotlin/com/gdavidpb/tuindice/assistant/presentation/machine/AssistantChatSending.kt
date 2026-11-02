@@ -28,11 +28,13 @@ internal fun AssistantChatMachine.sendNewMessage(
 	beginSend(host)
 
 	if (draftText != null) draft.replace("")
+	if (draftText != null && params.attachments.isNotEmpty()) draft.setAttachments(emptyList())
 
 	session.pendingSend = AssistantChatSession.PendingSend(
 		turnId = unconfirmed.turnId,
 		params = params,
-		restoreText = draftText
+		restoreText = draftText,
+		restoreAttachments = params.attachments
 	)
 
 	turns.recoverTurn(host = host, turnId = unconfirmed.turnId)
@@ -51,7 +53,7 @@ internal fun AssistantChatMachine.turnRecovered(
 }
 
 // The recovery did not confirm the unconfirmed answer: the message that waited for it is not sent.
-// Its text goes back to the composer, unless the student has written there meanwhile, as the text of
+// Its text and attachments go back to the composer, unless the student has written there meanwhile, as the text of
 // a refused send does. The notice of the answer shows again, with its retry.
 internal fun AssistantChatMachine.turnNotRecovered(event: AssistantChatInternalEvent.TurnNotRecovered) {
 	val pending = session.pendingSend?.takeIf { waiting -> waiting.turnId == event.turnId } ?: return
@@ -60,11 +62,13 @@ internal fun AssistantChatMachine.turnNotRecovered(event: AssistantChatInternalE
 	session.sending = false
 
 	if (draft.text.value.isEmpty()) pending.restoreText?.let(draft::replace)
+	if (draft.attachments.value.isEmpty()) draft.setAttachments(pending.restoreAttachments)
 }
 
 // The retry of a failed send. A run that failed is retried as a new request: its answer is a new turn, with a
 // client turn id of its own, and the failed question makes way for the question of that request. Any other failed
-// send keeps the client turn id of its send, so the server answers with the same turn when it has it already.
+// send keeps the client turn id of its send, so the server answers with the same turn when it has it already. The
+// attachments of the failed send go again: they are kept by the service already.
 internal fun AssistantChatMachine.retryFailedSend(
 	host: MachineHost<AssistantChat.Effect>,
 	failed: AssistantChatSession.FailedSend,
@@ -77,7 +81,8 @@ internal fun AssistantChatMachine.retryFailedSend(
 				text = failed.text,
 				suggestionId = failed.suggestionId,
 				screenContext = context,
-				clientTurnId = failed.clientTurnId
+				clientTurnId = failed.clientTurnId,
+				attachments = failed.attachments
 			),
 			draftText = null
 		)
@@ -99,7 +104,8 @@ internal fun AssistantChatMachine.retryFailedSend(
 			suggestionId = failed.suggestionId,
 			screenContext = context,
 			replacesMessageId = failed.clientTurnId,
-			replacesSessionMark = session.conversation?.sessionMark
+			replacesSessionMark = session.conversation?.sessionMark,
+			attachments = failed.attachments
 		),
 		draftText = null
 	)
@@ -110,7 +116,7 @@ internal fun AssistantChatMachine.retryFailedSend(
 // the server refuses it if the restriction still holds.
 internal fun AssistantChatMachine.beginSend(host: MachineHost<AssistantChat.Effect>) {
 	session.turnFailure = null
-	session.photoFailure = null
+	session.attachmentLimitHit = false
 	session.sending = true
 	session.sendingTurnId = null
 

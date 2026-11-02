@@ -67,7 +67,8 @@ class AssistantChatPhotoButtonViewUiTest {
 		onNodeWithTag(AssistantUiTags.PhotoButton).performClick()
 		onNodeWithTag(AssistantUiTags.PhotoPick).performClick()
 
-		assertEquals(false, assertIs<AssistantChat.Action.RequestPhoto>(actions.single()).fromCamera)
+		val request = assertIs<AssistantChat.Action.RequestAttachment>(actions.single())
+		assertEquals(AssistantChat.AttachmentSource.GALLERY, request.source)
 	}
 
 	@Test

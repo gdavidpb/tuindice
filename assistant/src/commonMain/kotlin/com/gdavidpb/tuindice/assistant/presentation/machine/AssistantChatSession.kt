@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
@@ -33,9 +34,8 @@ internal class AssistantChatSession {
 	// A cancellation the server accepted is terminal for this chat while its conversation snapshot catches up.
 	val cancelledTurnIds = mutableSetOf<String>()
 
-	// The notice of a photo that was not read. It is the photo's own: a text turn's failure is not a photo's, and the
-	// other way round. It shows when no text turn has failed.
-	var photoFailure: TurnFailure? = null
+	// The student picked more attachments than the message has room for: the chat says so until one is taken out or sent.
+	var attachmentLimitHit = false
 	var quota: Quota? = null
 	var restriction: Restriction? = null
 	var pendingFailedText: String? = null
@@ -59,7 +59,10 @@ internal class AssistantChatSession {
 	// accepted as is known from its acceptance, so a stop can reach it before its first event.
 	var sending = false
 	var sendingTurnId: String? = null
-	var photoExtracting = false
+
+	// The service keeps attachments on for the student, as the status of the opening says. A status that does not know
+	// them leaves the clip off.
+	var attachmentsEnabled = false
 
 	// The notification card is in this chat: it shows while the chat is empty and no message is being sent.
 	var notificationOfferShown = false
@@ -193,13 +196,15 @@ internal class AssistantChatSession {
 		observedUnconfirmedTurnId = unconfirmedTurnId
 	}
 
-	// What a retry sends again: the text, the suggestion it was picked from, and the client turn id it was sent with. The
+	// What a retry sends again: the text, the suggestion it was picked from, the client turn id it was sent with, and the
+	// attachments it carried. The
 	// answer of a run that failed is a turn of its own: [runEnded] marks that failure, and its retry is a new request.
 	internal data class FailedSend(
 		val text: String,
 		val suggestionId: String?,
 		val clientTurnId: String,
-		val runEnded: Boolean = false
+		val runEnded: Boolean = false,
+			val attachments: List<AssistantAttachment> = emptyList()
 	)
 
 	// A message waiting for the recovery of the unconfirmed turn [turnId]. [restoreText] is what the composer
@@ -207,7 +212,8 @@ internal class AssistantChatSession {
 	internal data class PendingSend(
 		val turnId: String,
 		val params: SendAssistantMessageParams,
-		val restoreText: String?
+		val restoreText: String?,
+			val restoreAttachments: List<AssistantAttachment> = emptyList()
 	)
 
 	internal data class TurnFailure(val message: String, val retryable: Boolean)
@@ -269,8 +275,9 @@ internal fun AssistantChatSession.lastUserMessage(): AssistantUserMessage? {
 
 // The message the turn [turnId] answers, as it was sent. A turn this chat did not send has no record: the last
 // message the conversation has is the one it answers, as the turn was sent before the chat was opened.
+// A message with attachments is retried from the record of its send only: the conversation keeps no attachment ids.
 internal fun AssistantChatSession.failedSendOf(turnId: String): AssistantChatSession.FailedSend? {
-	return sentByTurn[turnId] ?: lastUserMessage()?.let { last ->
+	return sentByTurn[turnId] ?: lastUserMessage()?.takeIf { last -> last.attachments.isEmpty() }?.let { last ->
 		AssistantChatSession.FailedSend(text = last.text, suggestionId = null, clientTurnId = last.id)
 	}
 }
@@ -286,5 +293,5 @@ internal fun AssistantChatSession.endSendUnconfirmed(turnId: String) {
 	sentByTurn[turnId]?.let { sent -> lastFailedSend = sent }
 }
 
-// A send waits while a message is on its way, a turn runs or a photo is read; a suggestion and a retry wait too.
-internal fun AssistantChatSession.sendIsBusy(): Boolean = sending || isRunning() || photoExtracting
+// A send waits while a message is on its way or a turn runs; a suggestion and a retry wait too.
+internal fun AssistantChatSession.sendIsBusy(): Boolean = sending || isRunning()

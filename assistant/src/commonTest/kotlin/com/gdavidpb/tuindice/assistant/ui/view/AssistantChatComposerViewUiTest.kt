@@ -76,7 +76,13 @@ class AssistantChatComposerViewUiTest {
 	fun when_theComposerIsClosed_then_clipTextAndSendShareARow_andTheClipOpensThePhotoMenu() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatComposerView(
-				composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isPhotoEnabled = true),
+				composer = ChatComposerItem(
+					text = "",
+					isEnabled = true,
+					isSendEnabled = false,
+					showsAttach = true,
+					isAttachEnabled = true
+				),
 				isCameraAvailable = true,
 				onAction = {}
 			)
@@ -111,7 +117,13 @@ class AssistantChatComposerViewUiTest {
 	fun when_aTurnOrAPhotoIsBeingRead_then_theClipIsDisabled() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatComposerView(
-				composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isPhotoEnabled = false),
+				composer = ChatComposerItem(
+					text = "",
+					isEnabled = true,
+					isSendEnabled = false,
+					showsAttach = true,
+					isAttachEnabled = false
+				),
 				isCameraAvailable = true,
 				onAction = {}
 			)
@@ -125,7 +137,13 @@ class AssistantChatComposerViewUiTest {
 	fun when_theFieldIsOff_then_theClipIsNotThere() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatComposerView(
-				composer = ChatComposerItem(text = "", isEnabled = false, isSendEnabled = false, isPhotoEnabled = true),
+				composer = ChatComposerItem(
+					text = "",
+					isEnabled = false,
+					isSendEnabled = false,
+					showsAttach = true,
+					isAttachEnabled = true
+				),
 				isCameraAvailable = true,
 				onAction = {}
 			)
@@ -138,7 +156,7 @@ class AssistantChatComposerViewUiTest {
 	@Test
 	fun when_theFieldIsOff_then_theTextDoesNotMove() = runTuIndiceUiTest {
 		var composer by mutableStateOf(
-			ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isPhotoEnabled = true)
+			ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, showsAttach = true, isAttachEnabled = true)
 		)
 		setTuIndiceTestContent {
 			AssistantChatComposerView(
@@ -162,7 +180,13 @@ class AssistantChatComposerViewUiTest {
 	fun when_theFieldIsFocused_then_itOpens_withTheButtonsInARowUnderTheText() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatComposerView(
-				composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isPhotoEnabled = true),
+				composer = ChatComposerItem(
+					text = "",
+					isEnabled = true,
+					isSendEnabled = false,
+					showsAttach = true,
+					isAttachEnabled = true
+				),
 				isCameraAvailable = false,
 				onAction = {}
 			)
@@ -194,7 +218,8 @@ class AssistantChatComposerViewUiTest {
 					text = "una\ndos\ntres",
 					isEnabled = true,
 					isSendEnabled = true,
-					isPhotoEnabled = true
+					showsAttach = true,
+					isAttachEnabled = true
 				),
 				isCameraAvailable = false,
 				onAction = {}
