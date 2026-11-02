@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.data.source.network.persistOutdatedAppStateIfUpgrad
 import com.gdavidpb.tuindice.domain.model.SessionInvalidationReason
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
-import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.api.SendingRequest
@@ -90,19 +89,7 @@ fun createSharedHttpClient(
 			}
 		}
 
-		install(Logging) {
-			this.logger = logger
-			level = LogLevel.ALL
-
-			// The bytes of an attachment are not written to the log: the plugin would write the body of its upload in full,
-			// and bodyFilter does not cover it (Ktor 3.6.0), so the requests to that path are left out of the log.
-			filter { request -> !request.url.encodedPath.endsWith("assistant/v1/attachments") }
-
-			sanitizeHeader { header ->
-				header == HttpHeaders.Authorization ||
-						header == AttestationHeaders.ATTESTATION_TOKEN
-			}
-		}
+		installKtorLogging(logger = logger)
 
 		install(Auth) {
 			installSharedBearerAuth(

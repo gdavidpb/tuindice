@@ -1,9 +1,15 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.logging.appLogger
-import io.ktor.client.plugins.logging.Logger as KtorLogger
+import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.HttpHeaders
 import io.ktor.http.encodeURLQueryComponent
+import io.ktor.http.encodedPath
 import io.ktor.http.parseQueryString
+import io.ktor.client.plugins.logging.Logger as KtorLogger
 
 private const val HTTP_CLIENT_LOG_TAG = "HttpClient"
 private const val REDACTED_LOG_VALUE = "***"
@@ -17,6 +23,25 @@ fun createAppKtorLogger(tag: String = HTTP_CLIENT_LOG_TAG): KtorLogger {
 		}
 	}
 }
+
+// The logging of the client, as the app configures it. The requests to the attachments path are left out of the log:
+// the plugin would write the body of an upload in full, and bodyFilter does not cover it (Ktor 3.6.0). Only the bytes
+// of an attachment go that way, so no other request is affected.
+internal fun HttpClientConfig<*>.installKtorLogging(logger: KtorLogger) {
+	install(Logging) {
+		this.logger = logger
+		level = LogLevel.ALL
+
+		filter { request -> !request.url.encodedPath.endsWith(ATTACHMENTS_PATH) }
+
+		sanitizeHeader { header ->
+			header == HttpHeaders.Authorization ||
+					header == AttestationHeaders.ATTESTATION_TOKEN
+		}
+	}
+}
+
+private const val ATTACHMENTS_PATH = "assistant/v1/attachments"
 
 internal fun redactSensitiveKtorLogMessage(message: String): String {
 	return KtorLogSanitizer.sanitize(message)
