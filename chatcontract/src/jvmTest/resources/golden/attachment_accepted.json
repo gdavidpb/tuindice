@@ -1,0 +1,16 @@
+[
+  {
+    "attachmentId": "att-photo-1",
+    "mediaType": "image/jpeg",
+    "sizeBytes": 245760,
+    "expiresAtMillis": 1767225600000
+  },
+  {
+    "attachmentId": "att-pdf-1",
+    "mediaType": "application/pdf",
+    "sizeBytes": 1048576,
+    "pageCount": 12,
+    "expiresAtMillis": 1767225600000,
+    "name": "Programa MA1111.pdf"
+  }
+]

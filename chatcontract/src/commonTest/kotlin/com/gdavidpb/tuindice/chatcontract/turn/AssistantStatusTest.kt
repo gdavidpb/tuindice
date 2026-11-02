@@ -24,7 +24,7 @@ class AssistantStatusTest {
 		assertEquals(
 			"""{"mode":"guided","consent":{"version":1,"accepted":true,"acceptedAtMillis":1700000000000},""" +
 					""""standing":{"level":"none","appealable":false},""" +
-					""""usage":{"remainingHour":4,"remainingDay":20,"remainingMonth":300}}""",
+					""""usage":{"remainingHour":4,"remainingDay":20,"remainingMonth":300},"attachmentsEnabled":false}""",
 			json
 		)
 	}
@@ -34,5 +34,13 @@ class AssistantStatusTest {
 		val json = ChatContract.json.encodeToString(AssistantStatus.serializer(), status)
 
 		assertEquals(status, ChatContract.json.decodeFromString(AssistantStatus.serializer(), json))
+	}
+
+	@Test
+	fun aStatusWithoutAttachmentsReadsAsAttachmentsOff() {
+		val json = """{"mode":"on","consent":{"version":1,"accepted":true},"standing":{"level":"none"},""" +
+			""""usage":{"remainingHour":4,"remainingDay":20,"remainingMonth":300}}"""
+
+		assertEquals(false, ChatContract.json.decodeFromString(AssistantStatus.serializer(), json).attachmentsEnabled)
 	}
 }

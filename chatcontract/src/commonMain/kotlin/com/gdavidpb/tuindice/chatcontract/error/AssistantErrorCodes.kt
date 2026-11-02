@@ -19,4 +19,22 @@ public object AssistantErrorCodes {
 
 	/** The service could not take the request right now (for example, the turn could not be queued); retry later. */
 	public const val UNAVAILABLE: String = "unavailable"
+
+	/** The attachment is larger than [com.gdavidpb.tuindice.chatcontract.attachment.AttachmentLimits] allow. */
+	public const val ATTACHMENT_TOO_LARGE: String = "attachment_too_large"
+
+	/** The attachment is not a photo or a PDF the service can read, or its bytes do not match its media type. */
+	public const val ATTACHMENT_UNSUPPORTED: String = "attachment_unsupported"
+
+	/** The PDF has too many pages, is protected with a password, or cannot be opened. */
+	public const val ATTACHMENT_UNREADABLE: String = "attachment_unreadable"
+
+	/** A message names an attachment that does not exist, is not the student's, or is no longer kept. */
+	public const val ATTACHMENT_EXPIRED: String = "attachment_expired"
+
+	/** The message carries more attachments, or more bytes of them, than one message allows. */
+	public const val ATTACHMENT_LIMIT: String = "attachment_limit"
+
+	/** The student uploaded as many attachments as a day allows; [AssistantErrorBody.retryAfterSeconds] says when. */
+	public const val ATTACHMENT_DAILY_LIMIT: String = "attachment_daily_limit"
 }

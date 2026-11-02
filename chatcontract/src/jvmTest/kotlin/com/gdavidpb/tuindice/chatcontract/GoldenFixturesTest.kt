@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.chatcontract
 
+import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentAccepted
 import com.gdavidpb.tuindice.chatcontract.component.ChatComponent
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
 import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionResult
@@ -17,7 +18,8 @@ import kotlin.test.assertEquals
  * Golden files are written by hand from the contract, never with its encoder. Decoding them and encoding them again
  * must give the same JSON tree, so a renamed field, a changed default or a changed discriminator fails here.
  * They cover the types the backend stores as JSON and reads back: intent args, events, extraction results and the
- * components inside them. The backend does not read these files; it shares the contract, not the goldens.
+ * components inside them; and the answers the app decodes, such as an accepted attachment. The backend does not read
+ * these files; it shares the contract, not the goldens.
  */
 class GoldenFixturesTest {
 
@@ -56,6 +58,10 @@ class GoldenFixturesTest {
 	@Test
 	fun extractionResultsAreStableOnTheWire() =
 		assertGolden("extraction_result.json", ListSerializer(ExtractionResult.serializer()))
+
+	@Test
+	fun attachmentsAcceptedAreStableOnTheWire() =
+		assertGolden("attachment_accepted.json", ListSerializer(AttachmentAccepted.serializer()))
 
 	@Test
 	fun componentsAreStableOnTheWire() = assertGolden("components.json", ListSerializer(ChatComponent.serializer()))

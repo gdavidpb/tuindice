@@ -1,7 +1,7 @@
 {
   "conversationId": "conv-1",
   "clientTurnId": "client-turn-1",
-  "message": { "text": "Agrega mis evaluaciones", "attachmentIds": [] },
+  "message": { "text": "Agrega mis evaluaciones", "attachmentIds": ["att-photo-1", "att-pdf-1"] },
   "screenContext": {
     "screen": "evaluations",
     "entities": [{ "kind": "subject", "id": "IS-101" }],
