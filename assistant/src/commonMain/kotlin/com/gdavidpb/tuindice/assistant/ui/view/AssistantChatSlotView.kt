@@ -17,8 +17,9 @@ import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
 // A place of the conversation's column that comes and goes (the offer, the progress label, the
-// notice, the suggestions). It carries the 16 dp that separates it from what is above it, so that, while it is gone,
-// it leaves no gap behind: a column that spaced its children would keep the gap of an empty slot.
+// notice, the suggestions). It carries the 8 dp (TuIndiceSpacing.Medium) that separates it from what is above it,
+// so that, while it is gone, it leaves no gap behind: a column that spaced its children would keep the gap of an empty
+// slot.
 //
 // [visible] true enters with a fade and a growth in height (200 ms) and false leaves with a fade and a shrink (150 ms);
 // a slot that is visible when it is first composed is simply there. With [fadeOnly] it does not change height when it

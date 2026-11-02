@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.assistant.ui.INTENT_ID
 import com.gdavidpb.tuindice.assistant.ui.agentMessage
 import com.gdavidpb.tuindice.assistant.ui.contentState
 import com.gdavidpb.tuindice.assistant.ui.intentCard
-import com.gdavidpb.tuindice.assistant.ui.screenContext
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeEnabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -61,7 +60,7 @@ class AssistantChatContentUiTest {
 	fun when_theScreenHasContext_then_noContextCardIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatContent(
-				state = contentState(context = screenContext()),
+				state = contentState(),
 				onAction = {},
 				modifier = Modifier.fillMaxSize()
 			)
@@ -114,7 +113,7 @@ class AssistantChatContentUiTest {
 			AssistantChatContent(
 				state = contentState(
 					composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isPhotoEnabled = false)
-				).copy(isExtracting = true),
+				).copy(isExtracting = true, progressLabel = PHOTO_PROGRESS),
 				onAction = {},
 				isCameraAvailable = true,
 				modifier = Modifier.fillMaxSize()
@@ -236,6 +235,7 @@ class AssistantChatContentUiTest {
 
 	private companion object {
 		val CONTAINER_HEIGHT = 300.dp
+		const val PHOTO_PROGRESS = "Leyendo tu foto"
 		const val FIRST_TEXT = "Encontré 3 evaluaciones."
 		val LONG_TEXT = "Revisa cada una antes de confirmar, porque se agregan a tu historial de evaluaciones. ".repeat(20)
 	}

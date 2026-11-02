@@ -12,3 +12,10 @@ A behavior that a scenario can drive does not belong here: it goes in the catalo
 
 The [assistant keyboard note](assistant-keyboard.md) also records OS keyboard behavior that the deterministic typing
 scenario cannot verify; this does not introduce a separate presentation action.
+
+## Back on iOS
+
+iOS has no system back action: `pressBack` answers `false` there (`conformance-back` is Android only, and the
+`back()` step is restricted to Android). The assistant scenarios that leave the chat do it with its `ChatBack` button.
+Nothing in the catalog or in `iosApp/UITests/` drives the iOS edge swipe that leaves a screen, so that gesture has no
+coverage here.

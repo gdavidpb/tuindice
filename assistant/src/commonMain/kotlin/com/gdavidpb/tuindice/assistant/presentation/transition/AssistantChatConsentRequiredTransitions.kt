@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 
-// The consent the student gives before the chat opens. A refused acceptance keeps the sheet here, with its error, and
+// The consent the student gives before the chat opens. A refused acceptance keeps the chat here, with its error, and
 // the student can accept again. The privacy policy opens outside the app and leaves the consent as it was.
 // The outcomes of the jobs the content started reach the consent too: the session takes each one, and the consent
 // keeps its state.

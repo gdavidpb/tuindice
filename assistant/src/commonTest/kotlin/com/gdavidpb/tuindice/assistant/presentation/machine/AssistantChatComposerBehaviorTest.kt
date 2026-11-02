@@ -16,7 +16,7 @@ class AssistantChatComposerBehaviorTest {
 	fun changeText_keepsTheItemsOfTheConversation_andPresentsOnlyTheComposer() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.conversation.conversation.value = assistantConversation(
-			items = listOf(agentMessage("a1", Text("Tu promedio es 15,4")))
+			items = listOf(agentMessage("a1", Text("Tu promedio es 15.4")))
 		)
 		viewModel.openAction(null)
 		val before = viewModel.content()

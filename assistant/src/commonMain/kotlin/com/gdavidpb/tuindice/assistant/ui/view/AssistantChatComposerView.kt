@@ -196,7 +196,8 @@ private fun ComposerStartIcon(
 	}
 }
 
-// The field's outline: a neutral border, focused or not, because the accent belongs to the send button, not the field.
+// The field's outline: the same neutral border, focused or not, because the accent belongs to the send button, not the
+// field. Focus only thickens it.
 @Composable
 private fun ComposerContainer(enabled: Boolean, interactionSource: MutableInteractionSource) {
 	OutlinedTextFieldDefaults.Container(
@@ -204,7 +205,7 @@ private fun ComposerContainer(enabled: Boolean, interactionSource: MutableIntera
 		isError = false,
 		interactionSource = interactionSource,
 		colors = OutlinedTextFieldDefaults.colors(
-			focusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+			focusedBorderColor = MaterialTheme.colorScheme.outline,
 			unfocusedBorderColor = MaterialTheme.colorScheme.outline
 		),
 		shape = RoundedCornerShape(TuIndiceRadius.Large)

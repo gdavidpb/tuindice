@@ -6,8 +6,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -18,7 +16,6 @@ import com.gdavidpb.tuindice.assistant.ui.screen.AssistantChatScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.NotificationPermissionRepository
-import com.gdavidpb.tuindice.base.presentation.navigation.LocalNavEntryScope
 import com.gdavidpb.tuindice.base.presentation.navigation.TuIndiceNavActions
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import io.github.vinceglb.filekit.FileKit
@@ -34,7 +31,6 @@ import tuindice.assistant.generated.resources.assistant_nav_copied
 
 // The chat opens with the previous screen's context. Its back action and component sheets go through navigation; copy,
 // other destinations and the enrollment proof go through the host. Its notices have their own snackbar host.
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AssistantChatRoute(
 	viewModel: AssistantChatViewModel,
@@ -51,9 +47,6 @@ fun AssistantChatRoute(
 	val uriHandler = LocalUriHandler.current
 	val snackbarHostState = remember { SnackbarHostState() }
 	val scope = rememberCoroutineScope()
-	val isCurrent = LocalNavEntryScope.current.isCurrent.value
-
-	BackHandler(enabled = isCurrent) { viewModel.dispatch(AssistantChat.Action.Dismiss) }
 
 	// A new notice replaces the one on screen, as the host of the screen does.
 	val showSnackBar: (String) -> Unit = { message ->

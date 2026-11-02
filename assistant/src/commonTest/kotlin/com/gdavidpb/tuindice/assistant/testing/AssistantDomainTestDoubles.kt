@@ -328,7 +328,7 @@ internal class RecordingAssistantFeedbackRepository : AssistantFeedbackRepositor
 	// The failure every report breaks with, when a test makes the server refuse it. A refused report is not kept.
 	var reportError: Throwable? = null
 
-	// Holds a report until the test releases it: the service answers while the sheet goes on.
+	// Holds a report until the test releases it: the service answers while the chat goes on.
 	var reportGate: CompletableDeferred<Unit>? = null
 
 	override suspend fun report(report: MessageReport) {
@@ -395,7 +395,7 @@ internal class RecordingAssistantStandingRepository(
 	var statusReads = 0
 		private set
 
-	// Holds the reads of the status until the test releases them: the server answers late, while the sheet goes on.
+	// Holds the reads of the status until the test releases them: the server answers late, while the chat goes on.
 	var gate: CompletableDeferred<Unit>? = null
 
 	override suspend fun status(): AssistantStatus {

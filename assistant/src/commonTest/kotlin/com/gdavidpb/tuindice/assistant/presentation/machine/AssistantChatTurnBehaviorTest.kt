@@ -474,7 +474,7 @@ class AssistantChatTurnBehaviorTest {
 	}
 
 	@Test
-	fun assistantDisabled_onSend_closesTheSheet() = chatTest { fixture, viewModel ->
+	fun assistantDisabled_onSend_closesTheChat() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.turns.sendError = AssistantRequestRefusedException(AssistantErrorCodes.ASSISTANT_DISABLED, 60, "off")
 		viewModel.openAction(null)
@@ -596,7 +596,6 @@ class AssistantChatTurnBehaviorTest {
 		viewModel.changeTextAction("hola")
 		viewModel.sendMessageAction()
 
-		assertNull(viewModel.content().context)
 		assertNull(fixture.turns.requests.single().screenContext)
 	}
 

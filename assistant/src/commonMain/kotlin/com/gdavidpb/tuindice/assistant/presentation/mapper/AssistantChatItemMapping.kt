@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.utils.extension.withoutBoldMarkers
 import com.gdavidpb.tuindice.chatcontract.component.UnknownChatComponent
 import com.gdavidpb.tuindice.chatcontract.intent.AddEvaluationsArgs
 import com.gdavidpb.tuindice.chatcontract.intent.Intent
@@ -102,12 +103,13 @@ private fun MessagePart.isNotShown(): Boolean {
 	return this is UnknownMessagePart || component is UnknownChatComponent
 }
 
-// The text the student copies: the texts of the message and the fallback of its components, in order.
+// The text the student copies: what the message shows, without its bold markers, and the fallback of its components, in
+// order.
 private fun AssistantMessage.copyText(): String {
 	return parts
 		.mapNotNull { part ->
 			when (part) {
-				is Text -> part.text
+				is Text -> part.text.withoutBoldMarkers()
 				is Component -> part.component.fallbackText
 				else -> null
 			}

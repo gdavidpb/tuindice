@@ -32,7 +32,7 @@ import kotlin.test.assertTrue
 
 class AssistantChatAccessBehaviorTest {
 	@Test
-	fun open_whileTheAssistantIsOff_closesTheSheet() = chatTest { fixture, viewModel ->
+	fun open_whileTheAssistantIsOff_closesTheChat() = chatTest { fixture, viewModel ->
 		fixture.availability.availability.value = AssistantAvailability(mode = AssistantMode.OFF, serverDisabled = false)
 
 		viewModel.openAction(null)
@@ -42,7 +42,7 @@ class AssistantChatAccessBehaviorTest {
 	}
 
 	@Test
-	fun assistantGoingOffMidChat_closesTheSheet() = chatTest { fixture, viewModel ->
+	fun assistantGoingOffMidChat_closesTheChat() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		viewModel.openAction(null)
 		assertTrue(viewModel.state.value is AssistantChat.State.Content)
@@ -105,7 +105,7 @@ class AssistantChatAccessBehaviorTest {
 	}
 
 	@Test
-	fun declineConsent_closesTheSheet() = chatTest { fixture, viewModel ->
+	fun declineConsent_closesTheChat() = chatTest { fixture, viewModel ->
 		viewModel.openAction(null)
 
 		viewModel.declineConsentAction()
@@ -137,7 +137,7 @@ class AssistantChatAccessBehaviorTest {
 	}
 
 	@Test
-	fun openPrivacyPolicy_fromTheChat_opensThePolicy_andTheSheetStays() = chatTest { fixture, viewModel ->
+	fun openPrivacyPolicy_fromTheChat_opensThePolicy_andTheChatStays() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		viewModel.openAction(null)
 

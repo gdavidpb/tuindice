@@ -14,9 +14,9 @@ import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
 import kotlinx.coroutines.Job
 
-// The extended state of the chat sheet: what the table keeps besides its state. The conversation is the one the store
-// observed; the rest is what the student did on the sheet and what the outcomes of their requests left. The table's
-// rows write it one at a time. The commands that open the sheet write their part before the table takes their outcome,
+// The extended state of the chat: what the table keeps besides its state. The conversation is the one the store
+// observed; the rest is what the student did in the chat and what the outcomes of their requests left. The table's
+// rows write it one at a time. The commands that open the chat write their part before the table takes their outcome,
 // and nothing else writes it from outside the table, so it needs no lock.
 internal class AssistantChatSession {
 	var openedContext: AssistantScreenContext? = null
@@ -30,7 +30,7 @@ internal class AssistantChatSession {
 	var lastFailedSend: FailedSend? = null
 	var turnFailure: TurnFailure? = null
 
-	// A cancellation the server accepted is terminal for this sheet while its conversation snapshot catches up.
+	// A cancellation the server accepted is terminal for this chat while its conversation snapshot catches up.
 	val cancelledTurnIds = mutableSetOf<String>()
 
 	// The notice of a photo that was not read. It is the photo's own: a text turn's failure is not a photo's, and the
@@ -61,7 +61,7 @@ internal class AssistantChatSession {
 	var sendingTurnId: String? = null
 	var photoExtracting = false
 
-	// The notification card is on this sheet: it shows while the chat is empty and no message is being sent.
+	// The notification card is in this chat: it shows while the chat is empty and no message is being sent.
 	var notificationOfferShown = false
 	val usefulByMessage = mutableMapOf<String, Boolean>()
 
@@ -70,7 +70,7 @@ internal class AssistantChatSession {
 	val reportedMessages = mutableSetOf<String>()
 	val selectionByDraft = mutableMapOf<Pair<String, String>, Boolean>()
 
-	// The answers to «¿Sigue aplicando?» the service saved on this sheet, by memory. [MemoryAnswer.readsBefore] is the
+	// The answers to «¿Sigue aplicando?» the service saved in this chat, by memory. [MemoryAnswer.readsBefore] is the
 	// number of the last read asked when the answer was saved: a read asked after it decides the answer again.
 	val answeredMemories = mutableMapOf<String, MemoryAnswer>()
 
@@ -228,7 +228,7 @@ internal class AssistantChatSession {
 	}
 }
 
-// The answer a «¿Sigue aplicando?» card of [memoryId] shows, null while it still asks. The answer saved on this sheet
+// The answer a «¿Sigue aplicando?» card of [memoryId] shows, null while it still asks. The answer saved in this chat
 // holds over the reads asked before it, unless a new card of the memory asked a read after it. A card whose read has
 // not come back, or failed, still asks; otherwise the state of the memory in the list decides.
 internal fun AssistantChatSession.memoryAnswer(memoryId: String): Boolean? {
@@ -267,8 +267,8 @@ internal fun AssistantChatSession.lastUserMessage(): AssistantUserMessage? {
 		?.message
 }
 
-// The message the turn [turnId] answers, as it was sent. A turn this sheet did not send has no record: the last
-// message the conversation has is the one it answers, as the turn was sent before the sheet was opened.
+// The message the turn [turnId] answers, as it was sent. A turn this chat did not send has no record: the last
+// message the conversation has is the one it answers, as the turn was sent before the chat was opened.
 internal fun AssistantChatSession.failedSendOf(turnId: String): AssistantChatSession.FailedSend? {
 	return sentByTurn[turnId] ?: lastUserMessage()?.let { last ->
 		AssistantChatSession.FailedSend(text = last.text, suggestionId = null, clientTurnId = last.id)

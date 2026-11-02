@@ -61,7 +61,7 @@ class AssistantChatNotificationOfferTest {
 	}
 
 	@Test
-	fun theOffer_isNotShownAgain_onAnotherSheetOfTheSameDevice() {
+	fun theOffer_isNotShownAgain_onAnotherChatOfTheSameDevice() {
 		val offers = RecordingNotificationOfferRepository()
 
 		chatTest(AssistantChatFixture(notificationOffers = offers)) { fixture, viewModel ->

@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.style.AssistantChatMotion
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
@@ -39,7 +42,11 @@ fun AssistantProgressView(
 	val atomSize = with(LocalDensity.current) { MaterialTheme.typography.bodyMedium.lineHeight.toDp() }
 
 	Row(
-		modifier = modifier.fillMaxWidth().testTag(AssistantUiTags.ProgressContainer),
+		modifier = modifier
+			.fillMaxWidth()
+			.testTag(AssistantUiTags.ProgressContainer)
+			// The status is news as its label moves on: a screen reader announces the new label.
+			.semantics { liveRegion = LiveRegionMode.Polite },
 		verticalAlignment = Alignment.CenterVertically,
 		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Small)
 	) {

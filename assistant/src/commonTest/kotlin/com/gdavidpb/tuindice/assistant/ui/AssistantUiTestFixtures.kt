@@ -11,21 +11,17 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentDraftItem
-import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
-import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.chatcontract.intent.IntentEffectLine
 
 internal const val INTENT_ID = "intent-1"
 
 internal fun contentState(
 	items: List<ChatItem> = emptyList(),
-	context: AssistantScreenContext? = null,
 	composer: ChatComposerItem = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false),
 	suggestions: List<ChatSuggestionItem> = emptyList(),
 	isGuided: Boolean = false
 ): AssistantChat.State.Content =
 	AssistantChat.State.Content(
-		context = context,
 		items = items,
 		progressLabel = null,
 		composer = composer,
@@ -36,7 +32,7 @@ internal fun contentState(
 
 internal fun agentMessage(
 	id: String = "message-1",
-	text: String = "Tu promedio es 16,2.",
+	text: String = "Tu promedio es 16.2.",
 	useful: Boolean? = null,
 	reported: Boolean = false
 ): ChatItem.Agent =
@@ -47,8 +43,6 @@ internal fun agentMessage(
 		reported = reported,
 		copyText = text
 	)
-
-internal fun screenContext(): AssistantScreenContext = AssistantScreenContext(screen = AssistantScreen.EVALUATIONS)
 
 internal fun intentCard(
 	status: IntentCardStatus = IntentCardStatus.Open,

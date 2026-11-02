@@ -38,12 +38,12 @@ class AssistantChatTurns(
 	private var turnJob: Job? = null
 	private var photoJob: Job? = null
 
-	// The conversation is observed by its collaborator, which starts the observation once per sheet.
+	// The conversation is observed by its collaborator, which starts the observation once per chat.
 	fun observeConversation(host: MachineHost<AssistantChat.Effect>) {
 		conversation.observe(host)
 	}
 
-	// The turn that was running when the sheet opened is followed again from the seq it had reached.
+	// The turn that was running when the chat opened is followed again from the seq it had reached.
 	fun resumeTurn(host: MachineHost<AssistantChat.Effect>) {
 		turnJob?.cancel()
 		turnJob = host.launchMachineJob {
@@ -145,7 +145,7 @@ class AssistantChatTurns(
 		}
 	}
 
-	// A successful cancellation is terminal for the local stream: the sheet must stop offering Stop before the next event.
+	// A successful cancellation is terminal for the local stream: the chat must stop offering Stop before the next event.
 	fun cancel(host: MachineHost<AssistantChat.Effect>, turnId: String) {
 		val turnJobAtRequest = turnJob
 

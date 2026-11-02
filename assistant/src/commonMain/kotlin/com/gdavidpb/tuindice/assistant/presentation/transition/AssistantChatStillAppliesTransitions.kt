@@ -12,7 +12,7 @@ import com.gdavidpb.tuindice.chatcontract.memory.MemoryVocabulary
 /**
  * The answers to «¿Sigue aplicando?» and the memory states the service lists. A saved answer is kept; a refused one
  * waits for the read asked after its refusal, and the snackbar says so only when the memory still waits. The content
- * and the consent apply these outcomes alike; [present] shows them when the sheet is on the content.
+ * and the consent apply these outcomes alike; [present] shows them when the chat is on the content.
  */
 internal fun <S : AssistantChat.State> MachineDefinitionBuilder.StateTransitions<
 	AssistantChat.State,
@@ -68,7 +68,7 @@ internal fun <S : AssistantChat.State> MachineDefinitionBuilder.StateTransitions
 	}
 
 	// A read that failed leaves its cards open, with their buttons: no read is asked again until a new card comes or the
-	// sheet opens again. The refused answers this very read was asked for say so, since the memory may still wait.
+	// chat opens again. The refused answers this very read was asked for say so, since the memory may still wait.
 	on<AssistantChatInternalEvent.MemoryStatesFailed>(
 		emits = setOf(AssistantChat.Effect.ShowSnackBar::class)
 	) { state, event ->

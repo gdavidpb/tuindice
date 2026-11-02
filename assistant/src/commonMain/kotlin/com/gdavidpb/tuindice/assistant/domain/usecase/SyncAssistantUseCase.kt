@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 /**
- * Brings the device in line with the server when the sheet opens or refreshes: it reads the status the server gives the
+ * Brings the device in line with the server when the chat opens or refreshes: it reads the status the server gives the
  * student, applies its mode and its consent, and sends the outcomes of the intents the server has not taken yet.
  */
 class SyncAssistantUseCase(

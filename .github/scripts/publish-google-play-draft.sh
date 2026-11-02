@@ -47,13 +47,51 @@ write_release_exists_state() {
 	fi
 }
 
+# One request to the Google Play API. curl runs without --fail so the body Play returns is kept: on a non-2xx status it
+# goes to stderr with the HTTP code, and on a transport failure it is returned with curl's exit code. A 2xx body goes to
+# stdout. The token is never printed. Usage: play_api_request METHOD URL [CONTENT_TYPE DATA_FILE]
+play_api_request() {
+	local method="$1"
+	local url="$2"
+	local content_type="${3:-}"
+	local data_file="${4:-}"
+	local body_args=()
+	local response_file
+	local status_code
+	local curl_status
+
+	if [[ -n "$data_file" ]]; then
+		body_args=(-H "Content-Type: ${content_type}" --data-binary "@${data_file}")
+	fi
+
+	response_file="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-play-response.XXXXXX")"
+	if status_code="$(
+		curl --silent --show-error \
+			-X "$method" \
+			-H "Authorization: Bearer ${ACCESS_TOKEN}" \
+			-H "Accept: application/json" \
+			${body_args[@]+"${body_args[@]}"} \
+			-o "$response_file" \
+			-w '%{http_code}' \
+			"$url"
+	)"; then
+		if [[ ! "$status_code" =~ ^2[0-9][0-9]$ ]]; then
+			cat "$response_file" >&2 || true
+			rm -f "$response_file"
+			die "Google Play API ${method} failed with HTTP ${status_code}: ${url}"
+		fi
+		cat "$response_file"
+		rm -f "$response_file"
+	else
+		curl_status="$?"
+		cat "$response_file" >&2 || true
+		rm -f "$response_file"
+		return "$curl_status"
+	fi
+}
+
 api_post() {
-	local url="$1"
-	curl --fail --silent --show-error \
-		-X POST \
-		-H "Authorization: Bearer ${ACCESS_TOKEN}" \
-		-H "Accept: application/json" \
-		"$url"
+	play_api_request POST "$1"
 }
 
 api_get_json() {
@@ -84,35 +122,8 @@ api_get_json() {
 api_put_json() {
 	local url="$1"
 	local json_file="$2"
-	local response_file
-	local status_code
-	local curl_status
 
-	response_file="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-play-response.XXXXXX")"
-	if status_code="$(
-		curl --silent --show-error \
-			-X PUT \
-			-H "Authorization: Bearer ${ACCESS_TOKEN}" \
-			-H "Accept: application/json" \
-			-H "Content-Type: application/json" \
-			--data-binary "@${json_file}" \
-			-o "$response_file" \
-			-w '%{http_code}' \
-			"$url"
-	)"; then
-		if [[ ! "$status_code" =~ ^2[0-9][0-9]$ ]]; then
-			cat "$response_file" >&2 || true
-			rm -f "$response_file"
-			die "Google Play API PUT failed with HTTP ${status_code}: ${url}"
-		fi
-		cat "$response_file"
-	else
-		curl_status="$?"
-		cat "$response_file" >&2 || true
-		rm -f "$response_file"
-		return "$curl_status"
-	fi
-	rm -f "$response_file"
+	play_api_request PUT "$url" "application/json" "$json_file"
 }
 
 api_delete() {
@@ -171,7 +182,11 @@ if api_get_json "${API_ROOT}/edits/${EDIT_ID}/tracks/${GOOGLE_PLAY_TRACK}" "$TRA
 		' <<<"$DRAFT_TO_REPLACE" >/dev/null; then
 			die "Google Play track ${GOOGLE_PLAY_TRACK} has a newer or ambiguous draft; refusing to replace it with ${VERSION_NAME} (${ANDROID_VERSION_CODE})."
 		fi
-		info "Replacing an older Google Play draft on track ${GOOGLE_PLAY_TRACK} with ${VERSION_NAME} (${ANDROID_VERSION_CODE})."
+		if [[ "$CHECK_ONLY" == "1" ]]; then
+			info "An older Google Play draft on track ${GOOGLE_PLAY_TRACK} will be replaced by ${VERSION_NAME} (${ANDROID_VERSION_CODE})."
+		else
+			info "Replacing an older Google Play draft on track ${GOOGLE_PLAY_TRACK} with ${VERSION_NAME} (${ANDROID_VERSION_CODE}) when the edit is committed."
+		fi
 	fi
 else
 	info "Google Play track ${GOOGLE_PLAY_TRACK} does not exist in edit ${EDIT_ID}; continuing with first draft upload."
@@ -188,20 +203,16 @@ fi
 
 info "Uploading ${ANDROID_AAB_PATH} to Google Play edit ${EDIT_ID}."
 UPLOADED_VERSION_CODE="$(
-	curl --fail --silent --show-error \
-		-X POST \
-		-H "Authorization: Bearer ${ACCESS_TOKEN}" \
-		-H "Accept: application/json" \
-		-H "Content-Type: application/octet-stream" \
-		--data-binary "@${ANDROID_AAB_PATH}" \
-		"${UPLOAD_ROOT}/edits/${EDIT_ID}/bundles?uploadType=media" \
+	play_api_request POST "${UPLOAD_ROOT}/edits/${EDIT_ID}/bundles?uploadType=media" \
+		"application/octet-stream" "$ANDROID_AAB_PATH" \
 		| jq -r '.versionCode // empty'
 )"
 
 [[ -n "$UPLOADED_VERSION_CODE" ]] || die "Google Play bundle upload did not return a versionCode."
 [[ "$UPLOADED_VERSION_CODE" == "$ANDROID_VERSION_CODE" ]] || die "Uploaded versionCode ${UPLOADED_VERSION_CODE} does not match $(app_version_file) androidVersionCode ${ANDROID_VERSION_CODE}."
 
-# Preserve the other releases returned for the track in the update request.
+# Every release but the draft validated above goes back unchanged, so this does not depend on whether the API treats an
+# update as a full or a partial replacement; the new draft takes the place of the old one.
 PRESERVED_RELEASES='[]'
 if [[ "$TRACK_EXISTS" == "1" ]]; then
 	PRESERVED_RELEASES="$(
@@ -235,6 +246,10 @@ jq -n \
 			]
 		)
 	}' >"$TRACK_PAYLOAD"
+
+if jq -e '(.releaseNotes // []) | length > 0' <<<"$DRAFT_TO_REPLACE" >/dev/null; then
+	warn "The new draft ${VERSION_NAME} (${ANDROID_VERSION_CODE}) inherits the release notes of the replaced draft; review them in Play Console before publishing."
+fi
 
 info "Creating Google Play draft release on track ${GOOGLE_PLAY_TRACK}."
 api_put_json "${API_ROOT}/edits/${EDIT_ID}/tracks/${GOOGLE_PLAY_TRACK}" "$TRACK_PAYLOAD" >/dev/null

@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.chatcontract.abuse.AbuseStanding
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 
 /**
- * Internal machine inputs of the chat sheet: the decisions of Open, the availability and the conversation the store
+ * Internal machine inputs of the chat: the decisions of Open, the availability and the conversation the store
  * observes, and the outcomes of the async commands. Each outcome is its own symbol, so every row keeps a fixed target.
  */
 sealed interface AssistantChatInternalEvent {
@@ -19,14 +19,14 @@ sealed interface AssistantChatInternalEvent {
 
 	data object OpeningReady : AssistantChatInternalEvent
 
-	// The availability observed while the sheet is open: off closes it; on tells whether it is guided.
+	// The availability observed while the chat is open: off closes it; on tells whether it is guided.
 	data object AssistantOff : AssistantChatInternalEvent
 
 	data class AssistantOn(val guided: Boolean) : AssistantChatInternalEvent
 
 	data object ConsentAccepted : AssistantChatInternalEvent
 
-	// The consent could not be given: the sheet says so and asks again.
+	// The consent could not be given: the chat says so and asks again.
 	data object ConsentAcceptFailed : AssistantChatInternalEvent
 
 	// The conversation the store holds, with the cards of the Evaluations tab for the evaluations its lists name.
@@ -35,7 +35,7 @@ sealed interface AssistantChatInternalEvent {
 		val evaluationCards: Map<String, EvaluationCardItem> = emptyMap()
 	) : AssistantChatInternalEvent
 
-	// Outcomes of a send: an accepted turn is followed; a refusal either closes the sheet or lands in the content. The
+	// Outcomes of a send: an accepted turn is followed; a refusal either closes the chat or lands in the content. The
 	// message accepted is the one the turn answers, as it was sent: its text, its suggestion and the client turn id it was
 	// sent with, so the retry of the turn sends that message again, and another message is told apart by its id.
 	data class TurnAccepted(

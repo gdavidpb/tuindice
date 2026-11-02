@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.base.ui.view
 
 import androidx.compose.ui.text.font.FontWeight
+import com.gdavidpb.tuindice.base.utils.extension.withoutBoldMarkers
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -37,5 +38,14 @@ class BoldMarkerAnnotatedTextTest {
 		assertEquals("Bien y **sin cerrar", annotatedText.text)
 		assertEquals(1, annotatedText.spanStyles.size)
 		assertEquals("Bien", annotatedText.text.substring(annotatedText.spanStyles[0].start, annotatedText.spanStyles[0].end))
+	}
+
+	@Test
+	fun withoutBoldMarkers_readsAsTheAnnotatedText() {
+		val texts = listOf("**TuIndice** ya **está**", "sin **cerrar", "****", "", "**", "a ** b ** c **")
+
+		texts.forEach { text ->
+			assertEquals(text.toBoldMarkerAnnotatedText().text, text.withoutBoldMarkers())
+		}
 	}
 }

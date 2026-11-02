@@ -17,7 +17,6 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.agentMessage
 import com.gdavidpb.tuindice.assistant.ui.contentState
-import com.gdavidpb.tuindice.assistant.ui.screenContext
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -61,7 +60,7 @@ class AssistantChatScreenUiTest {
 	fun when_conversationIsOpen_then_theTitleSitsAboveTheMessages_afterTheSparkle() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatScreen(
-				state = contentState(context = screenContext(), items = listOf(agentMessage())),
+				state = contentState(items = listOf(agentMessage())),
 				onAction = {}
 			)
 		}
@@ -124,7 +123,7 @@ class AssistantChatScreenUiTest {
 		}
 
 		waitForIdle()
-		state.value = contentState(context = screenContext())
+		state.value = contentState()
 		waitForIdle()
 
 		onNodeWithTag(AssistantUiTags.Composer).assertIsDisplayed()
@@ -136,7 +135,7 @@ class AssistantChatScreenUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			AssistantChatScreen(
-				state = contentState(context = screenContext(), items = listOf(agentMessage())),
+				state = contentState(items = listOf(agentMessage())),
 				onAction = { actions.add(it) }
 			)
 		}

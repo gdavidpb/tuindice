@@ -40,14 +40,28 @@ class AssistantChatMessageBehaviorTest {
 	fun copy_handsTheTextOfTheMessageToTheDevice() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.conversation.conversation.value = assistantConversation(
-			items = listOf(agentMessage("a1", Text("Tu promedio es 15,4")))
+			items = listOf(agentMessage("a1", Text("Tu promedio es 15.4")))
 		)
 		viewModel.openAction(null)
 
 		viewModel.copyMessageAction("a1")
 
 		val copied = fixture.effects.single() as AssistantChat.Effect.CopyText
-		assertEquals("Tu promedio es 15,4", copied.text)
+		assertEquals("Tu promedio es 15.4", copied.text)
+	}
+
+	@Test
+	fun copy_handsWhatTheMessageShows_withoutItsBoldMarkers() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(agentMessage("a1", Text("Tu promedio es **15.4** y **sin cerrar")))
+		)
+		viewModel.openAction(null)
+
+		viewModel.copyMessageAction("a1")
+
+		val copied = fixture.effects.single() as AssistantChat.Effect.CopyText
+		assertEquals("Tu promedio es 15.4 y **sin cerrar", copied.text)
 	}
 
 	@Test
@@ -132,21 +146,21 @@ class AssistantChatMessageBehaviorTest {
 	}
 
 	@Test
-	fun navigate_opensTheScreen_andLeavesTheClosingOfTheSheetToTheJump() = chatTest { fixture, viewModel ->
+	fun navigate_opensTheScreen_andLeavesTheClosingOfTheChatToTheJump() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		viewModel.openAction(null)
 		val refs = listOf(EntityRef(kind = EntityKind.TERM, id = "2026-2"))
 
 		viewModel.openNavTargetAction(NavTarget.SUMMARY, refs)
 
-		// One effect: the jump closes the sheet itself, and a Dismiss after it would close the tab it landed on.
+		// One effect: the jump closes the chat itself, and a Dismiss after it would close the tab it landed on.
 		val navigation = fixture.effects.single() as AssistantChat.Effect.NavigateTo
 		assertEquals(NavTarget.SUMMARY, navigation.target)
 		assertEquals(refs, navigation.entityRefs)
 	}
 
 	@Test
-	fun componentSheet_opensTheComponentOnItsOwnSheet() = chatTest { fixture, viewModel ->
+	fun componentChat_opensTheComponentOnItsOwnChat() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		viewModel.openAction(null)
 
@@ -169,7 +183,7 @@ class AssistantChatMessageBehaviorTest {
 	}
 
 	@Test
-	fun dismiss_closesTheSheet() = chatTest { fixture, viewModel ->
+	fun dismiss_closesTheChat() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		viewModel.openAction(null)
 

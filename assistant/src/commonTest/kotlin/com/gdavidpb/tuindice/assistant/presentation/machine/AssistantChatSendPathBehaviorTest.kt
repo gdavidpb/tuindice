@@ -22,7 +22,7 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-// The send path of the chat sheet: a new message waits for an unconfirmed answer to be recovered, and the retry
+// The send path of the chat: a new message waits for an unconfirmed answer to be recovered, and the retry
 // of a run that failed takes the place of the failed question. The other sends and retries are in
 // AssistantChatTurnBehaviorTest.
 class AssistantChatSendPathBehaviorTest {
@@ -121,10 +121,10 @@ class AssistantChatSendPathBehaviorTest {
 		assertFalse(viewModel.content().isSending)
 	}
 
-	// The question a retry replaces leaves the conversation: a sheet opened again on the same conversation shows the retry
+	// The question a retry replaces leaves the conversation: a chat opened again on the same conversation shows the retry
 	// and not the question it replaced.
 	@Test
-	fun aRetryOfARunError_leavesNoQuestionBehind_whenTheSheetIsOpenedAgain() = chatTest { fixture, viewModel ->
+	fun aRetryOfARunError_leavesNoQuestionBehind_whenTheChatIsOpenedAgain() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.turns.events = listOf(RunError(seq = 1, turnId = "t1", code = RunErrorCode.TRANSIENT, retryable = true))
 		viewModel.openAction(null)
@@ -225,7 +225,7 @@ class AssistantChatSendPathBehaviorTest {
 	}
 
 	// A recovery resumes the unconfirmed turn: its first event runs the turn again, and while the turn runs, its stream
-	// stays open. From then on the stop of the sheet reaches the turn.
+	// stays open. From then on the stop of the chat reaches the turn.
 	@Test
 	fun aStopOfAResumedTurn_reachesTheTurn() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)

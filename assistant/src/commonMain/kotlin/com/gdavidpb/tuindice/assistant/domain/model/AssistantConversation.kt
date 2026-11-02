@@ -16,7 +16,7 @@ data class AssistantConversation(
 	// The intents resolved with an outcome this build does not know: their cards close with no outcome label.
 	val unknownOutcomeIntents: Set<String> = emptySet(),
 	val activeTurn: AssistantActiveTurn?,
-	// The session the conversation belongs to. A retry decided on the sheet carries it to the write that replaces the
+	// The session the conversation belongs to. A retry decided in the chat carries it to the write that replaces the
 	// question it answers, so a write made for a session that has ended is refused by the store.
 	val sessionMark: Int = 0
 )

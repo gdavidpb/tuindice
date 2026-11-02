@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBui
 
 internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatUnavailableTransitions() {
 	from<AssistantChat.State.Unavailable> {
-		// The sheet is already closing: the assistant going off again changes nothing and dismisses nothing twice.
+		// The chat is already closing: the assistant going off again changes nothing and dismisses nothing twice.
 		on<AssistantChatInternalEvent.AssistantOff> { state, _ -> state }
 	}
 }

@@ -4,7 +4,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
+import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantNavDependencies
+import com.gdavidpb.tuindice.assistant.presentation.navigation.assistantEntries
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.data.source.InMemoryEvaluationsWeekFocusDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemoryRecordAttemptFocusDataSource
@@ -16,6 +19,7 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.navigation.DialogDestination
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResult
 import com.gdavidpb.tuindice.base.presentation.navigation.NavResultStore
+import com.gdavidpb.tuindice.base.presentation.navigation.NavShellBindings
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.pensum.presentation.navigation.PensumDestination
 import com.gdavidpb.tuindice.presentation.mapper.toTabRootDestination
@@ -503,6 +507,27 @@ class TuIndiceNavigatorTest {
 		navigator.openAssistant(context = null)
 
 		assertEquals(AssistantDestination.Chat(context = null), navigator.currentKey)
+	}
+
+	@Test
+	fun when_theChatIsEntered_then_itsEntryIsAScreenNotADialog() {
+		val navigator = createNavigator(currentTab = MainSection.EVALUATIONS)
+		val provider = entryProvider<NavKey> {
+			assistantEntries(
+				navActions = navigator,
+				shellBindings = NavShellBindings(onViewStateChanged = {}, showSnackBar = {}),
+				dependencies = AssistantNavDependencies(
+					onNavigateTo = { _, _ -> },
+					onOpenEnrollmentProof = {},
+					onCopyText = {}
+				)
+			)
+		}
+
+		val entry = provider(AssistantDestination.Chat(context = null))
+
+		// A dialog entry carries the dialog metadata of the scene strategy; the chat is a full screen, so it carries none.
+		assertTrue(entry.metadata.isEmpty())
 	}
 
 	@Test

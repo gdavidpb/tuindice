@@ -28,8 +28,8 @@ private typealias ContentTransitions = MachineDefinitionBuilder.StateTransitions
 	AssistantChat.State.Content
 >
 
-// The sheet with a conversation. The student's actions are the rows of the first functions; the results of the async
-// commands are the rows of the last ones. Every row keeps its target: content stays content, or the sheet closes.
+// The chat with a conversation. The student's actions are the rows of the first functions; the results of the async
+// commands are the rows of the last ones. Every row keeps its target: content stays content, or the chat closes.
 internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatContentTransitions(
 	machine: AssistantChatMachine,
 	host: MachineHost<AssistantChat.Effect>
@@ -107,7 +107,7 @@ private fun ContentTransitions.contentSendRows(
 			params = SendAssistantMessageParams(
 				text = draftText.trim(),
 				suggestionId = null,
-				screenContext = state.context
+				screenContext = machine.session.openedContext
 			),
 			draftText = draftText
 		)
@@ -124,7 +124,7 @@ private fun ContentTransitions.contentSendRows(
 			params = SendAssistantMessageParams(
 				text = text,
 				suggestionId = action.suggestionId,
-				screenContext = state.context
+				screenContext = machine.session.openedContext
 			),
 			draftText = machine.draft.text.value
 		)
@@ -136,7 +136,7 @@ private fun ContentTransitions.contentSendRows(
 
 		if (failed == null || machine.session.sendIsBusy()) return@on state
 
-		machine.retryFailedSend(host = host, failed = failed, context = state.context)
+		machine.retryFailedSend(host = host, failed = failed, context = machine.session.openedContext)
 		machine.refreshed(state)
 	}
 
@@ -175,7 +175,7 @@ private fun ContentTransitions.contentPhotoRows(
 
 		machine.session.photoFailure = null
 		machine.session.photoExtracting = true
-		machine.turns.extractPhoto(host = host, file = action.file, context = state.context)
+		machine.turns.extractPhoto(host = host, file = action.file, context = machine.session.openedContext)
 		machine.refreshed(state)
 	}
 
@@ -275,7 +275,7 @@ private fun ContentTransitions.contentMessageRows(
 		state
 	}
 
-	// The host's jump closes the sheet in the same change of the stack (maincore's goFromAssistant). A Dismiss after it
+	// The host's jump closes the chat in the same change of the stack (maincore's goFromAssistant). A Dismiss after it
 	// would close whatever the jump left on top: the tab it landed on, back to the start tab, or the screen it opened.
 	on<AssistantChat.Action.OpenNavTarget>(
 		emits = setOf(AssistantChat.Effect.NavigateTo::class)
@@ -323,7 +323,7 @@ private fun ContentTransitions.contentIntentRows(
 }
 
 // The card of the notification permission. The platform's answer decides whether it shows, once per device: the mark is
-// written when the card shows. Both of its buttons hide it for the rest of the sheet; «Activar avisos» also asks the
+// written when the card shows. Both of its buttons hide it for the rest of the chat; «Activar avisos» also asks the
 // system for the permission.
 private fun ContentTransitions.contentNotificationOfferRows(
 	machine: AssistantChatMachine,
@@ -357,7 +357,7 @@ private fun ContentTransitions.contentNotificationOfferRows(
 }
 
 // The conversation the store observes while the content is shown, and the access to it: these rows exist on the content
-// only, since the conversation is not observed while the sheet asks for the consent.
+// only, since the conversation is not observed while the chat asks for the consent.
 private fun ContentTransitions.contentObservationRows(
 	machine: AssistantChatMachine,
 	host: MachineHost<AssistantChat.Effect>
@@ -397,7 +397,7 @@ private fun ContentTransitions.contentObservationRows(
 	}
 }
 
-// A send the service answers with a consent asks the student for it: the sheet shows the consent.
+// A send the service answers with a consent asks the student for it: the chat shows the consent.
 private fun ContentTransitions.contentConsentRows() {
 	onTo<AssistantChatInternalEvent.SendConsentRequired, AssistantChat.State.ConsentRequired> { _, _ ->
 		AssistantChat.State.ConsentRequired

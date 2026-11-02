@@ -54,13 +54,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-// What the outcomes of the jobs the content starts give the sheet when it is on the consent: the outcome is applied
+// What the outcomes of the jobs the content starts give the chat when it is on the consent: the outcome is applied
 // there, and the content shows it once the student comes back.
 class AssistantChatLeavingContentBehaviorTest {
-	// The table takes the acceptance of a send while the sheet asks for the consent: the sheet keeps the consent, and the
+	// The table takes the acceptance of a send while the chat asks for the consent: the chat keeps the consent, and the
 	// session holds the turn so its failure, and the reply, reach the content.
 	@Test
-	fun aTurnAccepted_whileTheSheetAsksForConsent_keepsTheSheetOnTheConsentAndHoldsTheTurn() = runTest {
+	fun aTurnAccepted_whileTheChatAsksForConsent_keepsTheChatOnTheConsentAndHoldsTheTurn() = runTest {
 		val fixture = AssistantChatFixture()
 		val definition = fixture.machine.define(RecordingMachineHost(backgroundScope))
 
@@ -73,9 +73,9 @@ class AssistantChatLeavingContentBehaviorTest {
 		assertEquals("t1", fixture.machine.session.sendingTurnId)
 	}
 
-	// The failure of the accepted turn, reported while the sheet asks for the consent, is the failure the content shows.
+	// The failure of the accepted turn, reported while the chat asks for the consent, is the failure the content shows.
 	@Test
-	fun aRunErrorOfTheAcceptedTurn_whileTheSheetAsksForConsent_isItsFailure() = runTest {
+	fun aRunErrorOfTheAcceptedTurn_whileTheChatAsksForConsent_isItsFailure() = runTest {
 		val fixture = AssistantChatFixture()
 		val definition = fixture.machine.define(RecordingMachineHost(backgroundScope))
 		definition.process(
@@ -92,9 +92,9 @@ class AssistantChatLeavingContentBehaviorTest {
 		assertEquals("failure:TRANSIENT", fixture.machine.session.turnFailure?.message)
 	}
 
-	// A refusal of a send, reported while the sheet asks for the consent, keeps the quota the content shows.
+	// A refusal of a send, reported while the chat asks for the consent, keeps the quota the content shows.
 	@Test
-	fun aRefusedSend_whileTheSheetAsksForConsent_keepsItsQuota() = runTest {
+	fun aRefusedSend_whileTheChatAsksForConsent_keepsItsQuota() = runTest {
 		val fixture = AssistantChatFixture()
 		val definition = fixture.machine.define(RecordingMachineHost(backgroundScope))
 
@@ -113,7 +113,7 @@ class AssistantChatLeavingContentBehaviorTest {
 		assertEquals(90, fixture.machine.session.quota?.retryAfterSeconds)
 	}
 
-	// The same acceptance, on the consent the sheet falls back to when a consent is refused: the table applies it
+	// The same acceptance, on the consent the chat falls back to when a consent is refused: the table applies it
 	// there too.
 	@Test
 	fun aTurnAccepted_whileTheConsentIsRefused_isAppliedToo() = runTest {
@@ -129,9 +129,9 @@ class AssistantChatLeavingContentBehaviorTest {
 		assertEquals("t1", fixture.machine.session.sendingTurnId)
 	}
 
-	// The assistant turned off while a send was on its way: the send's outcome closes the sheet on the consent too.
+	// The assistant turned off while a send was on its way: the send's outcome closes the chat on the consent too.
 	@Test
-	fun aSendDisabled_whileTheSheetAsksForConsent_closesTheSheet() = runTest {
+	fun aSendDisabled_whileTheChatAsksForConsent_closesTheChat() = runTest {
 		val fixture = AssistantChatFixture()
 		val definition = fixture.machine.define(RecordingMachineHost(backgroundScope))
 
@@ -140,10 +140,10 @@ class AssistantChatLeavingContentBehaviorTest {
 		assertEquals(AssistantChat.State.Unavailable, (result as TransitionResult.Transitioned).toState)
 	}
 
-	// A confirmation that fails while the sheet asks for the consent gives its card its buttons back, and says the send
+	// A confirmation that fails while the chat asks for the consent gives its card its buttons back, and says the send
 	// failed, as it does on the content.
 	@Test
-	fun aConfirmationThatFails_whileTheSheetAsksForConsent_givesItsCardItsButtonsBack() = chatTest { fixture, viewModel ->
+	fun aConfirmationThatFails_whileTheChatAsksForConsent_givesItsCardItsButtonsBack() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		val intent = rememberIntent(id = "i1")
 		fixture.conversation.conversation.value = assistantConversation(
@@ -163,9 +163,9 @@ class AssistantChatLeavingContentBehaviorTest {
 		assertEquals(ChatNoticeItem.TurnFailed(message = "confirm-failed", canRetry = false), content.notice)
 	}
 
-	// A confirmation that ends while the sheet asks for the consent leaves no mark of a run behind it.
+	// A confirmation that ends while the chat asks for the consent leaves no mark of a run behind it.
 	@Test
-	fun aConfirmationThatEnds_whileTheSheetAsksForConsent_leavesNoRunningMark() = chatTest { fixture, viewModel ->
+	fun aConfirmationThatEnds_whileTheChatAsksForConsent_leavesNoRunningMark() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		val intent = rememberIntent(id = "i1")
 		fixture.conversation.conversation.value = assistantConversation(
@@ -183,7 +183,7 @@ class AssistantChatLeavingContentBehaviorTest {
 
 	// A confirmation still running when the consent is given keeps its mark: the consent does not end a run.
 	@Test
-	fun aConfirmationStillRunning_whenTheSheetAsksForConsent_staysRunningUntilItEnds() = chatTest { fixture, viewModel ->
+	fun aConfirmationStillRunning_whenTheChatAsksForConsent_staysRunningUntilItEnds() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		val intent = rememberIntent(id = "i1")
 		fixture.conversation.conversation.value = assistantConversation(
@@ -219,8 +219,8 @@ class AssistantChatLeavingContentBehaviorTest {
 	}
 
 	// The retry of an unconfirmed turn is offered again when the content opens again, as its first observation offers it.
-	// The turn was sent by this sheet, so the message it answers is the one it was sent with: a message refused meanwhile
-	// took the retry while the sheet was on the content.
+	// The turn was sent by this chat, so the message it answers is the one it was sent with: a message refused meanwhile
+	// took the retry while the chat was on the content.
 	@Test
 	fun leavingTheContent_offersTheRetryAgain_whenTheContentOpensAgain() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
@@ -268,7 +268,7 @@ class AssistantChatLeavingContentBehaviorTest {
 		assertEquals(listOf("hola"), fixture.turns.requests.map { request -> request.message.text })
 	}
 
-	// A dismissal that fails while the sheet asks for the consent says so when the student comes back, as on the content.
+	// A dismissal that fails while the chat asks for the consent says so when the student comes back, as on the content.
 	@Test
 	fun aDismissalThatFails_onConsent_saysDismissFailedWhenTheStudentComesBack() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
@@ -289,7 +289,7 @@ class AssistantChatLeavingContentBehaviorTest {
 		assertEquals(ChatNoticeItem.TurnFailed(message = "dismiss-failed", canRetry = false), viewModel.content().notice)
 	}
 
-	// A restriction the standing gives while the sheet asks for the consent is the restriction the student finds once the
+	// A restriction the standing gives while the chat asks for the consent is the restriction the student finds once the
 	// consent is given: the standing's end and its appeal, not the ones the refusal left. The end of the first restriction
 	// passes, and the next send reads the standing again, which asks for the consent while it is read.
 	@Test
@@ -321,7 +321,7 @@ class AssistantChatLeavingContentBehaviorTest {
 		assertTrue(notice?.canAppeal == true)
 	}
 
-	// An answer about a memory saved while the sheet asks for the consent is the answer the card shows once the consent is
+	// An answer about a memory saved while the chat asks for the consent is the answer the card shows once the consent is
 	// given: it is not waited for any more.
 	@Test
 	fun aStillAppliesAnswerSaved_onConsent_isTheAnswerTheCardShows() = chatTest { fixture, viewModel ->
@@ -341,9 +341,9 @@ class AssistantChatLeavingContentBehaviorTest {
 		assertFalse(card.isPending)
 	}
 
-	// A report the service refuses while the sheet asks for the consent says so with its snackbar.
+	// A report the service refuses while the chat asks for the consent says so with its snackbar.
 	@Test
-	fun aReportRefused_whileTheSheetAsksForConsent_saysSoWithItsSnackbar() = chatTest { fixture, viewModel ->
+	fun aReportRefused_whileTheChatAsksForConsent_saysSoWithItsSnackbar() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.conversation.conversation.value = assistantConversation(items = listOf(agentMessage("a1", Text("hola"))))
 		fixture.feedback.reportError = IllegalStateException("offline")
@@ -360,7 +360,7 @@ class AssistantChatLeavingContentBehaviorTest {
 		)
 	}
 
-	// The student attaches a photo and the service asks for the consent: the sheet is on the consent
+	// The student attaches a photo and the service asks for the consent: the chat is on the consent
 	// once the reading ends.
 	private fun askConsentByPhoto(fixture: AssistantChatFixture, viewModel: AssistantChatViewModel) {
 		val reading = CompletableDeferred<Unit>()
@@ -373,7 +373,7 @@ class AssistantChatLeavingContentBehaviorTest {
 		assertEquals(AssistantChat.State.ConsentRequired, viewModel.state.value)
 	}
 
-	// A confirmation running while a photo is read, and the photo asking for the consent: the sheet is on the consent with
+	// A confirmation running while a photo is read, and the photo asking for the consent: the chat is on the consent with
 	// the confirmation still running. The confirmation is held by the test that gates it.
 	private fun confirmingWhileAPhotoAsksForConsent(
 		fixture: AssistantChatFixture,

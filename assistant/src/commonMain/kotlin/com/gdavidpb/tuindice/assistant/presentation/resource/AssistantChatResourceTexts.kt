@@ -40,7 +40,8 @@ import tuindice.assistant.generated.resources.assistant_chat_wait_under_minute
 class AssistantChatResourceTexts :
 	AssistantChatTexts,
 	AssistantChatPartTexts by AssistantChatPartResourceTexts(),
-	AssistantChatIntentTexts by AssistantChatIntentResourceTexts() {
+	AssistantChatIntentTexts by AssistantChatIntentResourceTexts(),
+	AssistantChatProgressTexts by AssistantChatProgressResourceTexts() {
 	override suspend fun evaluationTypeName(evaluationType: String): String {
 		return getString(EVALUATION_TYPES[evaluationType] ?: Res.string.assistant_chat_evaluation_type_other)
 	}

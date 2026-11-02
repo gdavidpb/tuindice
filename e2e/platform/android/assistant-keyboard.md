@@ -1,8 +1,11 @@
 # Asistente: teclado del compositor (Android)
 
 El compositor solicita autocorrección y mayúscula al comenzar cada frase. El escenario `assistant-smoke` comprueba
-que el campo enfocado deja accesibles sus botones y que se puede escribir y enviar, pero no verifica la corrección del
-teclado: el driver introduce caracteres exactos mediante eventos de teclas o una acción de accesibilidad.
+que, al enfocar el campo, los botones de foto y envío siguen en pantalla, y que se puede escribir y enviar. Ambos botones
+existen también con el compositor cerrado, así que ese paso no prueba su expansión ni su posición sobre el teclado; la
+fila de botones bajo el texto al abrirse y al crecer la comprueba `AssistantChatComposerViewUiTest`. El escenario no
+verifica la corrección del teclado: el driver introduce caracteres exactos mediante eventos de teclas o una acción de
+accesibilidad.
 
 Comprobación manual en un dispositivo o emulador con esas opciones activadas en los ajustes del teclado:
 

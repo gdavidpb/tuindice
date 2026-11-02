@@ -1,13 +1,14 @@
 package com.gdavidpb.tuindice.presentation.navigation
 
 import androidx.compose.runtime.snapshots.Snapshot
+import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.presentation.navigation.DialogDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 
 // A tap on the push of a term report opens the report over the summary tab, so its back returns to the summary. The
-// dialogs on top of the tab the student is on, the assistant's chat among them, are closed in the same change, so the
-// report is not left under a sheet of another tab. Nothing happens before the student is signed in: the host waits for
+// dialogs on top of the tab the student is on and the assistant's chat are closed in the same change, so the report is
+// not left under a sheet or a chat of another tab. Nothing happens before the student is signed in: the host waits for
 // that before it asks.
 internal fun TuIndiceNavigator.showTermReport(insightId: String) {
 	if (rootMode != TuIndiceRootMode.SIGNED_IN) return
@@ -18,10 +19,11 @@ internal fun TuIndiceNavigator.showTermReport(insightId: String) {
 	}
 }
 
-// Takes off the dialogs on top of the tab the student is on, the chat among them. The entries under them stay. The
-// current key is a dialog only when the stack holds more than its root, so the pop never switches the tab.
+// Takes off the dialogs on top of the tab the student is on, and the chat, a screen, with the ones it holds. The
+// entries under them stay. Both are keys only when the stack holds more than its root, so the pop never switches the
+// tab.
 private fun TuIndiceNavigator.closeDialogsOnTop() {
-	while (currentKey is DialogDestination) {
+	while (currentKey is DialogDestination || currentKey is AssistantDestination.Chat) {
 		if (!pop()) break
 	}
 }

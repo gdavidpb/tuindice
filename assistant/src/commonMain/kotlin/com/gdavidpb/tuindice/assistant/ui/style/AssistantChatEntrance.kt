@@ -77,17 +77,17 @@ internal fun Modifier.selectionPop(selected: Boolean): Modifier {
 }
 
 /**
- * Which items of the conversation already were on screen. Only an item that arrives while the sheet is open plays its
- * entrance; the history present when the sheet opens appears at once, and so does an item that scrolls back into view.
+ * Which items of the conversation already were on screen. Only an item that arrives while the chat is open plays its
+ * entrance; the history present when the chat opens appears at once, and so does an item that scrolls back into view.
  *
  * It is a plain set held by the view, not state in the machine: whether something is «new» is a matter of when this
- * sheet was opened, which the machine does not know and the conversation does not need to keep.
+ * chat was opened, which the machine does not know and the conversation does not need to keep.
  */
 internal class ChatEntranceLedger(initialIds: Collection<String>) {
 	private val initial = initialIds.toSet()
 	private val seen = initialIds.toMutableSet()
 
-	/** True when [id] was not in the conversation when the sheet opened. */
+	/** True when [id] was not in the conversation when the chat opened. */
 	fun arrivedAfterOpen(id: String): Boolean = id !in initial
 
 	/** True the first time [id] is asked about, false from then on. */

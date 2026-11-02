@@ -15,7 +15,7 @@ class AssistantTermInsightMapperTest {
 			id = "term-1:2",
 			termKey = "2026-APR_JUL",
 			kind = "term_end",
-			title = "Cerraste con 4,18",
+			title = "Cerraste con 4.18",
 			body = "Aprobaste las 3 materias.",
 			nextActions = NavTarget.entries.map { target -> InsightAction(target = target, label = target.name) }
 		)

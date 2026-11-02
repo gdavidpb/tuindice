@@ -13,27 +13,29 @@ import com.gdavidpb.tuindice.chatcontract.component.NavTarget
 import com.gdavidpb.tuindice.chatcontract.context.EntityRef
 import io.github.vinceglb.filekit.PlatformFile
 
-// The chat sheet. It carries no title, name or icon of the assistant: inside the chat the assistant is unnamed.
+// The chat. It carries no title, name or icon of the assistant: inside the chat the assistant is unnamed.
 object AssistantChat {
 	sealed class State : ViewState {
 		data object Idle : State()
 
-		// The student has not accepted the assistant's consent: the sheet asks for it before anything else.
+		// The student has not accepted the assistant's consent: the chat asks for it before anything else.
 		data object ConsentRequired : State()
 
-		// The consent could not be given: the sheet asks for it again, and says why.
+		// The consent could not be given: the chat asks for it again, and says why.
 		data object ConsentFailed : State()
 
-		// The assistant went off while the sheet was open: the sheet closes with Effect.Dismiss.
+		// The assistant went off while the chat was open: the chat closes with Effect.Dismiss.
 		data object Unavailable : State()
 
 		data class Content(
-			// The screen the sheet was opened from; used for suggestions and requests, without a visible card.
-			val context: AssistantScreenContext?,
 			// The conversation, oldest first: the student's bubbles and the agent's messages.
 			val items: List<ChatItem>,
-			// The impersonal label of the running turn («Revisando tu pensum…»), shown with the atom; null when idle.
+			// The label of the progress, already resolved: the running turn's («Revisando tu pensum…»), else a photo being
+			// read, else a send that waits; null when nothing waits.
 			val progressLabel: String?,
+			// The id of the item the progress goes under. It is there with no label too, so the progress of a turn leaves
+			// from under its question, without a jump.
+			val progressAnchorId: String? = null,
 			val composer: ChatComposerItem,
 			val suggestions: List<ChatSuggestionItem>,
 			// What stops or limits the chat right now (a failed turn, the quota, a restriction, guided mode).
@@ -50,7 +52,7 @@ object AssistantChat {
 	}
 
 	sealed class Action : ViewAction {
-		// The sheet opened from a screen; [context] is what that screen declared, or null.
+		// The chat opened from a screen; [context] is what that screen declared, or null.
 		class Open(val context: AssistantScreenContext?) : Action()
 		class ChangeText(val text: String) : Action()
 		data object Send : Action()
@@ -109,7 +111,7 @@ object AssistantChat {
 		class ShowSnackBar(val message: String) : Effect()
 		class NavigateTo(val target: NavTarget, val entityRefs: List<EntityRef>) : Effect()
 
-		// A page outside the app (the privacy policy), opened by the system as the chat's support links are: the sheet
+		// A page outside the app (the privacy policy), opened by the system as the chat's support links are: the chat
 		// stays as it was underneath, and coming back to the app finds it there.
 		class OpenUrl(val url: String) : Effect()
 

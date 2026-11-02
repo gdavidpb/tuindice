@@ -7,7 +7,7 @@ import kotlin.math.min
 
 /**
  * The motion of the assistant chat (variant «Escritura»): what enters, how long it takes and how the parts of an
- * answer follow one another. Every duration is in milliseconds. Only what arrives while the sheet is open moves; with
+ * answer follow one another. Every duration is in milliseconds. Only what arrives while the chat is open moves; with
  * `LocalTuIndiceAnimationsEnabled` off nothing moves at all.
  */
 object AssistantChatMotion {

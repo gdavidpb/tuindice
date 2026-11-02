@@ -183,7 +183,7 @@ val assistantModule = module {
 	factoryOf(::AnswerStillAppliesUseCase)
 	factoryOf(::DeleteAssistantConversationsUseCase)
 
-	/* Chat presentation: the sheet's machine and its collaborators, its texts, and its view model */
+	/* Chat presentation: the chat's machine and its collaborators, its texts, and its view model */
 
 	viewModelOf(::AssistantChatViewModel)
 	factoryOf(::AssistantChatMachine)

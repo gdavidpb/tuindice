@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 
-// The sends of the chat sheet: a new message the student writes or picks, and the retry of a failed send.
+// The sends of the chat: a new message the student writes or picks, and the retry of a failed send.
 // Each one reaches the server through the machine's startTurn, the one path a turn takes. What differs is the
 // request each one makes, and what waits for it.
 
@@ -90,7 +90,7 @@ internal fun AssistantChatMachine.retryFailedSend(
 	session.failedMessages -= failed.clientTurnId
 
 	// The question the retry replaces leaves the conversation in the same write that stores the retry's question, so the
-	// two are not split by the end of the sheet. The retry's session is the one it was decided in: a session that has
+	// two are not split by the end of the chat. The retry's session is the one it was decided in: a session that has
 	// ended since leaves the conversation as it is.
 	startTurn(
 		host = host,

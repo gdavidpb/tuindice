@@ -1,7 +1,11 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -35,6 +39,17 @@ class AssistantProgressViewUiTest {
 		assertNodeVisible(AssistantUiTags.ProgressAtom)
 		assertNodeVisible(AssistantUiTags.ProgressLabel)
 		onNodeWithTag(AssistantUiTags.ProgressLabel).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_progressShows_then_itIsAPoliteLiveRegion() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantProgressView(label = LABEL)
+		}
+
+		onNodeWithTag(AssistantUiTags.ProgressContainer).assert(
+			SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite)
+		)
 	}
 
 	private companion object {

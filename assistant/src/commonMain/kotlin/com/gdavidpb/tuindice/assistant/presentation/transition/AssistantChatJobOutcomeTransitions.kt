@@ -11,12 +11,12 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 
 // The outcomes of the jobs the content starts: a send, a confirmation, a dismissal, a restriction check, a feedback
-// answer and an answer about a memory. Such a job outlives the content that started it, and the sheet can be on the
+// answer and an answer about a memory. Such a job outlives the content that started it, and the chat can be on the
 // consent when it ends. So each outcome is applied in both states: the session takes it, and [present] shows it. The
 // content presents it; the consent keeps its state, and the content shows the session when the student comes back.
 
 // The send's outcome: the acceptance of the turn is followed, a refusal is noticed, and an assistant that went off
-// closes the sheet. A turn's failure and its end are kept for the content that shows them.
+// closes the chat. A turn's failure and its end are kept for the content that shows them.
 internal fun <S : AssistantChat.State> MachineDefinitionBuilder.StateTransitions<
 	AssistantChat.State,
 	S

@@ -1,9 +1,10 @@
 package com.gdavidpb.tuindice.assistant.presentation.viewmodel
 
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
+import com.gdavidpb.tuindice.assistant.presentation.testing.changeTextAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.chatTest
-import com.gdavidpb.tuindice.assistant.presentation.testing.content
 import com.gdavidpb.tuindice.assistant.presentation.testing.openAction
+import com.gdavidpb.tuindice.assistant.presentation.testing.sendMessageAction
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
@@ -14,12 +15,12 @@ import kotlin.test.assertTrue
 
 class AssistantChatViewModelContractTest {
 	@Test
-	fun initialState_isIdle_untilTheSheetIsOpened() = chatTest { _, viewModel ->
+	fun initialState_isIdle_untilTheChatIsOpened() = chatTest { _, viewModel ->
 		assertEquals(AssistantChat.State.Idle, viewModel.state.value)
 	}
 
 	@Test
-	fun open_withConsent_preservesTheScreenContextInTheContent() = chatTest { fixture, viewModel ->
+	fun open_withConsent_sendsTheTurnsWithTheScreenContext() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 
 		val context = AssistantScreenContext(
@@ -30,7 +31,11 @@ class AssistantChatViewModelContractTest {
 		viewModel.openAction(context)
 
 		assertTrue(viewModel.state.value is AssistantChat.State.Content)
-		assertEquals(context, viewModel.content().context)
+
+		viewModel.changeTextAction("hola")
+		viewModel.sendMessageAction()
+
+		assertEquals(context.visibleFields, fixture.turns.requests.single().screenContext?.visibleFields)
 	}
 
 	@Test

@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.collect
 import kotlin.time.Clock
 
 // The restriction the server puts on the student and its appeal. The end the standing gives is weighed against
-// [clock] whenever the chat is drawn or a send starts, never on a timer: the standing is read again when the sheet
+// [clock] whenever the chat is drawn or a send starts, never on a timer: the standing is read again when the chat
 // opens and when a send follows an end that has passed.
 class AssistantChatRestrictions(
 	private val syncAssistantUseCase: SyncAssistantUseCase,

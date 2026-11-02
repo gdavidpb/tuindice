@@ -98,7 +98,7 @@ object E2eFixtures {
 
 	val GradedEvaluation = E2eFixture(
 		value = "741ee22ed3a76b1bbd7deb77e9490435",
-		declaredIn = listOf("mocks/config/evaluations-base-state.json")
+		declaredIn = listOf("mocks/config/evaluations-base-state.json", "mocks/mappings/assistant/turn-ask-post.json")
 	)
 
 	/**

@@ -77,7 +77,7 @@ class AssistantChatStateMachineContractTest {
 		}
 	}
 
-	// Unavailable has no way out, so a walk that draws the events closing the sheet ends there: the coverage floor is
+	// Unavailable has no way out, so a walk that draws the events closing the chat ends there: the coverage floor is
 	// measured without them, and every event is walked once more, with no floor, for the row contracts.
 	@Test
 	fun machine_survivesSeededRandomWalk() = runTest {
@@ -90,7 +90,7 @@ class AssistantChatStateMachineContractTest {
 	}
 
 	@Test
-	fun machine_keepsTheRowContracts_whenEveryEventCanCloseTheSheet() = runTest {
+	fun machine_keepsTheRowContracts_whenEveryEventCanCloseTheChat() = runTest {
 		assertMachineRandomWalk(
 			screenMachine = AssistantChatFixture().machine,
 			sampleEvents = sampleEvents(),

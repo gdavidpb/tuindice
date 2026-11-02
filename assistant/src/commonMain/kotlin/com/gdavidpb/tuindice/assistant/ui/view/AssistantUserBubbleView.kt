@@ -28,7 +28,7 @@ import tuindice.assistant.generated.resources.assistant_chat_user_failed
 private const val BUBBLE_MAX_WIDTH_FRACTION = 0.8f
 
 // The student's message on the right, at most 80 % of the available width. A failed turn adds its error line below.
-// When [animateEntrance] is set (it was sent while the sheet was open) it fades in while rising.
+// When [animateEntrance] is set (it was sent while the chat was open) it fades in while rising.
 @Composable
 fun AssistantUserBubbleView(
 	item: ChatItem.User,

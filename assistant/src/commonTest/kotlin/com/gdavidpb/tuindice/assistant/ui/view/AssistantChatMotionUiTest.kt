@@ -74,7 +74,7 @@ class AssistantChatMotionUiTest {
 	}
 
 	@Test
-	fun when_theSheetOpensWithHistory_then_itIsDrawnAtOnceWithoutAdvancingTheClock() = runTuIndiceUiTest {
+	fun when_theChatOpensWithHistory_then_itIsDrawnAtOnceWithoutAdvancingTheClock() = runTuIndiceUiTest {
 		val state = mutableStateOf(contentState(items = listOf(agentMessage(id = MESSAGE_ID, text = ANSWER))))
 		mainClock.autoAdvance = false
 		setConversation(animationsEnabled = true, state = { state.value })
@@ -186,7 +186,7 @@ class AssistantChatMotionUiTest {
 
 	private companion object {
 		const val MESSAGE_ID = "message-1"
-		const val ANSWER = "Tu promedio es 16,2 este trimestre."
+		const val ANSWER = "Tu promedio es 16.2 este trimestre."
 		const val HOST_TAG = "assistant_motion_pixel_host"
 
 		// Density 1, as the other pixel tests: a denser content root does not fit the capture surface on the simulator.

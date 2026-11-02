@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatMachine
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 
-// The rows valid in any state: the availability observed while the sheet is open, and the dismissal.
+// The rows valid in any state: the availability observed while the chat is open, and the dismissal.
 internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatAnyStateTransitions(
 	machine: AssistantChatMachine,
 	host: MachineHost<AssistantChat.Effect>
@@ -17,7 +17,7 @@ internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatAnyState
 			state
 		}
 
-		// The assistant went off while the sheet was open: from any state, the sheet closes.
+		// The assistant went off while the chat was open: from any state, the chat closes.
 		onTo<AssistantChatInternalEvent.AssistantOff, AssistantChat.State.Unavailable>(
 			emits = setOf(AssistantChat.Effect.Dismiss::class)
 		) { _, _ ->

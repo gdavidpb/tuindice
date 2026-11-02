@@ -21,7 +21,7 @@ internal const val QUEUED_FOLLOW_LIMIT_MILLIS = 30 * 60 * 1_000L
 
 /**
  * The mutations of the assistant's intents that were still running when their intent answered QUEUED. Each one has a
- * subscription to the outcomes of its domain in the session scope, which outlives the chat sheet: it is born when the
+ * subscription to the outcomes of its domain in the session scope, which outlives the chat: it is born when the
  * mutation is queued, ends as soon as the mutation settles, and is given up at the intent's deadline or after
  * [QUEUED_FOLLOW_LIMIT_MILLIS]. The end of the session cancels them all and forgets them.
  */

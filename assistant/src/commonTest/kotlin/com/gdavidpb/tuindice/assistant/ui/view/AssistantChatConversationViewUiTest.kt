@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
@@ -15,7 +16,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -27,7 +30,6 @@ import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.agentMessage
 import com.gdavidpb.tuindice.assistant.ui.contentState
 import com.gdavidpb.tuindice.assistant.ui.screen.AssistantChatScreen
-import com.gdavidpb.tuindice.assistant.ui.screenContext
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -42,7 +44,7 @@ class AssistantChatConversationViewUiTest {
 	fun when_theScreenHasContext_then_theConversationStartsBelowTheTitleWithoutAContextCard() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatScreen(
-				state = contentState(context = screenContext(), items = listOf(agentMessage())),
+				state = contentState(items = listOf(agentMessage())),
 				onAction = {},
 				modifier = Modifier.height(CONTAINER_HEIGHT)
 			)
@@ -146,8 +148,7 @@ class AssistantChatConversationViewUiTest {
 			CompositionLocalProvider(LocalChatKeyboardInsets provides keyboard) {
 				AssistantChatConversationView(
 					content = contentState(
-						items = listOf(ChatItem.User(id = "question", text = "Falla una vez", isFailed = true)),
-						context = screenContext()
+						items = listOf(ChatItem.User(id = "question", text = "Falla una vez", isFailed = true))
 					).copy(notice = ChatNoticeItem.TurnFailed(message = FAILED_MESSAGE, canRetry = true)),
 					onAction = { actions.add(it) },
 					modifier = Modifier.height(SHORT_CONTAINER_DP.dp)
@@ -249,7 +250,7 @@ class AssistantChatConversationViewUiTest {
 			AssistantChatConversationView(
 				content = contentState(
 					composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isStoppable = true)
-				),
+				).copy(progressLabel = WAITING_PROGRESS),
 				onAction = {},
 				modifier = Modifier.height(CONTAINER_HEIGHT)
 			)
@@ -330,7 +331,8 @@ class AssistantChatConversationViewUiTest {
 			AssistantChatConversationView(
 				content = waiting.copy(
 					items = waiting.items + agentMessage(id = "reply", text = "Respuesta"),
-					progressLabel = null,
+					progressLabel = PHOTO_PROGRESS,
+					progressAnchorId = "reply",
 					isExtracting = true,
 					composer = waiting.composer.copy(isStoppable = false)
 				),
@@ -356,15 +358,14 @@ class AssistantChatConversationViewUiTest {
 		content.value = content.value.copy(
 			items = content.value.items + ChatItem.User(id = QUESTION_ID, text = QUESTION, isFailed = false),
 			progressLabel = FIRST_PROGRESS,
+			progressAnchorId = QUESTION_ID,
 			composer = content.value.composer.copy(isStoppable = true)
 		)
 		waitForIdle()
 
 		onNodeWithTag(AssistantUiTags.Message.bubble(QUESTION_ID)).assertIsDisplayed()
 		onNodeWithTag(AssistantUiTags.ProgressContainer).assertIsDisplayed()
-		val progress = onNodeWithTag(AssistantUiTags.ProgressContainer).fetchSemanticsNode().boundsInRoot
-		val list = onNodeWithTag(AssistantUiTags.MessageList).fetchSemanticsNode().boundsInRoot
-		assertTrue(progress.bottom <= list.bottom, "The message list cuts off the progress label.")
+		assertProgressShowsWhole()
 	}
 
 	@Test
@@ -374,6 +375,7 @@ class AssistantChatConversationViewUiTest {
 			history.copy(
 				items = history.items + ChatItem.User(id = QUESTION_ID, text = QUESTION, isFailed = false),
 				progressLabel = FIRST_PROGRESS,
+				progressAnchorId = QUESTION_ID,
 				composer = history.composer.copy(isStoppable = true)
 			)
 		)
@@ -390,10 +392,197 @@ class AssistantChatConversationViewUiTest {
 		onNodeWithText(FIRST_TEXT).assertIsDisplayed()
 	}
 
+	@Test
+	fun when_progressAppearsWhileReadingHistory_then_theListStaysWhereItIs() = runTuIndiceUiTest {
+		val content = mutableStateOf(conversation(lastUseful = null))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+		scrollToTop()
+		onNodeWithText(FIRST_TEXT).assertIsDisplayed()
+
+		content.value = content.value.copy(progressLabel = FIRST_PROGRESS, progressAnchorId = LAST_MESSAGE_ID)
+		waitForIdle()
+
+		onNodeWithText(FIRST_TEXT).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_progressAppearsAtTheEnd_then_itShowsWhole() = runTuIndiceUiTest {
+		val content = mutableStateOf(conversation(lastUseful = null))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+
+		content.value = content.value.copy(progressLabel = FIRST_PROGRESS, progressAnchorId = LAST_MESSAGE_ID)
+		waitForIdle()
+
+		assertProgressShowsWhole()
+	}
+
+	@Test
+	fun when_theAnswerArrivesWhileReadingHistory_then_theListStaysWhereItIs() = runTuIndiceUiTest {
+		val content = mutableStateOf(conversation(lastUseful = null))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+		scrollToTop()
+		onNodeWithText(FIRST_TEXT).assertIsDisplayed()
+
+		content.value = content.value.copy(items = content.value.items + agentMessage(id = "reply", text = "Respuesta"))
+		waitForIdle()
+
+		onNodeWithText(FIRST_TEXT).assertIsDisplayed()
+		onNodeWithTag(AssistantUiTags.ScrollToEndButton).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theAnswerArrivesAtTheEnd_then_theListFollowsIt() = runTuIndiceUiTest {
+		val content = mutableStateOf(conversation(lastUseful = null))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+
+		content.value = content.value.copy(items = content.value.items + agentMessage(id = "reply", text = "Respuesta"))
+		waitForIdle()
+
+		onNodeWithTag(AssistantUiTags.Message.agent("reply")).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theStudentSendsWhileReadingHistory_then_theListGoesToTheirMessage() = runTuIndiceUiTest {
+		val content = mutableStateOf(conversation(lastUseful = null))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+		scrollToTop()
+
+		content.value = content.value.copy(
+			items = content.value.items + ChatItem.User(id = QUESTION_ID, text = QUESTION, isFailed = false)
+		)
+		waitForIdle()
+
+		onNodeWithTag(AssistantUiTags.Message.bubble(QUESTION_ID)).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theListFollowsAtTheEnd_then_noFrameGoesThroughTheStartOfTheConversation() = runTuIndiceUiTest {
+		val content = mutableStateOf(conversation(lastUseful = null))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+		mainClock.autoAdvance = false
+
+		content.value = content.value.copy(
+			items = content.value.items + ChatItem.User(id = QUESTION_ID, text = QUESTION, isFailed = false),
+			progressLabel = FIRST_PROGRESS,
+			progressAnchorId = QUESTION_ID,
+			composer = content.value.composer.copy(isStoppable = true)
+		)
+		repeat(FOLLOW_FRAMES) {
+			mainClock.advanceTimeByFrame()
+			onNodeWithText(FIRST_TEXT).assertDoesNotExist()
+		}
+	}
+
+	@Test
+	fun when_anAnswerArrivesWhileTheListFollows_then_theListEndsOnIt() = runTuIndiceUiTest {
+		val content = mutableStateOf(conversation(lastUseful = null))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+		mainClock.autoAdvance = false
+
+		content.value = content.value.copy(items = content.value.items + agentMessage(id = "tall", text = TALL_TEXT))
+		repeat(2) { mainClock.advanceTimeByFrame() }
+		content.value = content.value.copy(items = content.value.items + agentMessage(id = "reply", text = "Respuesta"))
+		mainClock.autoAdvance = true
+		waitForIdle()
+
+		onNodeWithTag(AssistantUiTags.Message.agent("reply")).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theAnswerArrivesJustAboveTheEnd_then_theListFollowsIt() = runTuIndiceUiTest {
+		val content = mutableStateOf(conversation(lastUseful = null))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+		scrollMessagesUp(NEAR_THE_END)
+
+		content.value = content.value.copy(items = content.value.items + agentMessage(id = "reply", text = "Respuesta"))
+		waitForIdle()
+
+		onNodeWithTag(AssistantUiTags.Message.agent("reply")).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_theAnswerArrivesAwayFromTheEnd_then_theListStaysWhereItIs() = runTuIndiceUiTest {
+		val content = mutableStateOf(conversation(lastUseful = null))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+		scrollMessagesUp(AWAY_FROM_THE_END)
+
+		content.value = content.value.copy(items = content.value.items + agentMessage(id = "reply", text = "Respuesta"))
+		waitForIdle()
+
+		onNodeWithTag(AssistantUiTags.Message.agent("reply")).assertDoesNotExist()
+	}
+
+	@Test
+	fun when_progressAppearsAtTheFootOfATallItem_then_theListNeverGoesBackToItsStart() = runTuIndiceUiTest {
+		val tall = "tall"
+		val history = conversation(lastUseful = null)
+		val content = mutableStateOf(history.copy(items = history.items + agentMessage(id = tall, text = TALL_TEXT)))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+		scrollMessagesDown(CONTAINER_HEIGHT * 20)
+		mainClock.autoAdvance = false
+
+		content.value = content.value.copy(progressLabel = FIRST_PROGRESS, progressAnchorId = tall)
+		var top = onNodeWithTag(AssistantUiTags.Message.agent(tall)).fetchSemanticsNode().positionInRoot.y
+		repeat(FOLLOW_FRAMES) {
+			mainClock.advanceTimeByFrame()
+			val next = onNodeWithTag(AssistantUiTags.Message.agent(tall)).fetchSemanticsNode().positionInRoot.y
+			assertTrue(next <= top, "The list went back up the tall item.")
+			top = next
+		}
+	}
+
+	@Test
+	fun when_theButtonGoesToATallLastItem_then_theListEndsAtItsFoot() = runTuIndiceUiTest {
+		val history = conversation(lastUseful = null)
+		val content = mutableStateOf(history.copy(items = history.items + agentMessage(id = "tall", text = TALL_TEXT)))
+		setTuIndiceTestContent {
+			AssistantChatConversationView(content = content.value, onAction = {}, modifier = Modifier.height(CONTAINER_HEIGHT))
+		}
+		waitForIdle()
+		scrollMessagesDown(CONTAINER_HEIGHT * 20)
+		scrollToTop()
+
+		onNodeWithTag(AssistantUiTags.ScrollToEndButton).performClick()
+		waitForIdle()
+
+		onNodeWithTag(AssistantUiTags.ScrollToEndButton).assertDoesNotExist()
+	}
+
 	private fun waitingConversation(label: String): AssistantChat.State.Content =
 		contentState(items = listOf(ChatItem.User(id = QUESTION_ID, text = QUESTION, isFailed = false)))
 			.copy(
 				progressLabel = label,
+				progressAnchorId = QUESTION_ID,
 				composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false, isStoppable = true)
 			)
 
@@ -408,6 +597,26 @@ class AssistantChatConversationViewUiTest {
 					modifier = Modifier.height(SHORT_CONTAINER_DP.dp)
 				)
 			}
+		}
+		waitForIdle()
+	}
+
+	// The bounds of a node stop at the list's clip, so the foot of the label is measured from its unclipped position.
+	private fun ComposeUiTest.assertProgressShowsWhole() {
+		val progress = onNodeWithTag(AssistantUiTags.ProgressContainer).fetchSemanticsNode()
+		val list = onNodeWithTag(AssistantUiTags.MessageList).fetchSemanticsNode().boundsInRoot
+		assertTrue(
+			progress.positionInRoot.y + progress.size.height <= list.bottom,
+			"The message list cuts off the progress label."
+		)
+	}
+
+	private fun ComposeUiTest.scrollMessagesUp(distance: Dp) = scrollMessagesDown(-distance)
+
+	private fun ComposeUiTest.scrollMessagesDown(distance: Dp) {
+		val pixels = with(density) { distance.toPx() }
+		onNodeWithTag(AssistantUiTags.MessageList).performSemanticsAction(SemanticsActions.ScrollBy) { scrollBy ->
+			scrollBy(0f, pixels)
 		}
 		waitForIdle()
 	}
@@ -431,6 +640,10 @@ class AssistantChatConversationViewUiTest {
 	private companion object {
 		val CONTAINER_HEIGHT = 480.dp
 		const val MESSAGE_COUNT = 12
+		const val FOLLOW_FRAMES = 12
+		val TALL_TEXT = "Una respuesta larga. ".repeat(120)
+		val NEAR_THE_END = 40.dp
+		val AWAY_FROM_THE_END = 120.dp
 		const val FIRST_TEXT = "Respuesta 1"
 		const val LAST_TEXT = "Respuesta 12"
 		const val KEYBOARD_PX = 160
@@ -453,6 +666,9 @@ class AssistantChatConversationViewUiTest {
 		const val QUESTION_ID = "question-waiting"
 		const val QUESTION = "¿Cómo va mi trimestre?"
 		const val FIRST_PROGRESS = "Revisando tus materias"
+		const val WAITING_PROGRESS = "Enviando tu mensaje"
+		const val PHOTO_PROGRESS = "Leyendo tu foto"
+		const val LAST_MESSAGE_ID = "message-$MESSAGE_COUNT"
 		const val SECOND_PROGRESS = "Revisando tus evaluaciones"
 		val SUGGESTIONS = listOf(
 			ChatSuggestionItem(id = "trimestre", label = "¿Cómo voy este trimestre?"),

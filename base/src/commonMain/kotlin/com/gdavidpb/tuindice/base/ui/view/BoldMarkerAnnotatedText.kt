@@ -4,6 +4,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import com.gdavidpb.tuindice.base.utils.extension.forEachBoldMarkerSegment
 
 fun String.toBoldMarkerAnnotatedText(
 	boldFontWeight: FontWeight = FontWeight.SemiBold
@@ -20,23 +21,8 @@ fun AnnotatedString.Builder.appendWithBoldMarkers(
 	text: String,
 	boldFontWeight: FontWeight = FontWeight.SemiBold
 ) {
-	val marker = "**"
-	var currentIndex = 0
-
-	while (currentIndex < text.length) {
-		val opening = text.indexOf(marker, currentIndex)
-		val closing = if (opening >= 0) text.indexOf(marker, opening + marker.length) else -1
-		if (closing < 0) {
-			append(text.substring(currentIndex))
-			return
-		}
-
-		append(text.substring(currentIndex, opening))
-		appendStyledSegment(
-			text = text.substring(opening + marker.length, closing),
-			boldFontWeight = boldFontWeight
-		)
-		currentIndex = closing + marker.length
+	text.forEachBoldMarkerSegment { segment, isBold ->
+		if (isBold) appendStyledSegment(text = segment, boldFontWeight = boldFontWeight) else append(segment)
 	}
 }
 

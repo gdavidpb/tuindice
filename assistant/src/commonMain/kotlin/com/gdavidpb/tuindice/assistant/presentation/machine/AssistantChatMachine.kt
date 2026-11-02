@@ -33,8 +33,8 @@ import com.gdavidpb.tuindice.chatcontract.intent.RequestEnrollmentProofArgs
 import kotlinx.coroutines.flow.collect
 
 /**
- * The chat sheet: its states, its transitions and the commands behind them. The conversation is observed from the
- * store; the machine holds what the student did on the sheet in [session] and the text being written in [draft].
+ * The chat: its states, its transitions and the commands behind them. The conversation is observed from the
+ * store; the machine holds what the student did in the chat in [session] and the text being written in [draft].
  */
 class AssistantChatMachine(
 	internal val turns: AssistantChatTurns,
@@ -63,15 +63,15 @@ class AssistantChatMachine(
 	// The status and the availability are read before the decision, and the availability is observed before its value is
 	// read, so a change in between is not lost. The decision re-enters the table from Idle, where each outcome has its own
 	// target.
-	internal fun openSheet(host: MachineHost<AssistantChat.Effect>, context: AssistantScreenContext?) {
+	internal fun openChat(host: MachineHost<AssistantChat.Effect>, context: AssistantScreenContext?) {
 		session.openedContext = context
 
 		// The opening waits for the first value the availability emits: until something observes it, its current value
-		// reads as off, so reading it right away would close a sheet that the assistant is on for. The changes after
+		// reads as off, so reading it right away would close a chat that the assistant is on for. The changes after
 		// that first value are followed from then on.
 		host.launchMachineJob {
 			// The status goes first, so the availability read after it carries the server's mode. Its standing is the
-			// restriction the sheet opens with: one whose end has passed, or that the server no longer gives, is gone.
+			// restriction the chat opens with: one whose end has passed, or that the server no longer gives, is gone.
 			val status = access.applyStatusWithin(STATUS_OPEN_TIMEOUT_MILLIS)
 
 			val availability = access.firstAvailability()
@@ -89,7 +89,7 @@ class AssistantChatMachine(
 		}
 	}
 
-	// The content of an open sheet: the conversation starts being observed, and a turn that was running resumes.
+	// The content of an open chat: the conversation starts being observed, and a turn that was running resumes.
 	internal suspend fun enterContent(host: MachineHost<AssistantChat.Effect>): AssistantChat.State.Content {
 		turns.observeConversation(host)
 		turns.resumeTurn(host)
@@ -102,7 +102,6 @@ class AssistantChatMachine(
 		}
 
 		val emptyContent = AssistantChat.State.Content(
-			context = session.openedContext,
 			items = emptyList(),
 			progressLabel = null,
 			composer = ChatComposerItem(text = "", isEnabled = false, isSendEnabled = false),
@@ -116,7 +115,7 @@ class AssistantChatMachine(
 
 	// Leaving the content stops what observed it: the conversation and the turn are no longer followed, and a send that
 	// was waiting for its first event is no longer waited for. A photo still being read is no longer waited for either:
-	// its reading was stopped with the sheet, so the sheet does not show it as read when it comes back.
+	// its reading was stopped with the chat, so the chat does not show it as read when it comes back.
 	internal fun leaveContent() {
 		turns.stop()
 
@@ -134,7 +133,7 @@ class AssistantChatMachine(
 		session.observedUnconfirmedTurnId = null
 
 		// A confirmation that has ended has no work left, so its mark goes. One still running keeps its mark: its outcome
-		// reaches the sheet in whichever state the sheet is then.
+		// reaches the chat in whichever state the chat is then.
 		session.runningIntents.entries.removeAll { (_, job) -> !job.isActive }
 	}
 
@@ -328,5 +327,5 @@ class AssistantChatMachine(
 	}
 }
 
-// How long opening the sheet waits for the status the server gives the student.
+// How long opening the chat waits for the status the server gives the student.
 private const val STATUS_OPEN_TIMEOUT_MILLIS = 3_000L

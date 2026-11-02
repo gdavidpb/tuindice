@@ -111,7 +111,7 @@ private fun ComposeUiTest.assertBoldAnswer() {
 	val text = onNodeWithText(DISPLAYED_TEXT).fetchSemanticsNode().config[SemanticsProperties.Text].single()
 
 	assertEquals(DISPLAYED_TEXT, text.text)
-	assertEquals(listOf("promedio acumulado", "16,2"), text.spanStyles.map { text.text.substring(it.start, it.end) })
+	assertEquals(listOf("promedio acumulado", "16.2"), text.spanStyles.map { text.text.substring(it.start, it.end) })
 	assertEquals(listOf(FontWeight.Bold, FontWeight.Bold), text.spanStyles.map { it.item.fontWeight })
 }
 
@@ -155,8 +155,8 @@ private fun Color.isStronglyDifferentFrom(other: Color): Boolean =
 
 // Seven words: the reveal lasts 300 ms, so the middle of it falls well inside the frames the test advances.
 private const val REVEALED_TEXT = "Una respuesta que llega palabra por palabra"
-private const val MARKED_TEXT = "Tu **promedio acumulado** es **16,2**."
-private const val DISPLAYED_TEXT = "Tu promedio acumulado es 16,2."
+private const val MARKED_TEXT = "Tu **promedio acumulado** es **16.2**."
+private const val DISPLAYED_TEXT = "Tu promedio acumulado es 16.2."
 private const val REVEALED_TEXT_PROBE_NAME = "revealed-text"
 private const val MID_REVEAL_MILLIS = 100L
 private const val HOST_TAG = "revealed_text_pixel_host"

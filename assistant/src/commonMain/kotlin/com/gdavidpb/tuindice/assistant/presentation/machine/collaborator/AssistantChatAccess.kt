@@ -35,13 +35,12 @@ class AssistantChatAccess(
 	fun isConsentGranted(): Boolean = consentRepository.assistantConsentGranted.value
 
 	// The privacy policy of the environment the app runs in, the same page About and the sign-in open. The system opens
-	// it, not the app's browser: a screen pushed over the chat's sheet does not bring the sheet back on iOS when it is
-	// closed (the scrim stays, without the sheet), so nothing is pushed over it.
+	// it, not the app's browser, so the chat stays as it is under it.
 	fun openPrivacyPolicy(host: MachineHost<AssistantChat.Effect>) {
 		host.sendEffect(AssistantChat.Effect.OpenUrl(url = appEnvironmentRepository.getEnvironment().privacyPolicyUrl))
 	}
 
-	// Started once per sheet, after the opening read the first value; the flow replays the current one, so no change
+	// Started once per chat, after the opening read the first value; the flow replays the current one, so no change
 	// in between is lost.
 	fun observeAvailability(host: MachineHost<AssistantChat.Effect>) {
 		if (availabilityJob?.isActive == true) return
@@ -59,13 +58,13 @@ class AssistantChatAccess(
 		return (syncAssistantUseCase.execute(Unit).last() as? UseCaseState.Data)?.value
 	}
 
-	// The status is read before the sheet decides what it shows, but not for longer than [millis]: a status that is late
-	// leaves the sheet to the values the device keeps, and null.
+	// The status is read before the chat decides what it shows, but not for longer than [millis]: a status that is late
+	// leaves the chat to the values the device keeps, and null.
 	suspend fun applyStatusWithin(millis: Long): AssistantStatus? {
 		return withTimeoutOrNull(millis) { applyStatus() }
 	}
 
-	// The status read again after a refused guided send. An on or guided mode reaches the sheet even when the mode did not
+	// The status read again after a refused guided send. An on or guided mode reaches the chat even when the mode did not
 	// change, since an unchanged mode does not reach it through the availability.
 	fun refreshStatus(host: MachineHost<AssistantChat.Effect>) {
 		host.launchMachineJob {

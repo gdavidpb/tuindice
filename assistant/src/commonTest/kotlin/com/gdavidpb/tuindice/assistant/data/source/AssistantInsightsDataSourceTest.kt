@@ -60,9 +60,9 @@ class AssistantInsightsDataSourceTest {
 		val client = assistantHttpClient {
 			jsonAnswer(
 				HttpStatusCode.OK,
-				"""{"items":[{"id":"term-1:2","termKey":"2026-APR_JUL","kind":"term_end","title":"Cerraste con 4,18",""" +
+				"""{"items":[{"id":"term-1:2","termKey":"2026-APR_JUL","kind":"term_end","title":"Cerraste con 4.18",""" +
 						""""body":"Aprobaste las 3 materias.","entityRefs":[{"kind":"term","id":"term-1"}],""" +
-						""""sections":[{"title":"Cerraste con 4,18","text":"Aprobaste las 3 materias."}],""" +
+						""""sections":[{"title":"Cerraste con 4.18","text":"Aprobaste las 3 materias."}],""" +
 						""""nextActions":[{"target":"record.projection","label":"Proyectar tu índice",""" +
 						""""entityRefs":[]},{"target":"share_term","label":"Compartir",""" +
 						""""entityRefs":[{"kind":"term","id":"term-1"}]}],"createdAtMillis":1761000000000}]}"""
@@ -75,7 +75,7 @@ class AssistantInsightsDataSourceTest {
 		val insight = source.observeInsightsFlow().first().single()
 
 		assertEquals(
-			listOf(AssistantInsightSection(title = "Cerraste con 4,18", text = "Aprobaste las 3 materias.")),
+			listOf(AssistantInsightSection(title = "Cerraste con 4.18", text = "Aprobaste las 3 materias.")),
 			insight.sections
 		)
 		assertEquals(

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
 
 // The write runs in the session, not in the caller's scope, as the about module's SetAssistantConsentUseCase does: a
-// sheet that closes while the server answers does not cut the write short, so the device keeps the consent it took.
+// chat that closes while the server answers does not cut the write short, so the device keeps the consent it took.
 // The flow only waits for the write and reports its outcome.
 class AcceptAssistantConsentUseCase(
 	private val consentRepository: AssistantConsentRepository,

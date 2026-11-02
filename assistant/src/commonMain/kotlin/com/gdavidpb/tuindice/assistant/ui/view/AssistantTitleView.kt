@@ -20,7 +20,7 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
 // The assistant's title: the sparkle in the accent on the same line as its name. The row reads as its text alone.
 @Composable
-fun AssistantSheetTitleView(
+fun AssistantTitleView(
 	text: String,
 	modifier: Modifier = Modifier
 ) {

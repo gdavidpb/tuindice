@@ -68,7 +68,6 @@ class AssistantNotificationOfferViewUiTest {
 	}
 
 	private fun emptyContent(notificationOffer: Boolean) = AssistantChat.State.Content(
-		context = null,
 		items = emptyList(),
 		progressLabel = null,
 		composer = ChatComposerItem(text = "", isEnabled = true, isSendEnabled = false),

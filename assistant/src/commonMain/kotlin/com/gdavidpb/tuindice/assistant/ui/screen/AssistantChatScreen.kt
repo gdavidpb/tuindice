@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.view.AssistantChatContent
-import com.gdavidpb.tuindice.assistant.ui.view.AssistantSheetTitleView
+import com.gdavidpb.tuindice.assistant.ui.view.AssistantTitleView
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import org.jetbrains.compose.resources.stringResource
@@ -57,7 +57,7 @@ fun AssistantChatScreen(
 					contentDescription = stringResource(Res.string.a11y_assistant_back)
 				)
 			}
-			AssistantSheetTitleView(
+			AssistantTitleView(
 				text = stringResource(Res.string.assistant_chat_title),
 				modifier = Modifier.testTag(AssistantUiTags.ChatTitle)
 			)

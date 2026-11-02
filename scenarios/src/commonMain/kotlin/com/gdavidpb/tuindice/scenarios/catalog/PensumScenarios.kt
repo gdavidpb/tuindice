@@ -235,8 +235,10 @@ private val pensumEquivalenceFulfilled = scenario(
 	openStatisticsAndGoBack()
 }
 
-// The sheet of a subject offers to ask about it: the button opens the chat, the first time after its consent, with the
-// subject as its context.
+// The sheet of a subject offers to ask about it: the button opens the chat, the first time after its consent. The chat
+// opens with the subject as its context and sends no question: the subject questions (sq.subject.*) are offered for a
+// subject detail context that carries the subject's entity, so their being on the chat shows that the context arrived.
+// It does not compare the subject's code.
 private val pensumAskAssistantSubject = scenario(
 	"pensum-ask-assistant-subject",
 	"pensum",
@@ -254,6 +256,7 @@ private val pensumAskAssistantSubject = scenario(
 	tap(AssistantUiTags.ConsentAccept)
 	waitVisible(AssistantUiTags.ChatScreen, Within.Action)
 	waitVisible(AssistantUiTags.Composer, Within.Action)
+	waitVisible(AssistantUiTags.Chat.suggestion("sq.subject.difficulty"), Within.Action)
 	tap(AssistantUiTags.ChatBack)
 	waitVisible(PensumUiTags.SubjectDetailSheet, Within.Action)
 }

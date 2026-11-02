@@ -43,6 +43,30 @@ class AssistantChatComposerRecompositionUiTest {
 		assertFalse(MESSAGE_NAME in compositions, "the message was composed again while typing: $compositions")
 	}
 
+	// The list holds every message: a keystroke must not compose it again, even though its items keep their instances.
+	@Test
+	fun when_onlyTheComposerChanges_then_theMessageListIsNotComposedAgain() = runTuIndiceUiTest {
+		val compositions = mutableListOf<String>()
+		val probe: (String) -> Unit = { name -> compositions += name }
+		val onAction: (AssistantChat.Action) -> Unit = {}
+		val conversation = contentState(items = listOf(agentMessage(id = MESSAGE_ID)))
+		var content by mutableStateOf(conversation)
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceCompositionProbe provides probe) {
+				AssistantChatConversationView(content = content, onAction = onAction)
+			}
+		}
+		waitForIdle()
+		assertTrue(LIST_NAME in compositions, "the list was not composed at first: $compositions")
+
+		compositions.clear()
+		// The student types: the composer changes, and the list keeps the same items and the same progress.
+		content = conversation.copy(composer = conversation.composer.copy(text = "hola", isSendEnabled = true))
+		waitForIdle()
+
+		assertFalse(LIST_NAME in compositions, "the list was composed again while typing: $compositions")
+	}
+
 	@Test
 	fun when_theMessageChanges_then_theAgentMessageIsComposedAgain() = runTuIndiceUiTest {
 		val compositions = mutableListOf<String>()
@@ -66,5 +90,6 @@ class AssistantChatComposerRecompositionUiTest {
 	private companion object {
 		const val MESSAGE_ID = "message-1"
 		const val MESSAGE_NAME = "agent-message:message-1"
+		const val LIST_NAME = "message-list"
 	}
 }

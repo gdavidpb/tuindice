@@ -51,7 +51,7 @@ fun AssistantChatScrollToEndButtonView(
 ) {
 	val scope = rememberCoroutineScope()
 	// The list opens at its top and then follows its last message down: the button waits until the list has reached its
-	// end once, so it does not flash while the sheet opens.
+	// end once, so it does not flash while the chat opens.
 	val hasReachedEnd = remember(listState) { mutableStateOf(false) }
 	val isAwayFromEnd by remember(listState) { derivedStateOf { hasReachedEnd.value && listState.canScrollForward } }
 
@@ -81,9 +81,10 @@ fun AssistantChatScrollToEndButtonView(
 			onClick = {
 				scope.launch {
 					val lastIndex = listState.layoutInfo.totalItemsCount - 1
-					// The offset is clamped to what the list can scroll, so this ends at the foot of the last item even
-					// when that item is taller than the list.
-					if (lastIndex >= 0) listState.animateScrollToItem(lastIndex, scrollOffset = Int.MAX_VALUE)
+					// This ends at the foot of the last item even when that item is taller than the list.
+					if (lastIndex >= 0) {
+						listState.followLastItem(lastIndex = lastIndex, showsItsEnd = true, animated = animationsEnabled)
+					}
 				}
 			},
 			modifier = Modifier.size(TuIndiceComponentSizes.IconButton).testTag(AssistantUiTags.ScrollToEndButton),

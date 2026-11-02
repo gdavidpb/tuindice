@@ -263,7 +263,7 @@ class AssistantWritesReportingContractTest {
 		assertTrue(reporting.loggedExceptions.isEmpty())
 	}
 
-	// A conversation with one open intent to remember, as the sheet shows it: the dismissal and the confirmation take it.
+	// A conversation with one open intent to remember, as the chat shows it: the dismissal and the confirmation take it.
 	private fun openRememberConversation(): RecordingAssistantConversationRepository {
 		val args = RememberArgs(statement = "Estudia de noche", category = "habitos", quote = "estudio de noche")
 

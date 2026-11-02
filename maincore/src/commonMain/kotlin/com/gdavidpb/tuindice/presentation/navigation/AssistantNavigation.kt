@@ -93,8 +93,8 @@ private fun TuIndiceNavigator.navigateFromAssistant(
 			goFromAssistant(section = MainSection.RECORD)
 		}
 
-		// The term the assistant names is the record's id of it; the sheet opens on its key. Without a term, or when the
-		// record does not know it, the sheet opens on the newest term.
+		// The term the assistant names is the record's id of it; the share sheet opens on its key. Without a term, or
+		// when the record does not know it, the share sheet opens on the newest term.
 		NavTarget.SHARE_TERM -> scope.launch {
 			val termKey = refs.idOf(EntityKind.TERM)?.let { termId -> termKeyOf(termId) }
 			goFromAssistant(
@@ -147,13 +147,13 @@ private fun NavTarget.destinationKeys(refs: List<EntityRef>): List<Destination> 
 private fun List<EntityRef>.idOf(kind: EntityKind): String? = firstOrNull { ref -> ref.kind == kind }?.id
 
 // Closes the assistant's chat and any component sheet on top of it, goes to [section]
-// when there is one, and opens [keys] over it. It is one change of the observable stack, so no frame shows the sheet
+// when there is one, and opens [keys] over it. It is one change of the observable stack, so no frame shows the chat
 // parked on the tab it came from. The tab is switched without writing the section the app opens on, as the hub does.
 private fun TuIndiceNavigator.goFromAssistant(section: MainSection?, keys: List<Destination> = emptyList()) {
 	if (rootMode != TuIndiceRootMode.SIGNED_IN) return
 
 	Snapshot.withMutableSnapshot {
-		while (isAssistantSheetOnTop()) {
+		while (isAssistantOnTop()) {
 			if (!pop()) break
 		}
 
@@ -163,7 +163,7 @@ private fun TuIndiceNavigator.goFromAssistant(section: MainSection?, keys: List<
 	}
 }
 
-private fun TuIndiceNavigator.isAssistantSheetOnTop(): Boolean {
+private fun TuIndiceNavigator.isAssistantOnTop(): Boolean {
 	val key = currentKey
 
 	return key is AssistantDestination.Chat || key is AssistantDestination.ComponentSheet

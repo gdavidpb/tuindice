@@ -651,20 +651,20 @@ class AssistantIntentConfirmationTest {
 		assertEquals(2, evaluations.received.size)
 	}
 
-	// The sheet closes while the evaluation waits for its outcome, and the intent is confirmed again while the
+	// The chat closes while the evaluation waits for its outcome, and the intent is confirmed again while the
 	// first run still waits: the run goes on for the session, and the second confirmation finds the intent
 	// taken. One run, one report.
 	@Test
-	fun aConfirmationTheSheetLeavesWhileItWaitsRunsTheIntentOnlyOnce() = runTest {
+	fun aConfirmationTheChatLeavesWhileItWaitsRunsTheIntentOnlyOnce() = runTest {
 		val args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", grade = 14.0)
 		openIntent(assistantIntent(args = args, mutationIds = listOf("m1")))
 		val release = CompletableDeferred<Unit>()
 		val port = GatedEvaluations(gate = release)
 		val useCase = ConfirmEditEvaluationIntentUseCase(confirmer, port, reporting, handler)
-		val sheet = launch { useCase.execute(ConfirmIntentParams(intentId = "i1")).lastState() }
+		val chat = launch { useCase.execute(ConfirmIntentParams(intentId = "i1")).lastState() }
 		runCurrent()
 
-		sheet.cancelAndJoin()
+		chat.cancelAndJoin()
 		port.gate = null
 		val reopened = useCase.execute(ConfirmIntentParams(intentId = "i1")).lastState()
 
@@ -687,7 +687,7 @@ class AssistantIntentConfirmationTest {
 		val release = CompletableDeferred<Unit>()
 		val port = GatedEvaluations(gate = release)
 		val useCase = ConfirmEditEvaluationIntentUseCase(confirmer, port, reporting, handler)
-		val sheet = launch { useCase.execute(ConfirmIntentParams(intentId = "i1")).lastState() }
+		val chat = launch { useCase.execute(ConfirmIntentParams(intentId = "i1")).lastState() }
 		runCurrent()
 
 		dismiss().execute("i1").dataValues()
@@ -696,7 +696,7 @@ class AssistantIntentConfirmationTest {
 		assertEquals(emptyMap<String, OutcomeKind>(), conversation.resolved)
 
 		release.complete(Unit)
-		sheet.join()
+		chat.join()
 
 		assertEquals(mapOf("i1" to OutcomeKind.CONFIRMED), conversation.resolved)
 	}

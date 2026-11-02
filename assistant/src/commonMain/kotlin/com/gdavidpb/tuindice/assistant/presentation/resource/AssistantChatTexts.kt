@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
 
 // The texts of the chat as ready strings. The machine reads them through this port, so its rows can run on the host,
 // where the compose resources cannot be read. The app binds the resource-backed implementation.
-interface AssistantChatTexts : AssistantChatPartTexts, AssistantChatIntentTexts {
+interface AssistantChatTexts : AssistantChatPartTexts, AssistantChatIntentTexts, AssistantChatProgressTexts {
 	suspend fun evaluationTypeName(evaluationType: String): String
 
 	suspend fun maxGrade(maxGrade: Double): String

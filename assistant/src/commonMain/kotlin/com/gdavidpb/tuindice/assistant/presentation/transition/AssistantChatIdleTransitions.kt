@@ -12,7 +12,7 @@ internal fun MachineDefinitionBuilder<AssistantChat.State>.assistantChatIdleTran
 ) {
 	from<AssistantChat.State.Idle> {
 		on<AssistantChat.Action.Open> { state, action ->
-			machine.openSheet(host = host, context = action.context)
+			machine.openChat(host = host, context = action.context)
 			state
 		}
 

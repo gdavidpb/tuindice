@@ -120,11 +120,11 @@ internal class AssistantChatFixture(
 
 	val machine: AssistantChatMachine by lazy { createMachine() }
 
-	// The dispatchers the sheet runs on: a sheet opened again runs on the same ones.
-	private var sheetDispatchers: TuIndiceDispatchers? = null
+	// The dispatchers the chat runs on: a chat opened again runs on the same ones.
+	private var chatDispatchers: TuIndiceDispatchers? = null
 
 	fun viewModel(dispatchers: TuIndiceDispatchers): AssistantChatViewModel {
-		sheetDispatchers = dispatchers
+		chatDispatchers = dispatchers
 
 		return AssistantChatViewModel(
 			screenMachine = machine,
@@ -133,13 +133,13 @@ internal class AssistantChatFixture(
 		)
 	}
 
-	// A sheet opened again over the same conversation: a new machine, as a new sheet has, on the store the sheet before
+	// A chat opened again over the same conversation: a new machine, as a new chat has, on the store the chat before
 	// left.
 	fun reopenedViewModel(): AssistantChatViewModel {
 		return AssistantChatViewModel(
 			screenMachine = createMachine(),
 			eventPublisher = NoOpEventPublisher,
-			dispatchers = checkNotNull(sheetDispatchers)
+			dispatchers = checkNotNull(chatDispatchers)
 		)
 	}
 

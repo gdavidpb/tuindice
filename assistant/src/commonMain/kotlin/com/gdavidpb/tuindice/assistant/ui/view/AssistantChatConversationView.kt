@@ -26,30 +26,27 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
-import com.gdavidpb.tuindice.assistant.presentation.model.hasIntentCard
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.assistant.ui.style.ChatEntranceLedger
 import com.gdavidpb.tuindice.assistant.ui.style.planAgentEntrance
+import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.keyboard.dismissKeyboardOnScroll
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.utils.extension.rememberLastNonNull
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
 
 // The keyboard's insets, which the list follows as the keyboard opens and closes. Null, the default, is the keyboard's
 // own; a test provides its own, to open and close the keyboard on the test clock.
@@ -57,13 +54,13 @@ internal val LocalChatKeyboardInsets = staticCompositionLocalOf<WindowInsets?> {
 
 // The conversation, oldest first, under the screen's header,
 // with the running label in the message list and the notice, suggestions and composer below.
-// The list follows its last item when a new one arrives, another one ends the conversation, or the keyboard moves. A
-// change inside an item leaves the list where it is. A proposal that arrives is shown up to its buttons, or its
-// outcome once resolved.
+// The list follows a new last item when the student sent it or was at the end, and its last item when the keyboard
+// moves. A change inside an item leaves the list where it is. A proposal that arrives is shown up to its buttons, or
+// its outcome once resolved.
 //
 // Motion: what arrives while the screen is open enters with the chat's motion (AssistantChatMotion); what is there when
 // it opens, the history and the notice simply are. Each place that comes and goes is an AssistantChatSlotView,
-// which carries its own 16 dp of separation, so the column does not space its children.
+// which carries its own 8 dp of separation, so the column does not space its children.
 @Composable
 fun AssistantChatConversationView(
 	content: AssistantChat.State.Content,
@@ -75,18 +72,10 @@ fun AssistantChatConversationView(
 	val listState = rememberLazyListState()
 	val focusManager = LocalFocusManager.current
 	val keyboard = LocalChatKeyboardInsets.current ?: WindowInsets.ime
-	val progressLabel = assistantProgressLabel(content)
-	val progressAtEnd = progressLabel != null && assistantProgressAnchor(content) == content.items.lastOrNull()?.id
+	val progressAtEnd = content.progressLabel != null && content.progressAnchorId == content.items.lastOrNull()?.id
 	val ledger = remember { ChatEntranceLedger(content.items.map(ChatItem::id)) }
-	LaunchedEffect(followKeyOf(content.items)) {
-		if (content.items.isNotEmpty()) {
-			listState.followLastItem(
-				lastIndex = content.items.lastIndex,
-				showsItsEnd = content.items.lastOrNull()?.hasIntentCard == true || progressAtEnd
-			)
-		}
-	}
-	FollowProgressWhenAtEnd(listState = listState, items = content.items, visible = progressLabel != null)
+	FollowConversation(listState = listState, items = content.items, progressAtEnd = progressAtEnd)
+	FollowProgressWhenAtEnd(listState = listState, visible = content.progressLabel != null)
 
 	FollowLastItemOnKeyboard(
 		listState = listState,
@@ -106,19 +95,21 @@ fun AssistantChatConversationView(
 			.dismissKeyboardOnScroll(focusManager)
 	) {
 		AssistantChatRegion(
-			hasMessages = content.items.isNotEmpty() || progressLabel != null,
+			hasMessages = content.items.isNotEmpty() || content.progressLabel != null,
 			modifier = Modifier
 				.weight(1f)
 				.fillMaxWidth(),
 			above = { AssistantChatAboveMessages(content = content, onAction = onAction) },
 			messages = {
-				AssistantChatMessagesPlace(
-					content = content,
-					ledger = ledger,
-					listState = listState,
-					snackbarHostState = snackbarHostState,
-					onAction = onAction
-				)
+				AssistantChatMessagesPlace(listState = listState, snackbarHostState = snackbarHostState) {
+					AssistantChatMessageListView(
+						items = content.items,
+						progress = ConversationProgress(label = content.progressLabel, anchorId = content.progressAnchorId),
+						ledger = ledger,
+						listState = listState,
+						onAction = onAction
+					)
+				}
 			},
 			below = { AssistantChatStatusView(content = content, ledger = ledger, onAction = onAction) }
 		)
@@ -205,27 +196,23 @@ private fun AssistantChatAboveMessages(
 	}
 }
 
-// The messages, with the sheet's snackbar and the button that goes to their end floating over their foot: they sit
+// The running turn's label and the item it goes under. Equal values keep the list from composing again.
+private data class ConversationProgress(val label: String?, val anchorId: String?)
+
+// The messages, with the chat's snackbar and the button that goes to their end floating over their foot: they sit
 // right above what follows the messages, so they take no room in any mode while they do not show.
 @Composable
 private fun AssistantChatMessagesPlace(
-	content: AssistantChat.State.Content,
-	ledger: ChatEntranceLedger,
 	listState: LazyListState,
 	snackbarHostState: SnackbarHostState,
-	onAction: (AssistantChat.Action) -> Unit
+	messages: @Composable () -> Unit
 ) {
 	Box(
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(top = TuIndiceSpacing.Medium)
 	) {
-		AssistantChatMessageListView(
-			content = content,
-			ledger = ledger,
-			listState = listState,
-			onAction = onAction
-		)
+		messages()
 		AssistantChatScrollToEndButtonView(
 			listState = listState,
 			modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = TuIndiceSpacing.Small)
@@ -237,17 +224,18 @@ private fun AssistantChatMessagesPlace(
 // The least the messages keep when the parts around them fill the region: a conversation with messages stays in reach.
 private val MinimumMessagesHeight = 160.dp
 
+// The values come one by one, not as the content: a change of the composer alone leaves the list composed.
 @Composable
 private fun AssistantChatMessageListView(
-	content: AssistantChat.State.Content,
+	items: List<ChatItem>,
+	progress: ConversationProgress,
 	ledger: ChatEntranceLedger,
 	listState: LazyListState,
 	onAction: (AssistantChat.Action) -> Unit
 ) {
+	// Reported to the composition probe of the tests only: it shows whether a change composes the list again.
+	ReportComposition(name = "message-list")
 	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
-	val items = content.items
-	val progressLabel = assistantProgressLabel(content)
-	val progressAnchor = assistantProgressAnchor(content)
 
 	LazyColumn(
 		modifier = Modifier.fillMaxSize().testTag(AssistantUiTags.MessageList),
@@ -255,7 +243,7 @@ private fun AssistantChatMessageListView(
 		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Large)
 	) {
 		if (items.isEmpty()) {
-			item { AssistantChatInlineProgressView(label = progressLabel) }
+			item { AssistantChatInlineProgressView(label = progress.label) }
 		}
 		items(items = items, key = ChatItem::id) { item ->
 			// Looked up once, when the item is first composed: an item that scrolls back into view is not new.
@@ -274,47 +262,11 @@ private fun AssistantChatMessageListView(
 
 					is ChatItem.Agent -> AssistantAgentMessageView(item = item, onAction = onAction, animateEntrance = isNew)
 				}
-				if (item.id == progressAnchor) AssistantChatInlineProgressView(label = progressLabel)
+				if (item.id == progress.anchorId) AssistantChatInlineProgressView(label = progress.label)
 			}
 		}
 	}
 }
-
-// The list follows its last item as the keyboard opens and closes, in each frame of its animation. The inset is read
-// outside composition, so those frames compose nothing; a follow cancels the one before it. Other changes of the
-// column's height (a suggestion, a notice) leave the list where it is.
-@Composable
-private fun FollowLastItemOnKeyboard(
-	listState: LazyListState,
-	items: List<ChatItem>,
-	progressVisible: Boolean,
-	ime: WindowInsets
-) {
-	val latestItems by rememberUpdatedState(items)
-	val latestProgressVisible by rememberUpdatedState(progressVisible)
-	val density = LocalDensity.current
-
-	// The first value is not followed: the conversation's effect follows it when the conversation is composed.
-	LaunchedEffect(listState, ime) {
-		snapshotFlow { ime.getBottom(density) }
-			.distinctUntilChanged()
-			.drop(1)
-			.collectLatest {
-				val current = latestItems
-
-				if (current.isNotEmpty()) {
-					listState.followLastItem(
-						lastIndex = current.lastIndex,
-						showsItsEnd = current.last().hasIntentCard || latestProgressVisible
-					)
-				}
-			}
-	}
-}
-
-// What the list follows its last item by: how many items there are, and which one is last. A change inside an item
-// keeps both, so it does not move the list; a new item, or another one at the end, changes them.
-internal fun followKeyOf(items: List<ChatItem>): Pair<Int, String?> = items.size to items.lastOrNull()?.id
 
 // What follows the messages: the notice and suggestions, each in a place that comes and goes.
 @Composable
@@ -340,7 +292,7 @@ private fun AssistantChatSuggestionsSlotView(
 ) {
 	val shownSuggestions = rememberLastNonNull(content.suggestions.takeIf { it.isNotEmpty() })
 
-	// Suggestions that are on screen when the sheet opens are there; they enter chip by chip only once they have gone
+	// Suggestions that are on screen when the chat opens are there; they enter chip by chip only once they have gone
 	// away and come back (the guided mode starts with them).
 	val suggestionsHaveGone = remember { mutableStateOf(false) }
 
@@ -349,9 +301,12 @@ private fun AssistantChatSuggestionsSlotView(
 	}
 
 	// The suggestions follow the answer that is typing in: they enter when its actions do.
-	val suggestionsLeadMillis = (content.items.lastOrNull() as? ChatItem.Agent)
+	val lastAgent = content.items.lastOrNull() as? ChatItem.Agent
+	// The plan of the answer's entrance depends on its parts only: it is planned once for them, not on each keystroke.
+	val lastAgentPlan = remember(lastAgent?.parts) { lastAgent?.let { planAgentEntrance(it.parts) } }
+	val suggestionsLeadMillis = lastAgent
 		?.takeIf { ledger.arrivedAfterOpen(it.id) }
-		?.let { planAgentEntrance(it.parts).actionsDelay }
+		?.let { lastAgentPlan?.actionsDelay }
 		?: 0
 
 	// Once the student writes their own question the suggestions give the conversation their room: they fade and shrink

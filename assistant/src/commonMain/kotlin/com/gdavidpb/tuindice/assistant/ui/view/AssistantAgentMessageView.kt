@@ -18,7 +18,7 @@ import com.gdavidpb.tuindice.base.ui.ReportComposition
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
 // The agent's message: full width, with no bubble and no name. Its parts follow in order, then its actions. When
-// [animateEntrance] is set (the message arrived while the sheet was open) the text is typed in word by word and each
+// [animateEntrance] is set (the message arrived while the chat was open) the text is typed in word by word and each
 // card, then the actions, enter after it, one after another (AgentEntrancePlan).
 @Composable
 fun AssistantAgentMessageView(

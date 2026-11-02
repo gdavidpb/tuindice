@@ -17,8 +17,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.last
 
 /**
- * The conversation the sheet shows: the observation of the store, with the cards of the Evaluations tab for the
- * evaluations its lists name. The observation is started once per sheet, and is stopped with the content.
+ * The conversation the chat shows: the observation of the store, with the cards of the Evaluations tab for the
+ * evaluations its lists name. The observation is started once per chat, and is stopped with the content.
  */
 class AssistantChatConversation(
 	private val observeAssistantConversationUseCase: ObserveAssistantConversationUseCase,
@@ -27,11 +27,11 @@ class AssistantChatConversation(
 	private var conversationJob: Job? = null
 
 	// The cards read last, and the evaluations they were read for. A turn being written is observed many times while the
-	// lists it names stay the same, so the cards are read again only when those evaluations change, or the sheet opens.
+	// lists it names stay the same, so the cards are read again only when those evaluations change, or the chat opens.
 	private var cardsReadFor: Set<String>? = null
 	private var cards: Map<String, EvaluationCardItem> = emptyMap()
 
-	// Started once per sheet: a second observer would feed the same machine twice.
+	// Started once per chat: a second observer would feed the same machine twice.
 	fun observe(host: MachineHost<AssistantChat.Effect>) {
 		if (conversationJob?.isActive == true) return
 

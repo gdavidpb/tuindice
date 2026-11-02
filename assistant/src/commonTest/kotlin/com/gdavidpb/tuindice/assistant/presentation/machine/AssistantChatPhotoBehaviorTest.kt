@@ -151,7 +151,7 @@ class AssistantChatPhotoBehaviorTest {
 		assertFalse(fixture.effects.contains(AssistantChat.Effect.OpenPhotoPicker))
 	}
 
-	// The sheet left for the consent keeps no reading of the photo: the reading ended when the sheet was left.
+	// The chat left for the consent keeps no reading of the photo: the reading ended when the chat was left.
 	@Test
 	fun when_aPhotoNeedsConsent_then_comingBackShowsNoReadingThatEnded() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)

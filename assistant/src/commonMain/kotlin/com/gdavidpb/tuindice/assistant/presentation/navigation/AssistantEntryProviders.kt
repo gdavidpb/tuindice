@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewM
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantComponentSheetViewModel
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantMemoryViewModel
 import com.gdavidpb.tuindice.assistant.ui.dialog.ClearAssistantMemoryDialog
+import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.navigation.NavShellBindings
 import com.gdavidpb.tuindice.base.presentation.navigation.TuIndiceNavActions
 import com.gdavidpb.tuindice.base.presentation.navigation.dialogMetadata
@@ -30,7 +31,12 @@ fun EntryProviderScope<NavKey>.assistantEntries(
 	clearMemoryConfirmationDialogEntry(navActions = navActions)
 }
 
-// The chat has its own header and snackbar. Its state hides the shell's bars while this entry is current.
+// The shell reads nothing from the chat but the defaults of ViewState: no title, no bars, no assistant context.
+// The chat publishes this constant, not each of its states: the composer changes with every key, and nothing the
+// shell reads does.
+private object ChatShellState : ViewState
+
+// The chat has its own header and snackbar. Its shell state hides the shell's bars while this entry is current.
 private fun EntryProviderScope<NavKey>.chatEntry(
 	navActions: TuIndiceNavActions,
 	shellBindings: NavShellBindings,
@@ -38,9 +44,8 @@ private fun EntryProviderScope<NavKey>.chatEntry(
 ) {
 	entry<AssistantDestination.Chat> { key ->
 		val viewModel = koinViewModel<AssistantChatViewModel>()
-		val viewState by viewModel.state.collectAsStateWithLifecycle()
 
-		CollectCurrentEntryValueWithLifecycle(value = viewState, onValue = shellBindings.onViewStateChanged)
+		CollectCurrentEntryValueWithLifecycle(value = ChatShellState, onValue = shellBindings.onViewStateChanged)
 
 		AssistantChatRoute(
 			viewModel = viewModel,

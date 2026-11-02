@@ -39,19 +39,34 @@ internal suspend fun AssistantChatSession.presentedContent(
 	val items = presentedItems(texts, nowMillis = clock.now().toEpochMilliseconds())
 	// Guided mode needs suggestions to keep asking. In open chat they belong only to the empty conversation.
 	val showSuggestions = !busy && restricted == null && (guided || items.isEmpty())
+	val composer = presentedComposer(draftText = draftText, draftRevision = draftRevision, restricted = restricted)
+	// The label: the running turn's, else a photo being read, else a wait (a send, or a turn that can be stopped).
+	val turnLabel = if (running) conversation?.activeTurn?.progressLabel else null
+	val reading = if (extracting) texts.photoReading() else null
+	val waiting = if (sending || composer.isStoppable) texts.sending() else null
 
 	return content.copy(
 		items = items,
-		progressLabel = if (running) conversation?.activeTurn?.progressLabel else null,
+		progressLabel = turnLabel ?: reading ?: waiting,
+		progressAnchorId = progressAnchorOf(items = items, extracting = extracting, sending = sending),
 		isExtracting = extracting,
 		isSending = sending,
-		// Once the student writes, the card steps aside for the rest of the sheet: it is only for the empty chat.
+		// Once the student writes, the card steps aside for the rest of the chat: it is only for the empty chat.
 		notificationOffer = notificationOfferShown && items.isEmpty() && !sending,
-		composer = presentedComposer(draftText = draftText, draftRevision = draftRevision, restricted = restricted),
-		suggestions = if (showSuggestions) presentedSuggestions(context = content.context, guided = guided) else emptyList(),
+		composer = composer,
+		suggestions = if (showSuggestions) presentedSuggestions(context = openedContext, guided = guided) else emptyList(),
 		notice = presentedNotice(texts = texts, guided = guided, restricted = restricted, clock = clock),
 		isGuided = guided
 	)
+}
+
+// The item the progress goes under. A text turn follows the student's last question; a photo being read follows the
+// latest item. So does a send whose answer has begun (the last item is the agent's): a send can start before its
+// question is stored, and until then the progress stays at the end.
+private fun progressAnchorOf(items: List<ChatItem>, extracting: Boolean, sending: Boolean): String? {
+	val last = items.lastOrNull()
+	if (extracting || (sending && last is ChatItem.Agent)) return last?.id
+	return items.lastOrNull { it is ChatItem.User }?.id ?: last?.id
 }
 
 // The composer: the text the student writes, and what the student can do with it. It takes the draft and the state of
@@ -171,7 +186,7 @@ internal fun ChatPartItem.withMemoryAnswer(answer: (String) -> Boolean?, pending
 
 // A turn that ended with a RunError: the message it answers is the one to retry, and it reads as failed. Its retry
 // is a new request (see retryFailedSend).
-// A RunError of another turn than the one the sheet sent is not the failure of that send: it shows nothing.
+// A RunError of another turn than the one the chat sent is not the failure of that send: it shows nothing.
 internal suspend fun AssistantChatSession.runFailed(
 	texts: AssistantChatTexts,
 	event: AssistantChatInternalEvent.TurnRunFailed

@@ -223,7 +223,7 @@ class AssistantNavigationTest {
 		copyText = copyText
 	)
 
-	// The chat is gone from the tab: back in that tab the sheet is not parked on it.
+	// The chat is gone from the tab: back in that tab the chat is not parked on it.
 	private fun assertNoChatOnTab(navigator: TuIndiceNavigator, section: MainSection) {
 		val current = navigator.currentTab
 		navigator.switchTab(section)

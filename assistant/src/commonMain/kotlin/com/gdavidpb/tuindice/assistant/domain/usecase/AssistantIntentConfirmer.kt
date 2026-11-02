@@ -43,7 +43,7 @@ import kotlinx.coroutines.flow.single
  * mutations are followed in the app session, and once they settle (before the intent's deadline) the final outcome goes
  * through the outbox as one more report, and the intent is marked resolved with it.
  *
- * The confirmation belongs to the session ([sessionCoroutineScope]), not to the caller: closing the sheet that asked
+ * The confirmation belongs to the session ([sessionCoroutineScope]), not to the caller: closing the chat that asked
  * does not cancel its decision, its run or its report. While a confirmation goes on, its intent is taken: a second
  * confirmation of it is refused as an intent that is not open, so the run happens once.
  */

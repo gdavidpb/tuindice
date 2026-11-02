@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
+import com.gdavidpb.tuindice.scenariokit.dsl.back
 import com.gdavidpb.tuindice.scenariokit.dsl.enterText
 import com.gdavidpb.tuindice.scenariokit.dsl.expectRequest
 import com.gdavidpb.tuindice.scenariokit.dsl.foreground
@@ -19,6 +20,7 @@ import com.gdavidpb.tuindice.scenariokit.dsl.waitBackgrounded
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.MockState
+import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
@@ -43,7 +45,7 @@ private fun StepBuilder.waitSummaryTerm() {
 	scrollUntilVisible(SummaryUiTags.sectionLink(SummaryUiTags.TermSection), Scroll.ContentDown, Within.Long)
 }
 
-/** Accepts the consent the sheet asks for at its first opening, then waits for the composer. */
+/** Accepts the consent the chat asks for at its first opening, then waits for the composer. */
 private fun StepBuilder.acceptConsent() {
 	waitVisible(AssistantUiTags.ConsentView, Within.Wait)
 	tap(AssistantUiTags.ConsentAccept)
@@ -86,7 +88,9 @@ private val assistantSmoke = scenario(
 	waitGone(AssistantUiTags.ProgressContainer, Within.Action)
 	waitGone(AssistantUiTags.Chat.suggestion("sq.summary.term"), Within.Action)
 	waitGone(AssistantUiTags.Chat.suggestion("sq.summary.attention"), Within.Action)
-	// Focusing expands the composer; both controls remain reachable above the keyboard.
+	// The photo and send buttons are in the tree with the composer closed too, so this checks only that they are still
+	// there once the field is focused. Their row under the text when the field opens and grows is checked by
+	// AssistantChatComposerViewUiTest; this scenario does not check their position above the keyboard.
 	tap(AssistantUiTags.Composer)
 	waitVisible(AssistantUiTags.PhotoButton, Within.Action)
 	waitVisible(AssistantUiTags.SendButton, Within.Action)
@@ -459,13 +463,36 @@ private val assistantAskAboutRecordSubject = scenario(
 ) {
 	account(E2eAccounts.Canonical.id)
 
-	// A subject's card in the record offers to ask about it, and the chat opens with that subject as its context.
+	// A subject's card in the record offers to ask about it. The chat opens with the attempt and its subject as its
+	// context, and no question is sent: the subject questions (sq.subject.*) are offered only for an attempt with its
+	// subject and no term, so their being on the chat shows that the context arrived. The subject's code is not compared.
 	val card = RecordUiTags.attemptCard(E2eFixtures.SyntheticEp1308Attempt.value)
 	waitVisible(card, Within.Sync)
 	tap(card)
 	tap(BaseUiTags.askAssistant("menu_item"))
 	acceptConsent()
+	waitVisible(AssistantUiTags.Chat.suggestion("sq.subject.difficulty"), Within.Action)
 	tap(AssistantUiTags.ChatBack)
+	waitVisible(card, Within.Action)
+}
+
+// The chat is a screen, so the system's back leaves it for the screen it was opened from. iOS has no such back.
+private val assistantSystemBack = scenario(
+	"assistant-system-back",
+	"assistant",
+	Start.Seeded(E2eAccounts.Canonical, section = MainSection.RECORD).toLaunchSpec()
+) {
+	platforms(Platform.Android)
+	account(E2eAccounts.Canonical.id)
+
+	val card = RecordUiTags.attemptCard(E2eFixtures.SyntheticEp1308Attempt.value)
+	waitVisible(card, Within.Sync)
+	tap(card)
+	tap(BaseUiTags.askAssistant("menu_item"))
+	acceptConsent()
+	waitVisible(AssistantUiTags.ChatScreen, Within.Action)
+	back()
+	waitGone(AssistantUiTags.ChatScreen, Within.Action)
 	waitVisible(card, Within.Action)
 }
 
@@ -520,6 +547,7 @@ val assistantScenarios: List<Scenario> = listOf(
 	assistantConfirmDestructiveDelete,
 	assistantDismissIntent,
 	assistantAskAboutEvaluation,
+	assistantSystemBack,
 	assistantServerDisabled,
 	assistantGuidedSuggestions,
 	assistantContextualSuggestions,

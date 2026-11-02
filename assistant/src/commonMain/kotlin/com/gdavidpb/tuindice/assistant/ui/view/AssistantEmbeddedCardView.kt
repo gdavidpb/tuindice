@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
-// A card the chat embeds in a message or in the memory list: a surface tone over the sheet, a hairline
+// A card the chat embeds in a message or in the memory list: a surface tone over the chat, a hairline
 // border of the outline tone and no shadow.
 @Composable
 fun AssistantEmbeddedCardView(

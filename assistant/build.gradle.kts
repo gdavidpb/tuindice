@@ -36,7 +36,6 @@ kotlin {
 				implementation(libs.kotlinx.coroutines.core)
 				implementation(libs.kotlinx.serialization.json)
 				implementation(libs.ktor.client.core)
-				implementation(libs.jetbrains.compose.backhandler)
 				implementation(libs.koin.compose)
 				implementation(libs.koin.core.viewmodel)
 				implementation(libs.koin.compose.viewmodel)

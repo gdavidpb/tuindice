@@ -180,6 +180,13 @@ El release está partido en dos workflows encadenados: stage construye y firma, 
 - `resolve-artifact` localiza el artefacto `production-release-<sha>` de la corrida de stage; si no existe,
   el deploy se salta en vez de construir nada.
 - Google Play: sube el AAB ya firmado del artefacto como draft en el track `production`.
+  - Si el track ya tiene un draft más viejo que la versión actual, el publicador lo reemplaza por el nuevo al
+    confirmar el edit. El borrador nuevo hereda del reemplazado las `releaseNotes` y el `inAppUpdatePriority`; el
+    log emite una línea `[WARN]` cuando hay notas heredadas. Revísalas en Play Console antes de publicar el draft.
+  - Un draft más nuevo que la versión actual, un draft con códigos de versión ambiguos o más de un draft en el
+    track detiene el despliegue antes de subir nada. Eso hace fallar `deploy-android`, así que `tag-release` no
+    corre (depende de `deploy-android` y `deploy-ios`) y iOS puede quedar publicado sin tag. Para recuperarlo,
+    resuelve ese borrador en Play Console y relanza `deploy-production.yml` con `target_sha`.
 - Apple: `xcrun altool --upload-app` con el `.ipa` del artefacto. En deploy no hay archive ni firma, y no se
   hace submit a review.
 - Tag: `app-<versionName>` anotado al `target_sha`, creado solo después de ambos uploads.

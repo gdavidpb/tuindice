@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardItem
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatFeedbackTexts
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatIntentTexts
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatPartTexts
+import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatProgressTexts
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
@@ -68,11 +69,18 @@ internal object FakeAssistantChatIntentTexts : AssistantChatIntentTexts {
 	override suspend fun dismissFailed(): String = "dismiss-failed"
 }
 
+internal object FakeAssistantChatProgressTexts : AssistantChatProgressTexts {
+	override suspend fun photoReading(): String = "photo-reading"
+
+	override suspend fun sending(): String = "sending"
+}
+
 // The texts are told apart by their values, so an assertion can say which notice the student sees.
 internal class FakeAssistantChatTexts :
 	AssistantChatTexts,
 	AssistantChatPartTexts by FakeAssistantChatPartTexts,
-	AssistantChatIntentTexts by FakeAssistantChatIntentTexts {
+	AssistantChatIntentTexts by FakeAssistantChatIntentTexts,
+	AssistantChatProgressTexts by FakeAssistantChatProgressTexts {
 
 	override suspend fun evaluationTypeName(evaluationType: String): String = "type:$evaluationType"
 
@@ -136,7 +144,7 @@ internal class ObservedAssistantConversationRepository(
 		conversation.update { current -> current.copy(conversationId = conversationId) }
 	}
 
-	// The events of the turns are written as the store writes them, so the sheet shows the conversation the turns made.
+	// The events of the turns are written as the store writes them, so the chat shows the conversation the turns made.
 	override fun applyEvent(event: AssistantEvent, sessionMark: Int) {
 		applied += event
 		conversation.update { current -> current.reducedBy(event) }
@@ -243,7 +251,7 @@ internal class ObservedAssistantConversationRepository(
 }
 
 // Like the real availability, the current value reads as off until something observes it: the configuration has no
-// synchronous read, so a sheet that read it before observing would close while the assistant is on.
+// synchronous read, so a chat that read it before observing would close while the assistant is on.
 internal class ObservedAssistantAvailabilityRepository(
 	initial: AssistantAvailability = AssistantAvailability(mode = AssistantMode.ON, serverDisabled = false)
 ) : AssistantAvailabilityRepository, AssistantServerModeRepository {
@@ -494,7 +502,7 @@ internal fun AssistantChat.State.Content.intentCard(intentId: String): IntentCar
 		.card
 }
 
-// The actions of the sheet, named as the screen calls them.
+// The actions of the chat, named as the screen calls them.
 internal fun AssistantChatViewModel.openAction(context: AssistantScreenContext?) =
 	dispatch(AssistantChat.Action.Open(context))
 
