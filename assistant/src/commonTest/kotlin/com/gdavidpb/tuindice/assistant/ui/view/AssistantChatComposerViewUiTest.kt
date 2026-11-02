@@ -73,7 +73,7 @@ class AssistantChatComposerViewUiTest {
 	}
 
 	@Test
-	fun when_theComposerIsClosed_then_clipTextAndSendShareARow_andTheClipOpensThePhotoMenu() = runTuIndiceUiTest {
+	fun when_theComposerIsClosed_then_clipTextAndSendShareARow_andTheClipOpensTheAttachMenu() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatComposerView(
 				composer = ChatComposerItem(
@@ -90,7 +90,7 @@ class AssistantChatComposerViewUiTest {
 
 		onNode(hasTestTag(AssistantUiTags.AttachButton) and hasAnyAncestor(hasTestTag(AssistantUiTags.Composer)))
 			.assertIsDisplayed()
-		onNodeWithContentDescription(PHOTO_DESCRIPTION).assertIsDisplayed()
+		onNodeWithContentDescription(ATTACH_DESCRIPTION).assertIsDisplayed()
 		val field = onNodeWithTag(AssistantUiTags.Composer).fetchSemanticsNode().boundsInRoot
 		val clip = onNodeWithTag(AssistantUiTags.AttachButton).fetchSemanticsNode().boundsInRoot
 		val send = onNodeWithTag(AssistantUiTags.SendButton).fetchSemanticsNode().boundsInRoot
@@ -114,7 +114,7 @@ class AssistantChatComposerViewUiTest {
 	}
 
 	@Test
-	fun when_aTurnOrAPhotoIsBeingRead_then_theClipIsDisabled() = runTuIndiceUiTest {
+	fun when_aTurnOrAnAttachmentIsBeingSent_then_theClipIsDisabled() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatComposerView(
 				composer = ChatComposerItem(
@@ -143,6 +143,26 @@ class AssistantChatComposerViewUiTest {
 					isSendEnabled = false,
 					showsAttach = true,
 					isAttachEnabled = true
+				),
+				isCameraAvailable = true,
+				onAction = {}
+			)
+		}
+
+		assertNodeHidden(AssistantUiTags.AttachButton)
+		assertNodeVisible(AssistantUiTags.SendButton)
+	}
+
+	@Test
+	fun when_theServiceKeepsAttachmentsOff_then_theClipIsNotThere() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatComposerView(
+				composer = ChatComposerItem(
+					text = "",
+					isEnabled = true,
+					isSendEnabled = false,
+					showsAttach = false,
+					isAttachEnabled = false
 				),
 				isCameraAvailable = true,
 				onAction = {}
@@ -312,7 +332,7 @@ class AssistantChatComposerViewUiTest {
 
 	private companion object {
 		const val STOP_DESCRIPTION = "Detener respuesta"
-		const val PHOTO_DESCRIPTION = "Adjuntar"
+		const val ATTACH_DESCRIPTION = "Adjuntar"
 		const val PLACEHOLDER = "Escribe tu pregunta"
 		const val PIXEL_TOLERANCE = 1f
 	}

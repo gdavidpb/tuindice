@@ -3,7 +3,9 @@ package com.gdavidpb.tuindice.assistant.data.source
 import com.gdavidpb.tuindice.assistant.data.mapper.toAssistantConversation
 import com.gdavidpb.tuindice.assistant.data.model.AssistantConversationState
 import com.gdavidpb.tuindice.assistant.data.model.AssistantTurnStatus
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserAttachment
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.model.DETAIL_PENSUM_NOT_LOADED
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
@@ -22,11 +24,11 @@ import com.gdavidpb.tuindice.chatcontract.intent.IntentStatus
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
 import com.gdavidpb.tuindice.chatcontract.intent.UnknownIntentArgs
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
-import com.gdavidpb.tuindice.chatcontract.message.IntentPart
 import com.gdavidpb.tuindice.chatcontract.message.Text
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -193,31 +195,37 @@ class AssistantConversationDataSourceTest {
 		assertEquals(AssistantConversationState(sessionGeneration = 1), store.observeConversation().value)
 	}
 
+	// The photos of the newest nine messages: the image of the oldest one leaves memory, and its thumbnail stays, so its
+	// bubble still shows the photo and opens the thumbnail large.
 	@Test
-	fun anAssistantMessageWrittenOutsideATurnIsAnItemWithItsIntentOpen() = runTest {
+	fun theImageOfAPhotoLeavesMemoryOnceNineNewerPhotosCameAfterIt() = runTest {
 		val store = AssistantConversationDataSource()
-		val proposal = AssistantMessage(
-			id = "photo-1",
-			parts = listOf(Text("Encontré 1 evaluación."), IntentPart(intent)),
-			createdAtMillis = 2L
-		)
 
-		store.addAssistantMessage(proposal, intent, store.sessionMark())
+		repeat(9) { index ->
+			store.addUserMessage(
+				AssistantUserMessage(
+					id = "u$index",
+					text = "",
+					createdAtMillis = index.toLong(),
+					attachments = listOf(
+						AssistantUserAttachment(
+							kind = AssistantAttachmentKind.PHOTO,
+							name = "foto-$index.jpg",
+							pageCount = null,
+							thumbnail = byteArrayOf(index.toByte()),
+							image = byteArrayOf(index.toByte(), 1)
+						)
+					)
+				)
+			)
+		}
 
-		val state = store.observeConversation().value
-		assertEquals(listOf(proposal), state.messages)
-		assertEquals(intent, state.openIntents.getValue("i1").intent)
-	}
+		val messages = store.observeConversation().value.userMessages
 
-	@Test
-	fun theSameAssistantMessageIsNotWrittenTwice() = runTest {
-		val store = AssistantConversationDataSource()
-		val proposal = AssistantMessage(id = "photo-1", parts = listOf(Text("Hola")), createdAtMillis = 2L)
-
-		store.addAssistantMessage(proposal, intent = null, store.sessionMark())
-		store.addAssistantMessage(proposal, intent = null, store.sessionMark())
-
-		assertEquals(listOf(proposal), store.observeConversation().value.messages)
+		assertNull(messages.first().attachments.single().image)
+		assertNotNull(messages.first().attachments.single().thumbnail)
+		assertNotNull(messages[1].attachments.single().image)
+		assertNotNull(messages.last().attachments.single().image)
 	}
 
 	// The writes of a session that has ended (the ones a request started in it answers after the end) leave the
@@ -226,7 +234,6 @@ class AssistantConversationDataSourceTest {
 	fun writesMadeForAnEndedSessionLeaveTheNextConversationAsItIs() = runTest {
 		val store = AssistantConversationDataSource()
 		val mark = store.sessionMark()
-		val proposal = AssistantMessage(id = "photo-1", parts = listOf(Text("Hola")), createdAtMillis = 2L)
 		val report = IntentOutcomeReport(intentId = "i1", outcome = OutcomeKind.CONFIRMED)
 		val outbox = AssistantIntentOutboxDataSource(store)
 
@@ -234,7 +241,7 @@ class AssistantConversationDataSourceTest {
 		store.attachConversation("c-old", mark)
 		store.apply(RunStarted(seq = 1, turnId = "t-old"), mark)
 		store.markUnconfirmed(turnId = "t-old", lastSeq = 1L, sessionMark = mark)
-		store.addAssistantMessage(proposal, intent, mark)
+		store.apply(IntentProposed(seq = 2, turnId = "t-old", messageId = "photo-1", intent = intent), mark)
 		store.markIntentResolved("i1", OutcomeKind.CONFIRMED, mark)
 		outbox.stageOutcome(report, mark)
 

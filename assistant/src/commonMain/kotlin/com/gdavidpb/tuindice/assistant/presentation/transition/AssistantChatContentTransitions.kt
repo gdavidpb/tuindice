@@ -78,12 +78,12 @@ private fun ContentTransitions.contentComposerRows(
 
 		state.copy(
 			composer = machine.session.presentedComposer(
-					draftText = machine.draft.text.value,
-					draftRevision = machine.draft.revision,
-					restricted = restricted,
-					attachments = machine.draft.attachments.value,
-					texts = machine.texts
-				)
+				draftText = machine.draft.text.value,
+				draftRevision = machine.draft.revision,
+				restricted = restricted,
+				attachments = machine.draft.attachments.value,
+				texts = machine.texts
+			)
 		)
 	}
 
@@ -111,7 +111,7 @@ private fun ContentTransitions.contentSendRows(
 			host = host,
 			params = SendAssistantMessageParams(
 				text = draftText.trim(),
-					attachments = machine.draft.attachments.value,
+				attachments = machine.draft.attachments.value,
 				suggestionId = null,
 				screenContext = machine.session.openedContext
 			),

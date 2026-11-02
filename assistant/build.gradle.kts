@@ -43,6 +43,7 @@ kotlin {
 				implementation(libs.material.icons.extended)
 				implementation(libs.filekit.core)
 				implementation(libs.filekit.dialogs.compose)
+				implementation(libs.coil3.compose)
 			}
 		}
 

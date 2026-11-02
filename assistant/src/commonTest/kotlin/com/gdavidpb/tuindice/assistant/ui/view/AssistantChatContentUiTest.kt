@@ -119,7 +119,7 @@ class AssistantChatContentUiTest {
 						showsAttach = true,
 						isAttachEnabled = false
 					)
-				).copy(progressLabel = PHOTO_PROGRESS),
+				).copy(progressLabel = SEND_PROGRESS),
 				onAction = {},
 				isCameraAvailable = true,
 				modifier = Modifier.fillMaxSize()
@@ -147,13 +147,13 @@ class AssistantChatContentUiTest {
 	}
 
 	@Test
-	fun when_aPhotoIsReadIntoTheChat_then_itsIntentCardIsShown() = runTuIndiceUiTest {
+	fun when_aProposalIsInTheChat_then_itsIntentCardIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatContent(
 				state = contentState(
 					items = listOf(
 						ChatItem.Agent(
-							id = "photo-1",
+							id = "proposal-1",
 							parts = listOf(
 								ChatPartItem.Text("Encontré 1 evaluación."),
 								ChatPartItem.IntentCard(intentCard())
@@ -241,7 +241,7 @@ class AssistantChatContentUiTest {
 
 	private companion object {
 		val CONTAINER_HEIGHT = 300.dp
-		const val PHOTO_PROGRESS = "Leyendo tu foto"
+		const val SEND_PROGRESS = "Enviando tu mensaje"
 		const val FIRST_TEXT = "Encontré 3 evaluaciones."
 		val LONG_TEXT = "Revisa cada una antes de confirmar, porque se agregan a tu historial de evaluaciones. ".repeat(20)
 	}

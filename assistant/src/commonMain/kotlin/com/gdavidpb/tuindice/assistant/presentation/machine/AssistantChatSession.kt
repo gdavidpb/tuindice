@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
@@ -194,26 +195,31 @@ internal class AssistantChatSession {
 		}
 
 		observedUnconfirmedTurnId = unconfirmedTurnId
+
+		// A turn that finished is not retried: its record, with the attachments it carried, goes.
+		observed.activeTurn?.takeIf { turn -> turn.status == AssistantTurnPhase.FINISHED }?.let { turn ->
+			sentByTurn.remove(turn.turnId)
+		}
 	}
 
 	// What a retry sends again: the text, the suggestion it was picked from, the client turn id it was sent with, and the
-	// attachments it carried. The
-	// answer of a run that failed is a turn of its own: [runEnded] marks that failure, and its retry is a new request.
+	// attachments it carried. The answer of a run that failed is a turn of its own: [runEnded] marks that failure, and its
+	// retry is a new request.
 	internal data class FailedSend(
 		val text: String,
 		val suggestionId: String?,
 		val clientTurnId: String,
 		val runEnded: Boolean = false,
-			val attachments: List<AssistantAttachment> = emptyList()
+		val attachments: List<AssistantAttachment> = emptyList()
 	)
 
-	// A message waiting for the recovery of the unconfirmed turn [turnId]. [restoreText] is what the composer
-	// takes back when the message is not sent.
+	// A message waiting for the recovery of the unconfirmed turn [turnId]. [restoreText] and [restoreAttachments] are what
+	// the composer takes back when the message is not sent.
 	internal data class PendingSend(
 		val turnId: String,
 		val params: SendAssistantMessageParams,
 		val restoreText: String?,
-			val restoreAttachments: List<AssistantAttachment> = emptyList()
+		val restoreAttachments: List<AssistantAttachment> = emptyList()
 	)
 
 	internal data class TurnFailure(val message: String, val retryable: Boolean)
@@ -295,3 +301,11 @@ internal fun AssistantChatSession.endSendUnconfirmed(turnId: String) {
 
 // A send waits while a message is on its way or a turn runs; a suggestion and a retry wait too.
 internal fun AssistantChatSession.sendIsBusy(): Boolean = sending || isRunning()
+
+// The attachments a record keeps: the service keeps a PDF under its id, so a record keeps no bytes of a PDF. A photo
+// keeps its bytes, which its bubble shows.
+internal fun List<AssistantAttachment>.withoutPdfContent(): List<AssistantAttachment> {
+	return map { attachment ->
+		if (attachment.kind == AssistantAttachmentKind.PDF) attachment.copy(content = null) else attachment
+	}
+}

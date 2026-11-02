@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -28,19 +29,21 @@ internal fun AssistantChatMachine.sendNewMessage(
 	beginSend(host)
 
 	if (draftText != null) draft.replace("")
-	if (draftText != null && params.attachments.isNotEmpty()) draft.setAttachments(emptyList())
+	takeAttachmentsFromTray(params.attachments)
 
+	// A record keeps no bytes of a PDF: the send needs the ids its attachments were kept under, and nothing else.
 	session.pendingSend = AssistantChatSession.PendingSend(
 		turnId = unconfirmed.turnId,
-		params = params,
+		params = params.copy(attachments = params.attachments.withoutPdfContent()),
 		restoreText = draftText,
-		restoreAttachments = params.attachments
+		restoreAttachments = if (draftText != null) params.attachments.withoutPdfContent() else emptyList()
 	)
 
 	turns.recoverTurn(host = host, turnId = unconfirmed.turnId)
 }
 
-// The recovery confirmed the unconfirmed answer: the message that waited for it is sent now, with the text it had.
+// The recovery confirmed the unconfirmed answer: the message that waited for it is sent now, with the text and the
+// attachments it had, which the composer takes back if the send is refused.
 internal fun AssistantChatMachine.turnRecovered(
 	host: MachineHost<AssistantChat.Effect>,
 	event: AssistantChatInternalEvent.TurnRecovered
@@ -49,7 +52,13 @@ internal fun AssistantChatMachine.turnRecovered(
 
 	session.pendingSend = null
 
-	startTurn(host = host, params = pending.params, draftText = null, restoreText = pending.restoreText)
+	startTurn(
+		host = host,
+		params = pending.params,
+		draftText = null,
+		restoreText = pending.restoreText,
+		restoreAttachments = pending.restoreAttachments
+	)
 }
 
 // The recovery did not confirm the unconfirmed answer: the message that waited for it is not sent.
@@ -68,12 +77,19 @@ internal fun AssistantChatMachine.turnNotRecovered(event: AssistantChatInternalE
 // The retry of a failed send. A run that failed is retried as a new request: its answer is a new turn, with a
 // client turn id of its own, and the failed question makes way for the question of that request. Any other failed
 // send keeps the client turn id of its send, so the server answers with the same turn when it has it already. The
-// attachments of the failed send go again: they are kept by the service already.
+// attachments of the failed send go again: the service keeps them already, under their ids.
+//
+// A retry takes no text from the composer, so it gives no text back. It gives back only the attachments it carries
+// that the tray holds, which a retry takes out of the tray as a send does: the message and the tray never show the
+// same attachment at once. Usually the tray holds none of them, and a refused retry gives nothing back.
 internal fun AssistantChatMachine.retryFailedSend(
 	host: MachineHost<AssistantChat.Effect>,
 	failed: AssistantChatSession.FailedSend,
 	context: AssistantScreenContext?
 ) {
+	val inTray = draft.attachments.value.map { attachment -> attachment.localId }.toSet()
+	val restoreAttachments = failed.attachments.filter { attachment -> attachment.localId in inTray }
+
 	if (!failed.runEnded) {
 		startTurn(
 			host = host,
@@ -84,7 +100,8 @@ internal fun AssistantChatMachine.retryFailedSend(
 				clientTurnId = failed.clientTurnId,
 				attachments = failed.attachments
 			),
-			draftText = null
+			draftText = null,
+			restoreAttachments = restoreAttachments
 		)
 
 		return
@@ -107,7 +124,8 @@ internal fun AssistantChatMachine.retryFailedSend(
 			replacesSessionMark = session.conversation?.sessionMark,
 			attachments = failed.attachments
 		),
-		draftText = null
+		draftText = null,
+		restoreAttachments = restoreAttachments
 	)
 }
 
@@ -124,4 +142,13 @@ internal fun AssistantChatMachine.beginSend(host: MachineHost<AssistantChat.Effe
 		session.restriction = null
 		access.restrictions.restrictionStatus(host)
 	}
+}
+
+// The attachments a send carries leave the tray: each one is either in the message or in the tray, never in both.
+internal fun AssistantChatMachine.takeAttachmentsFromTray(attachments: List<AssistantAttachment>) {
+	if (attachments.isEmpty()) return
+
+	val carried = attachments.map { attachment -> attachment.localId }.toSet()
+
+	draft.setAttachments(draft.attachments.value.filterNot { attachment -> attachment.localId in carried })
 }

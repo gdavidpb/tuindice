@@ -13,6 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Clock
 
 class AssistantChatSessionRetryTest {
@@ -59,6 +60,7 @@ class AssistantChatSessionRetryTest {
 			texts = FakeAssistantChatTexts(),
 			guided = false,
 			restricted = null,
+			trayFull = false,
 			clock = Clock.System
 		)
 
@@ -86,9 +88,50 @@ class AssistantChatSessionRetryTest {
 			texts = FakeAssistantChatTexts(),
 			guided = false,
 			restricted = null,
+			trayFull = false,
 			clock = Clock.System
 		)
 
 		assertEquals(ChatNoticeItem.TurnFailed(message = "failure", canRetry = false), notice)
+	}
+
+	// A turn that finished is not retried: its record, with the attachments it carried, leaves the session.
+	@Test
+	fun aRecordOfATurnThatFinished_leavesTheSession() = runTest {
+		val session = AssistantChatSession()
+		session.sentByTurn["t1"] = AssistantChatSession.FailedSend(text = "hola", suggestionId = null, clientTurnId = "c1")
+
+		session.observe(
+			emptyAssistantConversation().copy(
+				activeTurn = AssistantActiveTurn(
+					turnId = "t1",
+					lastSeq = 3,
+					progressLabel = null,
+					status = AssistantTurnPhase.FINISHED
+				)
+			)
+		)
+
+		assertTrue(session.sentByTurn.isEmpty())
+	}
+
+	// A turn still running keeps its record: its retry is what a failure of the turn offers.
+	@Test
+	fun aRecordOfATurnThatRuns_isKept() = runTest {
+		val session = AssistantChatSession()
+		session.sentByTurn["t1"] = AssistantChatSession.FailedSend(text = "hola", suggestionId = null, clientTurnId = "c1")
+
+		session.observe(
+			emptyAssistantConversation().copy(
+				activeTurn = AssistantActiveTurn(
+					turnId = "t1",
+					lastSeq = 1,
+					progressLabel = null,
+					status = AssistantTurnPhase.RUNNING
+				)
+			)
+		)
+
+		assertEquals("hola", session.sentByTurn.getValue("t1").text)
 	}
 }

@@ -24,6 +24,8 @@ class SendAssistantMessageExceptionHandler : ExceptionHandler<SendAssistantMessa
 			AssistantErrorCodes.SUSPENDED -> SendAssistantMessageError.Restricted
 			AssistantErrorCodes.GUIDED_ONLY -> SendAssistantMessageError.GuidedOnly
 			AssistantErrorCodes.TURN_IN_PROGRESS -> SendAssistantMessageError.TurnInProgress
+			AssistantErrorCodes.ATTACHMENT_LIMIT -> SendAssistantMessageError.AttachmentsRefused(expired = false)
+			AssistantErrorCodes.ATTACHMENT_EXPIRED -> SendAssistantMessageError.AttachmentsRefused(expired = true)
 			else -> SendAssistantMessageError.Other
 		}
 	}

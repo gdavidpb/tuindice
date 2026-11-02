@@ -12,4 +12,10 @@ interface AssistantChatAttachmentTexts {
 
 	// What the chat says when one more attachment is picked than the message has room for.
 	suspend fun attachmentLimit(): String
+
+	// What the chat says when the service refuses the attachments of a message: they are back in the tray.
+	suspend fun attachmentsRefused(): String
+
+	// What the chat says when an attachment of the message is no longer kept: the message goes back to the composer.
+	suspend fun attachmentExpired(): String
 }

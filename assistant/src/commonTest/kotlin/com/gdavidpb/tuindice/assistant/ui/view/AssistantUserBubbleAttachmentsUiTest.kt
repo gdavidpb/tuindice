@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatUserAttachmentItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -37,5 +38,38 @@ class AssistantUserBubbleAttachmentsUiTest {
 
 		onNodeWithText("programa.pdf").assertIsDisplayed()
 		assertNodeHidden(AssistantUiTags.Message.bubble("u1"))
+	}
+
+	// A photo is tagged by its message and its place among the message's attachments, so a test or a reader can find it.
+	@Test
+	fun when_aSentMessageHasAPhoto_then_ItIsTaggedByItsMessageAndItsPlace() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantUserBubbleView(
+				item = ChatItem.User(
+					id = "u1",
+					text = "",
+					isFailed = false,
+					attachments = listOf(
+						ChatUserAttachmentItem(
+							kind = AssistantAttachmentKind.PDF,
+							name = "programa.pdf",
+							detail = null,
+							thumbnail = null,
+							image = null
+						),
+						ChatUserAttachmentItem(
+							kind = AssistantAttachmentKind.PHOTO,
+							name = "foto.jpg",
+							detail = null,
+							thumbnail = null,
+							image = null
+						)
+					)
+				)
+			)
+		}
+
+		assertNodeVisible(AssistantUiTags.Message.attachment("u1", 1))
+		assertNodeHidden(AssistantUiTags.Message.attachment("u1", 0))
 	}
 }

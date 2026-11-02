@@ -96,9 +96,8 @@ class AssistantChatTurns(
 	fun send(
 		host: MachineHost<AssistantChat.Effect>,
 		params: SendAssistantMessageParams,
-		sentText: String,
 		restoreText: String?,
-		suggestionId: String?
+		restoreAttachments: List<AssistantAttachment>
 	) {
 		host.launchMachineJob {
 			sendAssistantMessageUseCase.execute(params).collect { useCaseState ->
@@ -109,15 +108,19 @@ class AssistantChatTurns(
 						AssistantChatInternalEvent.TurnAccepted(
 							turnId = useCaseState.value.turnId,
 							lastSeq = useCaseState.value.lastSeq,
-							suggestionId = suggestionId,
-							text = sentText,
+							suggestionId = params.suggestionId,
+							text = params.text.orEmpty(),
 							clientTurnId = params.clientTurnId,
 							attachments = params.attachments
 						)
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
-						useCaseState.error.toSendEvent(sentText, restoreText, suggestionId, params.clientTurnId, params.attachments)
+						useCaseState.error.toSendEvent(
+							params = params,
+							restoreText = restoreText,
+							restoreAttachments = restoreAttachments
+						)
 					)
 				}
 			}
@@ -182,11 +185,9 @@ class AssistantChatTurns(
 }
 
 private fun SendAssistantMessageError?.toSendEvent(
-	sentText: String,
+	params: SendAssistantMessageParams,
 	restoreText: String?,
-	suggestionId: String?,
-	clientTurnId: String,
-	attachments: List<AssistantAttachment>
+	restoreAttachments: List<AssistantAttachment>
 ): AssistantChatInternalEvent {
 	return when (this) {
 		is SendAssistantMessageError.AssistantDisabled -> AssistantChatInternalEvent.SendDisabled
@@ -195,11 +196,12 @@ private fun SendAssistantMessageError?.toSendEvent(
 
 		else -> AssistantChatInternalEvent.SendRejected(
 			error = this,
-			sentText = sentText,
+			sentText = params.text.orEmpty(),
 			restoreText = restoreText,
-			suggestionId = suggestionId,
-			clientTurnId = clientTurnId,
-			restoreAttachments = attachments
+			suggestionId = params.suggestionId,
+			clientTurnId = params.clientTurnId,
+			attachments = params.attachments,
+			restoreAttachments = restoreAttachments
 		)
 	}
 }

@@ -7,8 +7,6 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentState
 import com.gdavidpb.tuindice.assistant.domain.model.PreparedAssistantAttachment
 import com.gdavidpb.tuindice.assistant.domain.usecase.PrepareAssistantAttachmentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.UploadAssistantAttachmentUseCase
-import com.gdavidpb.tuindice.assistant.domain.usecase.error.PrepareAssistantAttachmentError
-import com.gdavidpb.tuindice.assistant.domain.usecase.error.UploadAssistantAttachmentError
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.PrepareAssistantAttachmentParams
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.UploadAssistantAttachmentParams
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -22,6 +20,7 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.isActive
 import kotlin.uuid.Uuid
 
 /**
@@ -37,6 +36,12 @@ class AssistantChatAttachments(
 
 	// The file of each attachment not read yet. It leaves when the file is read, so a read that failed keeps it.
 	private val files = mutableMapOf<String, PlatformFile>()
+
+	// The bytes each attachment read sends, by its id: the message's weight is counted from them before an upload starts.
+	private val bytesOf = mutableMapOf<String, Long>()
+
+	// The digest of the bytes each attachment read sends, by its id: the same picture is not sent twice.
+	private val digestOf = mutableMapOf<String, String>()
 
 	// Adds [picked] files of [kind] to the message as far as it has room. The files past the room are not taken, and the
 	// chat says so; each file taken starts its own read and upload.
@@ -94,6 +99,8 @@ class AssistantChatAttachments(
 	fun remove(localId: String) {
 		jobs.remove(localId)?.cancel()
 		files.remove(localId)
+		bytesOf.remove(localId)
+		digestOf.remove(localId)
 	}
 
 	// The chat leaves its content: the reads and uploads stop, and each one in flight fails, so its retry is there on the
@@ -129,8 +136,44 @@ class AssistantChatAttachments(
 				)
 			} ?: prepare(host = host, localId = localId, kind = attachment.kind)
 
-			if (prepared != null) upload(host = host, localId = localId, prepared = prepared)
+			if (prepared == null) return@launchMachineJob
+
+			// A file taken out meanwhile, or one the chat took out as the same picture as another, is not sent.
+			if (!isActive || draft.attachments.value.none { attachment -> attachment.localId == localId }) {
+				return@launchMachineJob
+			}
+
+			// The same picture as another attachment of the message: the chat takes this one out (see the attachment's
+			// read), and nothing is sent for it.
+			if (holdsTheSamePicture(draft, localId, prepared.content.sha256)) return@launchMachineJob
+
+			digestOf[localId] = prepared.content.sha256
+			bytesOf[localId] = prepared.content.bytes.size.toLong()
+
+			// The message carries its attachments together: one that makes it heavier than a message takes is not sent.
+			if (messageIsTooHeavy(draft)) {
+				host.processInternalEvent(
+					AssistantChatInternalEvent.AttachmentFailed(localId, AssistantAttachmentFailure.MessageTooLarge)
+				)
+				return@launchMachineJob
+			}
+
+			upload(host = host, localId = localId, prepared = prepared)
 		}
+	}
+
+	// Another attachment of the message holds the bytes this one reads to.
+	private fun holdsTheSamePicture(draft: AssistantChatDraft, localId: String, digest: String): Boolean {
+		return draft.attachments.value.any { attachment ->
+			attachment.localId != localId && digestOf[attachment.localId] == digest
+		}
+	}
+
+	// The attachments of the message being written, the ones read so far, weigh more than one message takes.
+	private fun messageIsTooHeavy(draft: AssistantChatDraft): Boolean {
+		val total = draft.attachments.value.sumOf { attachment -> bytesOf[attachment.localId] ?: 0L }
+
+		return total > AttachmentLimits.MAX_BYTES_PER_MESSAGE
 	}
 
 	// Reads the file of [localId] into what the upload sends. A file that cannot be read fails its attachment, and no
@@ -184,49 +227,6 @@ class AssistantChatAttachments(
 			is UseCaseState.Error -> host.processInternalEvent(state.error.toUploadEvent(localId))
 
 			is UseCaseState.Loading -> Unit
-		}
-	}
-
-	private fun PrepareAssistantAttachmentError?.toFailure(): AssistantAttachmentFailure {
-		return when (this) {
-			PrepareAssistantAttachmentError.TooLarge -> AssistantAttachmentFailure.TooLarge
-
-			PrepareAssistantAttachmentError.Unsupported -> AssistantAttachmentFailure.Unsupported
-
-			null -> AssistantAttachmentFailure.Other
-		}
-	}
-
-	// The refusals the whole chat answers keep their own events: the disabled service closes the chat, a missing consent
-	// asks for it, and a quota, a restriction or the guided mode are told as the chat tells them. The others fail the
-	// attachment.
-	private fun UploadAssistantAttachmentError?.toUploadEvent(localId: String): AssistantChatInternalEvent {
-		return when (this) {
-			is UploadAssistantAttachmentError.AssistantDisabled -> AssistantChatInternalEvent.SendDisabled
-
-			UploadAssistantAttachmentError.ConsentRequired -> AssistantChatInternalEvent.SendConsentRequired
-
-			is UploadAssistantAttachmentError.QuotaExhausted,
-			UploadAssistantAttachmentError.Restricted,
-			UploadAssistantAttachmentError.GuidedOnly -> AssistantChatInternalEvent.AttachmentRejected(
-				localId = localId,
-				error = this
-			)
-
-			UploadAssistantAttachmentError.TooLarge ->
-				AssistantChatInternalEvent.AttachmentFailed(localId, AssistantAttachmentFailure.TooLarge)
-
-			UploadAssistantAttachmentError.Unsupported ->
-				AssistantChatInternalEvent.AttachmentFailed(localId, AssistantAttachmentFailure.Unsupported)
-
-			UploadAssistantAttachmentError.Unreadable ->
-				AssistantChatInternalEvent.AttachmentFailed(localId, AssistantAttachmentFailure.Unreadable)
-
-			is UploadAssistantAttachmentError.DailyLimit ->
-				AssistantChatInternalEvent.AttachmentFailed(localId, AssistantAttachmentFailure.DailyLimit(retryAfterSeconds))
-
-			UploadAssistantAttachmentError.Other, null ->
-				AssistantChatInternalEvent.AttachmentFailed(localId, AssistantAttachmentFailure.Other)
 		}
 	}
 }

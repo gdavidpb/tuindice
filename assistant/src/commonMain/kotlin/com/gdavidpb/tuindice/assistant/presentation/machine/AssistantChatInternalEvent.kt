@@ -55,12 +55,15 @@ sealed interface AssistantChatInternalEvent {
 
 	data object SendConsentRequired : AssistantChatInternalEvent
 
+	// The send was refused. [attachments] are the message's, as the retry of the send carries them; [restoreAttachments]
+	// are the ones the composer takes back, which a retry takes none of unless the tray held them (see startTurn).
 	data class SendRejected(
 		val error: SendAssistantMessageError?,
 		val sentText: String,
 		val restoreText: String?,
 		val suggestionId: String?,
 		val clientTurnId: String,
+		val attachments: List<AssistantAttachment> = emptyList(),
 		val restoreAttachments: List<AssistantAttachment> = emptyList()
 	) : AssistantChatInternalEvent
 

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentFailure
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentState
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -49,6 +50,7 @@ internal suspend fun AssistantChatSession.presentedContent(
 		attachments = input.attachments,
 		texts = texts
 	)
+	val trayFull = input.attachments.size >= AttachmentLimits.MAX_PER_MESSAGE
 	// The label: the running turn's, else a wait (a send, or a turn that can be stopped).
 	val turnLabel = if (running) conversation?.activeTurn?.progressLabel else null
 	val waiting = if (sending || composer.isStoppable) texts.sending() else null
@@ -62,7 +64,7 @@ internal suspend fun AssistantChatSession.presentedContent(
 		notificationOffer = notificationOfferShown && items.isEmpty() && !sending,
 		composer = composer,
 		suggestions = if (showSuggestions) presentedSuggestions(context = openedContext, guided = guided) else emptyList(),
-		notice = presentedNotice(texts = texts, guided = guided, restricted = restricted, clock = clock),
+		notice = presentedNotice(texts = texts, guided = guided, restricted = restricted, trayFull = trayFull, clock = clock),
 		isGuided = guided
 	)
 }
@@ -77,8 +79,8 @@ private fun progressAnchorOf(items: List<ChatItem>, sending: Boolean): String? {
 }
 
 // The composer: the text the student writes, the attachments above it, and what the student can do with them. It takes
-// the
-// draft and the state of the chat only, so a change of the text presents this alone (ChangeText), not the conversation.
+// the draft and the state of the chat only, so a change of the text presents this alone (ChangeText), not the
+// conversation.
 internal suspend fun AssistantChatSession.presentedComposer(
 	draftText: String,
 	draftRevision: Int,
@@ -107,7 +109,8 @@ internal suspend fun AssistantChatSession.presentedComposer(
 }
 
 // The tray of the message being written, as the student sees it: each attachment with its state, its detail once the
-// service reads its pages, and the reason it failed when it did.
+// service reads its pages, and the reason it failed when it did. Only a failure that can clear on its own, such as a
+// lost connection, offers the retry: the others would fail again, so the student takes the attachment out instead.
 internal suspend fun List<AssistantAttachment>.presentedAttachments(
 	texts: AssistantChatTexts
 ): List<ChatAttachmentItem> {
@@ -123,14 +126,33 @@ internal suspend fun List<AssistantAttachment>.presentedAttachments(
 			isUploading = attachment.state == AssistantAttachmentState.Preparing ||
 				attachment.state == AssistantAttachmentState.Uploading,
 			isFailed = failure != null,
+			canRetry = failure == AssistantAttachmentFailure.Other,
 			failureText = failure?.let { reason -> texts.attachmentFailure(reason) }
 		)
 	}
 }
 
-// The notice that limits the chat now. A restriction outranks the quota, the quota outranks the guided mode, and the
-// guided mode outranks a failed turn: each earlier one says more about why the chat is stopped.
+// The notice that limits the chat now: the chat's own notice, and once that holds none, the limit of the attachments.
+// The limit shows once the tray is full or a pick was cut to its room, and no text turn has failed: a failure of a text
+// turn keeps its notice and its retry.
 internal suspend fun AssistantChatSession.presentedNotice(
+	texts: AssistantChatTexts,
+	guided: Boolean,
+	restricted: AssistantChatSession.Restriction?,
+	trayFull: Boolean,
+	clock: Clock
+): ChatNoticeItem? {
+	return presentedChatNotice(texts = texts, guided = guided, restricted = restricted, clock = clock)
+		?: if (attachmentLimitHit || trayFull) {
+			ChatNoticeItem.TurnFailed(message = texts.attachmentLimit(), canRetry = false)
+		} else {
+			null
+		}
+}
+
+// The notice of the chat's state. A restriction outranks the quota, the quota outranks the guided mode, and the guided
+// mode outranks a failed turn: each earlier one says more about why the chat is stopped.
+private suspend fun AssistantChatSession.presentedChatNotice(
 	texts: AssistantChatTexts,
 	guided: Boolean,
 	restricted: AssistantChatSession.Restriction?,
@@ -171,10 +193,6 @@ internal suspend fun AssistantChatSession.presentedNotice(
 			message = answer.failure.message,
 			canRetry = answer.failure.retryable && !busy
 		)
-
-		// The limit of the attachments shows once no text turn has failed: a failure of a text turn keeps its notice and
-		// retry.
-		attachmentLimitHit -> ChatNoticeItem.TurnFailed(message = texts.attachmentLimit(), canRetry = false)
 
 		else -> null
 	}

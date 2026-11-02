@@ -13,6 +13,6 @@
     "headers": {
       "Content-Type": "text/event-stream"
     },
-    "bodyFileName": "assistant/events-add.sse"
+    "bodyFileName": "assistant/events-attachment.sse"
   }
 }

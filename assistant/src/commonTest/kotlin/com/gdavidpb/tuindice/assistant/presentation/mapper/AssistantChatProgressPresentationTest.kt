@@ -108,7 +108,7 @@ class AssistantChatProgressPresentationTest {
 	}
 
 	@Test
-	fun when_aTurnLabelIsSetWhileAPhotoIsReadAndASendWaits_then_theTurnLabelWins() = runTest {
+	fun when_aTurnLabelIsSetWhileASendWaits_then_theTurnLabelWins() = runTest {
 		val session = AssistantChatSession().apply {
 			conversation = assistantConversation(
 				items = listOf(question(QUESTION_ID)),
@@ -154,7 +154,6 @@ class AssistantChatProgressPresentationTest {
 		const val TURN_LABEL = "Revisando tu pensum…"
 
 		// The labels the fake texts answer (FakeAssistantChatTexts).
-		const val PHOTO_READING = "photo-reading"
 		const val SENDING = "sending"
 	}
 }

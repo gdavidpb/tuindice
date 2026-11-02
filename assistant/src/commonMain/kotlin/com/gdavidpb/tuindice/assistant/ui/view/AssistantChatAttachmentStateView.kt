@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatAttachmentItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import org.jetbrains.compose.resources.stringResource
@@ -25,27 +26,24 @@ import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_attachment_retry
 import tuindice.assistant.generated.resources.assistant_attachment_uploading
 
-private val TILE_SIZE = 56.dp
 private val PROGRESS_SIZE = 28.dp
 private val PROGRESS_STROKE = 2.dp
 private const val VEIL_ALPHA = 0.45f
 
-// The veil over an attachment of the tray while it is read or sent: a progress for a wait, and the error's colour
-// with the retry for an attachment that failed.
+// The veil over an attachment of the tray, the size of the attachment (the caller fills it): a progress while it is
+// read or sent, and the error's colour for one that failed. A failure that can clear on its own offers the retry; the
+// veil says the reason to a reader of the tray.
 @Composable
 fun AssistantChatAttachmentStateView(
-	name: String,
-	isUploading: Boolean,
-	isFailed: Boolean,
+	item: ChatAttachmentItem,
 	onRetry: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	val uploadingDescription = stringResource(Res.string.assistant_attachment_uploading, name)
+	val uploadingDescription = stringResource(Res.string.assistant_attachment_uploading, item.name)
 
-	if (isUploading) {
+	if (item.isUploading) {
 		Box(
 			modifier = modifier
-				.size(TILE_SIZE)
 				.semantics { contentDescription = uploadingDescription }
 				.clip(RoundedCornerShape(TuIndiceRadius.Medium))
 				.background(MaterialTheme.colorScheme.scrim.copy(alpha = VEIL_ALPHA)),
@@ -59,23 +57,25 @@ fun AssistantChatAttachmentStateView(
 		}
 	}
 
-	if (isFailed) {
+	if (item.isFailed) {
 		Box(
 			modifier = modifier
-				.size(TILE_SIZE)
+				.semantics { contentDescription = item.failureText ?: item.name }
 				.clip(RoundedCornerShape(TuIndiceRadius.Medium))
 				.background(MaterialTheme.colorScheme.error.copy(alpha = VEIL_ALPHA)),
 			contentAlignment = Alignment.Center
 		) {
-			IconButton(
-				onClick = onRetry,
-				modifier = Modifier.testTag(AssistantUiTags.AttachmentRetry)
-			) {
-				Icon(
-					imageVector = Icons.Outlined.Refresh,
-					contentDescription = stringResource(Res.string.assistant_attachment_retry, name),
-					tint = MaterialTheme.colorScheme.onError
-				)
+			if (item.canRetry) {
+				IconButton(
+					onClick = onRetry,
+					modifier = Modifier.testTag(AssistantUiTags.AttachmentRetry)
+				) {
+					Icon(
+						imageVector = Icons.Outlined.Refresh,
+						contentDescription = stringResource(Res.string.assistant_attachment_retry, item.name),
+						tint = MaterialTheme.colorScheme.onError
+					)
+				}
 			}
 		}
 	}

@@ -16,30 +16,40 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import org.jetbrains.compose.resources.stringResource
+import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_attachment_pdf
 
 private val CARD_HEIGHT = 56.dp
 private val CARD_ICON_SIZE = 28.dp
 
 // A PDF as a card: a document icon, its name on one line, and its pages under it once the service has read them. The
-// card keeps the same height in the tray and in the sent message.
+// card keeps the same height in the tray and in the sent message. [endPadding] keeps the text clear of what sits over
+// the end of the card, such as the × of the tray.
 @Composable
 fun AssistantChatPdfCardView(
 	name: String,
 	detail: String?,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	endPadding: Dp = TuIndiceSpacing.Medium
 ) {
 	val shape = RoundedCornerShape(TuIndiceRadius.Medium)
+	val description = detail?.let { pages -> stringResource(Res.string.assistant_attachment_pdf, name, pages) } ?: name
 
 	Row(
 		modifier = modifier
 			.height(CARD_HEIGHT)
 			.background(MaterialTheme.colorScheme.surfaceVariant, shape)
 			.border(TuIndiceSpacing.Hairline, MaterialTheme.colorScheme.outlineVariant, shape)
-			.padding(horizontal = TuIndiceSpacing.Medium),
+			.padding(start = TuIndiceSpacing.Medium, end = endPadding)
+			.semantics { contentDescription = description },
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		Icon(

@@ -6,9 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
-import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
-import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -44,10 +42,6 @@ class AssistantConversationStoreDataSource(
 		replacesSessionMark: Int?
 	) {
 		store.addUserMessage(message, replacesMessageId, replacesSessionMark)
-	}
-
-	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?, sessionMark: Int) {
-		store.addAssistantMessage(message, intent, sessionMark)
 	}
 
 	override fun markIntentResolved(

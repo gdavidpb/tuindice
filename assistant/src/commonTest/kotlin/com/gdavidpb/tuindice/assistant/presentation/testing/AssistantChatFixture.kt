@@ -112,7 +112,7 @@ internal class AssistantChatFixture(
 	val gatedMemories = GatedAssistantMemoryRepository(memories)
 	val serverDisabled = RecordingAssistantServerDisabledRepository()
 	val clientState = FakeAssistantClientStateRepository()
-	val imageEncoder = RecordingImageEncoderRepository()
+	val imageEncoder = RecordingImageEncoderRepository().apply { distinctByName = true }
 	val attachmentRepository = RecordingAssistantAttachmentRepository()
 	val attachmentFiles = RecordingAssistantAttachmentFileRepository()
 	val appEnvironment = FakeAppEnvironmentRepository()

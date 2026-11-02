@@ -79,6 +79,14 @@ class PrepareAssistantAttachmentUseCaseTest {
 		)
 	}
 
+	// A photo is sent as the JPEG the app encodes it to, so the name says jpg, whatever the file was called.
+	@Test
+	fun aPhotoOfAnotherTypeIsNamedAsTheJpegItIsSentAs() = runTest {
+		assertEquals("IMG_2041.jpg", preparedOf(PlatformFile("IMG_2041.HEIC"), AssistantAttachmentKind.PHOTO).name)
+		assertEquals("plan.JPEG", preparedOf(PlatformFile("plan.JPEG"), AssistantAttachmentKind.PHOTO).name)
+		assertEquals("sin-extension.jpg", preparedOf(PlatformFile("sin-extension"), AssistantAttachmentKind.PHOTO).name)
+	}
+
 	@Test
 	fun aPdfIsSentAsItIsAndNoPhotoIsEncoded() = runTest {
 		files.bytes = PDF_BYTES

@@ -38,7 +38,7 @@ fun AssistantUserBubbleView(
 	animateEntrance: Boolean = false
 ) {
 	Box(modifier = modifier.fillMaxWidth()) {
-		val openedImage = remember { mutableStateOf<ByteArray?>(null) }
+		val openedPhoto = remember { mutableStateOf<OpenedPhoto?>(null) }
 		val shape = RoundedCornerShape(TuIndiceRadius.Large)
 
 		Column(
@@ -51,23 +51,25 @@ fun AssistantUserBubbleView(
 		) {
 			if (item.attachments.isNotEmpty()) {
 				AssistantChatBubbleAttachmentsView(
+					messageId = item.id,
 					attachments = item.attachments,
-					onOpenPhoto = { image -> openedImage.value = image }
+					onOpenPhoto = { image, cacheKey -> openedPhoto.value = OpenedPhoto(bytes = image, cacheKey = cacheKey) }
 				)
 			}
 
 			if (item.text.isNotEmpty()) {
-			Text(
-				text = item.text,
-				modifier = Modifier
-					.testTag(AssistantUiTags.Message.bubble(item.id))
-					.background(TuIndiceChatColors.chatUserBubble(), shape)
-					.border(TuIndiceSpacing.Hairline, TuIndiceChatColors.chatUserBubbleOutline(), shape)
-					.padding(horizontal = TuIndiceSpacing.XLarge, vertical = TuIndiceSpacing.Large),
-				style = MaterialTheme.typography.bodyLarge,
-				color = MaterialTheme.colorScheme.onSurface
-			)
+				Text(
+					text = item.text,
+					modifier = Modifier
+						.testTag(AssistantUiTags.Message.bubble(item.id))
+						.background(TuIndiceChatColors.chatUserBubble(), shape)
+						.border(TuIndiceSpacing.Hairline, TuIndiceChatColors.chatUserBubbleOutline(), shape)
+						.padding(horizontal = TuIndiceSpacing.XLarge, vertical = TuIndiceSpacing.Large),
+					style = MaterialTheme.typography.bodyLarge,
+					color = MaterialTheme.colorScheme.onSurface
+				)
 			}
+
 			if (item.isFailed) {
 				Text(
 					text = stringResource(Res.string.assistant_chat_user_failed),
@@ -77,8 +79,12 @@ fun AssistantUserBubbleView(
 				)
 			}
 		}
-		openedImage.value?.let { image ->
-			AssistantChatImageDialogView(image = image, onDismiss = { openedImage.value = null })
+		openedPhoto.value?.let { photo ->
+			AssistantChatImageDialogView(
+				image = photo.bytes,
+				cacheKey = photo.cacheKey,
+				onDismiss = { openedPhoto.value = null }
+			)
 		}
 	}
 }

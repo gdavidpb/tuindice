@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.chatcontract.event.RunError
 import com.gdavidpb.tuindice.chatcontract.event.RunFinished
 import com.gdavidpb.tuindice.chatcontract.event.RunStarted
 import com.gdavidpb.tuindice.chatcontract.event.UnknownAssistantEvent
-import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 
 internal fun AssistantConversationState.reduce(event: AssistantEvent): AssistantConversationState {
@@ -114,25 +113,6 @@ private fun AssistantConversationState.updateTurn(
 	update: (AssistantTurnState) -> AssistantTurnState
 ): AssistantConversationState {
 	return copy(turns = turns + (turnId to update(turns.getValue(turnId))))
-}
-
-// A proposal written outside a turn, as a photo's is, belongs to no turn: its open intent carries an empty turn id. An
-// intent the student already resolved stays resolved: a message that comes again does not open it once more.
-internal fun AssistantConversationState.withAssistantMessage(
-	message: AssistantMessage,
-	intent: Intent?
-): AssistantConversationState {
-	val open = intent
-		?.takeUnless { resolvedIntent -> resolvedIntent.id in resolvedIntents }
-		?.let { openIntent ->
-			AssistantOpenIntent(intentId = openIntent.id, turnId = "", messageId = message.id, intent = openIntent)
-		}
-
-	return copy(
-		messages = messages.withMessage(message),
-		order = order.withId(message.id),
-		openIntents = if (open == null) openIntents else openIntents + (open.intentId to open)
-	)
 }
 
 // An id joins the order once, where it first came in; a message that comes again keeps its place.

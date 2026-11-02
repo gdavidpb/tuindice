@@ -17,6 +17,7 @@ Cómo se prueba a mano, en una build de depuración con el asistente encendido y
 5. Sin red, subir un adjunto: queda con el velo de error y su reintento; con red, el reintento lo sube.
 6. Enviar con texto y sin texto. La burbuja muestra las fotos arriba del texto y el PDF como tarjeta; tocar una foto la
    abre en grande.
-7. Elegir cinco fotos: se quedan cuatro y el aviso dice «Puedes adjuntar hasta 4.».
+7. Elegir cinco fotos: se quedan cuatro y el aviso dice «Puedes adjuntar hasta 4.». Con cuatro en la bandeja el clip
+   queda apagado y el aviso sigue; quitar uno devuelve el clip y el aviso desaparece.
 
 El resultado de cada paso se anota en la certificación como verificación manual, no como evidencia E2E.

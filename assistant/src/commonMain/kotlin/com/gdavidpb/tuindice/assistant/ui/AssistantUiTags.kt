@@ -20,6 +20,7 @@ object AssistantUiTags {
 	const val AttachmentTray = "assistant_attachment_tray"
 	const val AttachmentRemove = "assistant_attachment_remove"
 	const val AttachmentRetry = "assistant_attachment_retry"
+	const val AttachmentFailure = "assistant_attachment_failure"
 	const val ProgressContainer = "assistant_progress_container"
 	const val ProgressAtom = "assistant_progress_atom"
 	const val ProgressLabel = "assistant_progress_label"
@@ -61,6 +62,9 @@ object AssistantUiTags {
 
 	object Message {
 		fun bubble(messageId: String): String = "assistant_user_bubble_$messageId"
+
+		// A photo of a sent message, by its place among the attachments of the message.
+		fun attachment(messageId: String, index: Int): String = "assistant_user_attachment_${messageId}_$index"
 
 		fun bubbleError(messageId: String): String = "assistant_user_bubble_error_$messageId"
 

@@ -156,29 +156,24 @@ class AssistantChatMachine(
 
 	// Starts a turn with the message of [params]: the one path every send takes. [draftText] is the draft the
 	// send takes its text from and clears; null leaves it. [restoreText] is the text a refused send gives back,
-	// the draft's text by default. A new message carries its own client turn id. A retry of a refused or
-	// unconfirmed send carries the id of that send, so the server answers with the same turn; a retry of a run
-	// that failed is a new request (see retryFailedSend).
+	// the draft's text by default. [restoreAttachments] are the attachments a refused send gives back to the tray: those
+	// of a send from the draft, and none for a send that takes no text from it (see retryFailedSend). A new message
+	// carries its own client turn id. A retry of a refused or unconfirmed send carries the id of that send, so the server
+	// answers with the same turn; a retry of a run that failed is a new request (see retryFailedSend).
 	internal fun startTurn(
 		host: MachineHost<AssistantChat.Effect>,
 		params: SendAssistantMessageParams,
 		draftText: String?,
-		restoreText: String? = draftText
+		restoreText: String? = draftText,
+		restoreAttachments: List<AssistantAttachment> = if (draftText != null) params.attachments else emptyList()
 	) {
 		beginSend(host)
 
 		if (draftText != null) draft.replace("")
 
-		// A send that takes the message's attachments from the draft leaves the tray; a retry keeps what the draft holds.
-		if (draftText != null && params.attachments.isNotEmpty()) draft.setAttachments(emptyList())
+		takeAttachmentsFromTray(params.attachments)
 
-		turns.send(
-			host = host,
-			params = params,
-			sentText = params.text.orEmpty(),
-			restoreText = restoreText,
-			suggestionId = params.suggestionId
-		)
+		turns.send(host = host, params = params, restoreText = restoreText, restoreAttachments = restoreAttachments)
 	}
 
 	// Confirms the open intent [intentId]. Its outcome comes back as an event; the card shows it is running meanwhile.
@@ -231,6 +226,8 @@ class AssistantChatMachine(
 	) {
 		val error = event.error
 		val notSent = error is SendAssistantMessageError.InvalidMessage
+		// An expired attachment takes the others with it: the message is attached again from the start.
+		val expired = (error as? SendAssistantMessageError.AttachmentsRefused)?.expired == true
 
 		session.sending = false
 
@@ -238,52 +235,17 @@ class AssistantChatMachine(
 			session.markSendFailed(event.sentText)
 			session.lastFailedSend = AssistantChatSession.FailedSend(
 				text = event.sentText,
-				attachments = event.restoreAttachments,
+				attachments = if (expired) emptyList() else event.attachments.withoutPdfContent(),
 				suggestionId = event.suggestionId,
 				clientTurnId = event.clientTurnId
 			)
 		}
 
-		// A text that was not sent stays in the composer, where the student can send it again. It does not replace what the
-		// student started writing while the send waited.
-		val keepsText = notSent ||
-			error is SendAssistantMessageError.QuotaExhausted ||
-			error == SendAssistantMessageError.TurnInProgress ||
-			error == SendAssistantMessageError.GuidedOnly
-
-		if (keepsText) restoreDraft(text = event.restoreText, attachments = event.restoreAttachments)
-
-		when (error) {
-			is SendAssistantMessageError.QuotaExhausted -> {
-				session.quota = AssistantChatSession.Quota(retryAfterSeconds = error.retryAfterSeconds)
-			}
-
-			SendAssistantMessageError.Restricted -> {
-				session.restriction = AssistantChatSession.Restriction(level = null, untilMillis = null, canAppeal = false)
-				access.restrictions.restrictionStatus(host)
-			}
-
-			SendAssistantMessageError.GuidedOnly -> {
-				session.guidedByServer = true
-				access.refreshStatus(host)
-			}
-
-			SendAssistantMessageError.TurnInProgress -> Unit
-
-			SendAssistantMessageError.InvalidMessage -> {
-				session.turnFailure = AssistantChatSession.TurnFailure(
-					message = texts.messageTooLong(AssistantInputLimits.MESSAGE_MAX_LENGTH),
-					retryable = false
-				)
-			}
-
-			else -> {
-				session.turnFailure = AssistantChatSession.TurnFailure(
-					message = texts.sendFailed(),
-					retryable = true
-				)
-			}
+		if (error.keepsTheText()) {
+			restoreDraft(text = event.restoreText, attachments = if (expired) emptyList() else event.restoreAttachments)
 		}
+
+		applyRefusal(host = host, error = error)
 	}
 
 	// The turn was accepted: whatever failed before is past, and the turn is followed from its first event. The retry of a
@@ -306,7 +268,7 @@ class AssistantChatMachine(
 		// The message the turn answers is kept under the turn, as it was sent: the retry of the turn sends it again.
 		session.sentByTurn[event.turnId] = AssistantChatSession.FailedSend(
 			text = event.text,
-			attachments = event.attachments,
+			attachments = event.attachments.withoutPdfContent(),
 			suggestionId = event.suggestionId,
 			clientTurnId = event.clientTurnId
 		)
@@ -346,4 +308,59 @@ private const val STATUS_OPEN_TIMEOUT_MILLIS = 3_000L
 private fun AssistantChatMachine.restoreDraft(text: String?, attachments: List<AssistantAttachment>) {
 	if (draft.text.value.isEmpty()) text?.let(draft::replace)
 	if (draft.attachments.value.isEmpty()) draft.setAttachments(attachments)
+}
+
+// What a refused send does beyond its text: a quota, a restriction, the guided mode, or the notice of the refusal.
+private suspend fun AssistantChatMachine.applyRefusal(
+	host: MachineHost<AssistantChat.Effect>,
+	error: SendAssistantMessageError?
+) {
+	when (error) {
+		is SendAssistantMessageError.QuotaExhausted -> {
+			session.quota = AssistantChatSession.Quota(retryAfterSeconds = error.retryAfterSeconds)
+		}
+
+		SendAssistantMessageError.Restricted -> {
+			session.restriction = AssistantChatSession.Restriction(level = null, untilMillis = null, canAppeal = false)
+			access.restrictions.restrictionStatus(host)
+		}
+
+		SendAssistantMessageError.GuidedOnly -> {
+			session.guidedByServer = true
+			access.refreshStatus(host)
+		}
+
+		SendAssistantMessageError.TurnInProgress -> Unit
+
+		is SendAssistantMessageError.AttachmentsRefused -> {
+			session.turnFailure = AssistantChatSession.TurnFailure(
+				message = if (error.expired) texts.attachmentExpired() else texts.attachmentsRefused(),
+				retryable = false
+			)
+		}
+
+		SendAssistantMessageError.InvalidMessage -> {
+			session.turnFailure = AssistantChatSession.TurnFailure(
+				message = texts.messageTooLong(AssistantInputLimits.MESSAGE_MAX_LENGTH),
+				retryable = false
+			)
+		}
+
+		else -> {
+			session.turnFailure = AssistantChatSession.TurnFailure(
+				message = texts.sendFailed(),
+				retryable = true
+			)
+		}
+	}
+}
+
+// A refused send keeps the text the student wrote for it, unless the refusal says the text does not go. A message the
+// service did not read leaves the text in the composer too, where the student can change it and send it again.
+private fun SendAssistantMessageError?.keepsTheText(): Boolean {
+	return this == SendAssistantMessageError.InvalidMessage ||
+		this is SendAssistantMessageError.QuotaExhausted ||
+		this == SendAssistantMessageError.TurnInProgress ||
+		this == SendAssistantMessageError.GuidedOnly ||
+		this is SendAssistantMessageError.AttachmentsRefused
 }

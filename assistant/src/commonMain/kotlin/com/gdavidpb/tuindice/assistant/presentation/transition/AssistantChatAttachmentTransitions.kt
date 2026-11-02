@@ -22,7 +22,7 @@ internal fun AttachmentTransitions.contentAttachmentRows(
 	host: MachineHost<AssistantChat.Effect>
 ) {
 	// The clip asks for a source: the camera, the photos of the gallery, or the PDF files. A picker takes at most the room
-	// the message has left. A clip pressed with no room left says so.
+	// the message has left. With no room left the clip is off, and the notice says why (see presentedNotice).
 	on<AssistantChat.Action.RequestAttachment>(
 		emits = setOf(
 			AssistantChat.Effect.OpenCamera::class,
@@ -33,11 +33,6 @@ internal fun AttachmentTransitions.contentAttachmentRows(
 		if (!state.composer.isAttachEnabled) return@on state
 
 		val room = AttachmentLimits.MAX_PER_MESSAGE - machine.draft.attachments.value.size
-
-		if (room <= 0) {
-			machine.session.attachmentLimitHit = true
-			return@on machine.refreshed(state)
-		}
 
 		host.sendEffect(
 			when (action.source) {
@@ -88,7 +83,19 @@ internal fun AttachmentTransitions.contentAttachmentResultRows(
 	host: MachineHost<AssistantChat.Effect>
 ) {
 	// The read of a file is done: its upload is on its way, and the tray shows it as sent.
+	// A file read to the bytes of an attachment the message already holds is the same picture: the one already there is
+	// kept, and this one leaves the tray with its read and its upload.
 	on<AssistantChatInternalEvent.AttachmentPrepared> { state, event ->
+		val sameBytes = machine.draft.attachments.value.any { other ->
+			other.localId != event.localId && other.content?.sha256 == event.prepared.content.sha256
+		}
+
+		if (sameBytes) {
+			machine.turns.attachments.remove(localId = event.localId)
+			machine.draft.removeAttachment(event.localId)
+			return@on machine.refreshed(state)
+		}
+
 		machine.draft.updateAttachment(event.localId) { attachment ->
 			attachment.copy(
 				name = event.prepared.name,

@@ -5,6 +5,9 @@ sealed interface AssistantAttachmentFailure {
 	/** Larger than the service takes: a PDF over its size, or a photo still over its size once encoded. */
 	data object TooLarge : AssistantAttachmentFailure
 
+	/** With the attachments read before it, it makes the message heavier than one message takes; it is not sent. */
+	data object MessageTooLarge : AssistantAttachmentFailure
+
 	/** Not a photo or a PDF the service reads. */
 	data object Unsupported : AssistantAttachmentFailure
 

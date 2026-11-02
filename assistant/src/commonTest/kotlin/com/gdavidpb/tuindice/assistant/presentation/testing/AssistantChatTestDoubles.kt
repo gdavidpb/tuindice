@@ -95,6 +95,10 @@ internal class FakeAssistantChatTexts :
 
 	override suspend fun attachmentLimit(): String = "attachment-limit"
 
+	override suspend fun attachmentsRefused(): String = "attachments-refused"
+
+	override suspend fun attachmentExpired(): String = "attachment-expired"
+
 	override suspend fun quotaExhausted(retryAfterSeconds: Int?): String = "quota:$retryAfterSeconds"
 
 	override suspend fun turnFailure(code: RunErrorCode, retryable: Boolean): String {
@@ -185,15 +189,6 @@ internal class ObservedAssistantConversationRepository(
 			val written = kept.items.any { item -> item is AssistantConversationItem.User && item.message.id == message.id }
 
 			if (written) kept else kept.copy(items = kept.items + AssistantConversationItem.User(message))
-		}
-	}
-
-	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?, sessionMark: Int) {
-		conversation.update { current ->
-			val items = current.items + AssistantConversationItem.Agent(message = message, turnId = "")
-			val openIntents = intent?.let { current.openIntents + (it.id to it) } ?: current.openIntents
-
-			current.copy(items = items, openIntents = openIntents)
 		}
 	}
 

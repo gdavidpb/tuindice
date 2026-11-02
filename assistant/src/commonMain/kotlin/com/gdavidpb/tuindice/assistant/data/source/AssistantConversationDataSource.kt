@@ -5,15 +5,12 @@ import com.gdavidpb.tuindice.assistant.data.model.AssistantStreamEvent
 import com.gdavidpb.tuindice.assistant.data.model.markUnconfirmed
 import com.gdavidpb.tuindice.assistant.data.model.reduce
 import com.gdavidpb.tuindice.assistant.data.model.reduceOwn
-import com.gdavidpb.tuindice.assistant.data.model.withAssistantMessage
 import com.gdavidpb.tuindice.assistant.data.model.withId
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
-import com.gdavidpb.tuindice.chatcontract.intent.Intent
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
-import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -71,16 +68,11 @@ class AssistantConversationDataSource : SessionMemory {
 			if (kept.userMessages.any { it.id == message.id }) {
 				kept
 			} else {
-				kept.copy(userMessages = kept.userMessages + message, order = kept.order.withId(message.id))
+				kept.copy(
+					userMessages = (kept.userMessages + message).keepingRecentImages(),
+					order = kept.order.withId(message.id)
+				)
 			}
-		}
-	}
-
-	// A message no turn wrote, such as a photo's proposal. It joins the messages once, by id, and its intent, when it has
-	// one, opens the way a turn's does.
-	fun addAssistantMessage(message: AssistantMessage, intent: Intent?, sessionMark: Int) {
-		conversation.update { current ->
-			if (current.sessionGeneration != sessionMark) current else current.withAssistantMessage(message, intent)
 		}
 	}
 
@@ -136,6 +128,31 @@ internal fun AssistantConversationDataSource.applyOwn(event: AssistantStreamEven
 		if (current.sessionGeneration != sessionMark) current else current.reduceOwn(event)
 	}
 }
+
+// The photos of the last [RECENT_PHOTO_IMAGES] messages keep the image they were sent as, in memory. An older photo
+// keeps its thumbnail only: its bubble opens that large instead.
+private fun List<AssistantUserMessage>.keepingRecentImages(): List<AssistantUserMessage> {
+	var photosSeen = 0
+
+	return asReversed()
+		.map { message ->
+			val attachments = message.attachments.asReversed().map { attachment ->
+				if (attachment.image == null) {
+					attachment
+				} else if (++photosSeen <= RECENT_PHOTO_IMAGES) {
+					attachment
+				} else {
+					attachment.copy(image = null)
+				}
+			}
+
+			message.copy(attachments = attachments.asReversed())
+		}
+		.asReversed()
+}
+
+// How many of the newest photos of the conversation keep their image in memory.
+private const val RECENT_PHOTO_IMAGES = 8
 
 // The question leaves the state, with its place in the order. A question the state does not hold leaves it as it is.
 private fun AssistantConversationState.withoutUserMessage(messageId: String): AssistantConversationState {

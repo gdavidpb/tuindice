@@ -21,10 +21,11 @@ import tuindice.assistant.generated.resources.assistant_attachment_close
 import tuindice.assistant.generated.resources.assistant_attachment_photo
 import org.jetbrains.compose.resources.stringResource as composeStringResource
 
-// A sent photo at full size, over the whole screen. It closes with its × or with the system's back.
+// A sent photo at its own size, over the whole screen. It closes with its × or with the system's back.
 @Composable
 fun AssistantChatImageDialogView(
 	image: ByteArray,
+	cacheKey: String,
 	onDismiss: () -> Unit
 ) {
 	val photoDescription = composeStringResource(Res.string.assistant_attachment_photo)
@@ -37,7 +38,7 @@ fun AssistantChatImageDialogView(
 		Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
 			AssistantChatThumbnailView(
 				bytes = image,
-				key = image.contentHashCode().toString(),
+				cacheKey = cacheKey,
 				contentDescription = photoDescription,
 				contentScale = ContentScale.Fit
 			)

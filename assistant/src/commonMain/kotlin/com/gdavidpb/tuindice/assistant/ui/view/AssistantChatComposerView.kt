@@ -50,7 +50,7 @@ private const val COMPOSER_MAX_LINES = 5
 // The text keeps 12 dp from the field's edges: the field pads 4 dp (contentPadding) and the text the other 8 dp.
 private val TEXT_PADDING = TuIndiceSpacing.XLarge - TuIndiceSpacing.XSmall
 
-// The field has two forms. Closed (not focused and empty) it is one compact row: the photo clip at its start
+// The field has two forms. Closed (not focused and empty) it is one compact row: the attach clip at its start
 // (ComposerStartIcon), the placeholder, and the send button at its end (ComposerEndIcons). Open (focused, or with
 // text) the text goes on top, across the whole width, and the clip and the send button go to a row under it, so the
 // text has the field's width to itself. The field is off while a restriction holds, and with it the clip; the send
@@ -103,14 +103,14 @@ fun AssistantChatComposerView(
 						}
 
 						ComposerBody(
-						isOpen = isOpen,
-						showsPlaceholder = field.value.text.isEmpty(),
-						startIcon = {
-							ComposerStartIcon(composer = composer, isCameraAvailable = isCameraAvailable, onAction = onAction)
-						},
-						endIcons = { ComposerEndIcons(composer = composer, onAction = onAction) },
-						innerTextField = innerTextField
-					)
+							isOpen = isOpen,
+							showsPlaceholder = field.value.text.isEmpty(),
+							startIcon = {
+								ComposerStartIcon(composer = composer, isCameraAvailable = isCameraAvailable, onAction = onAction)
+							},
+							endIcons = { ComposerEndIcons(composer = composer, onAction = onAction) },
+							innerTextField = innerTextField
+						)
 					}
 				},
 				enabled = composer.isEnabled,
@@ -182,7 +182,7 @@ private fun composerTextStyle(): TextStyle =
 		lineHeightStyle = LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None)
 	)
 
-// The photo clip, at the start of the row under the text. While the field is off there is no clip, but its place
+// The attach clip, at the start of the row under the text. While the field is off there is no clip, but its place
 // stays, so the row keeps its height when the clip comes or goes.
 @Composable
 private fun ComposerStartIcon(

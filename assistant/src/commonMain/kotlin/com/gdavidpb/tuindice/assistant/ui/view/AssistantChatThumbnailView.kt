@@ -1,31 +1,45 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import org.jetbrains.compose.resources.decodeToImageBitmap
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.size.Size
 
-// A photo's bytes drawn as an image, decoded once for each [key]. The thumbnails are small, so the decoding stays
-// in place: the UI has no dispatcher to hand it to.
+// A photo's bytes drawn as an image. Coil decodes them off the main thread and keeps the decoded image in its memory
+// cache under [cacheKey], which names the photo while it is shown: the tray keys it by its draft id, the bubble by its
+// message and its place. The bytes are not written to Coil's disk cache, so a photo the student sent stays off the
+// disk. A photo shown whole ([ContentScale.Fit], the dialog) is decoded at its own size.
 @Composable
 fun AssistantChatThumbnailView(
 	bytes: ByteArray?,
-	key: String,
+	cacheKey: String,
 	contentDescription: String?,
 	modifier: Modifier = Modifier,
 	contentScale: ContentScale = ContentScale.Crop
 ) {
-	val bitmap = remember(key, bytes) { bytes?.decodeToImageBitmap() }
+	if (bytes == null) return
 
-	bitmap?.let { image ->
-		Image(
-			bitmap = image,
-			contentDescription = contentDescription,
-			modifier = modifier.fillMaxSize(),
-			contentScale = contentScale
-		)
+	val platformContext = LocalPlatformContext.current
+	val wholePhoto = contentScale == ContentScale.Fit
+	val request = remember(cacheKey, bytes, wholePhoto) {
+		ImageRequest.Builder(platformContext)
+			.data(bytes)
+			.memoryCacheKey(cacheKey)
+			.diskCachePolicy(CachePolicy.DISABLED)
+			.apply { if (wholePhoto) size(Size.ORIGINAL) }
+			.build()
 	}
+
+	AsyncImage(
+		model = request,
+		contentDescription = contentDescription,
+		modifier = modifier.fillMaxSize(),
+		contentScale = contentScale
+	)
 }

@@ -18,7 +18,7 @@ import kotlin.test.assertIs
 @OptIn(ExperimentalTestApi::class)
 class AssistantChatAttachButtonViewUiTest {
 	@Test
-	fun when_theButtonIsOn_then_itOpensTheMenuWithTheCameraAndTheGallery() = runTuIndiceUiTest {
+	fun when_theButtonIsOn_then_itOpensTheMenuWithTheCameraPhotosAndPdf() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatAttachButtonView(
 				isEnabled = true,
@@ -33,10 +33,11 @@ class AssistantChatAttachButtonViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.AttachTakePhoto)
 		assertNodeVisible(AssistantUiTags.AttachPickPhotos)
+		assertNodeVisible(AssistantUiTags.AttachPickPdf)
 	}
 
 	@Test
-	fun when_theDeviceHasNoCamera_then_theMenuOffersOnlyTheGallery() = runTuIndiceUiTest {
+	fun when_theDeviceHasNoCamera_then_theMenuOffersThePhotosAndThePdf() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatAttachButtonView(
 				isEnabled = true,
@@ -50,10 +51,11 @@ class AssistantChatAttachButtonViewUiTest {
 
 		assertNodeHidden(AssistantUiTags.AttachTakePhoto)
 		assertNodeVisible(AssistantUiTags.AttachPickPhotos)
+		assertNodeVisible(AssistantUiTags.AttachPickPdf)
 	}
 
 	@Test
-	fun when_theGalleryIsPicked_then_itRequestsAPhotoFromTheGallery() = runTuIndiceUiTest {
+	fun when_thePhotosArePicked_then_itRequestsThemFromTheGallery() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
 			AssistantChatAttachButtonView(
@@ -72,7 +74,26 @@ class AssistantChatAttachButtonViewUiTest {
 	}
 
 	@Test
-	fun when_aTurnOrAPhotoIsBeingRead_then_theButtonIsDisabled() = runTuIndiceUiTest {
+	fun when_thePdfIsPicked_then_itRequestsAPdfFromTheFiles() = runTuIndiceUiTest {
+		val actions = mutableListOf<AssistantChat.Action>()
+		setTuIndiceTestContent {
+			AssistantChatAttachButtonView(
+				isEnabled = true,
+				isCameraAvailable = true,
+				onAction = { actions.add(it) },
+				modifier = Modifier
+			)
+		}
+
+		onNodeWithTag(AssistantUiTags.AttachButton).performClick()
+		onNodeWithTag(AssistantUiTags.AttachPickPdf).performClick()
+
+		val request = assertIs<AssistantChat.Action.RequestAttachment>(actions.single())
+		assertEquals(AssistantChat.AttachmentSource.FILES, request.source)
+	}
+
+	@Test
+	fun when_aTurnOrAnAttachmentIsBeingSent_then_theButtonIsDisabled() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatAttachButtonView(
 				isEnabled = false,

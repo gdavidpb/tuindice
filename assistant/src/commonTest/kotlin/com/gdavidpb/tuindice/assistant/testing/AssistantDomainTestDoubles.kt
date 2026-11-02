@@ -55,11 +55,11 @@ import com.gdavidpb.tuindice.chatcontract.intent.RemoveEvaluationArgs
 import com.gdavidpb.tuindice.chatcontract.intent.RemovePlanArgs
 import com.gdavidpb.tuindice.chatcontract.intent.UnknownIntentArgs
 import com.gdavidpb.tuindice.chatcontract.memory.MemoryList
-import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
 import com.gdavidpb.tuindice.chatcontract.turn.AssistantStatus
 import com.gdavidpb.tuindice.chatcontract.turn.TurnAccepted
 import com.gdavidpb.tuindice.chatcontract.turn.TurnRequest
 import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
@@ -157,7 +157,6 @@ internal class RecordingAssistantConversationRepository(
 	val resolved = mutableMapOf<String, OutcomeKind>()
 	val resolvedCounts = mutableMapOf<String, IntentResolvedCount>()
 	val resolvedDetails = mutableMapOf<String, String>()
-	val assistantMessages = mutableListOf<Pair<AssistantMessage, Intent?>>()
 
 	override fun observeConversation(): Flow<AssistantConversation> = flowOf(currentConversation())
 
@@ -226,11 +225,6 @@ internal class RecordingAssistantConversationRepository(
 		}
 
 		userMessages += message
-	}
-
-	override fun addAssistantMessage(message: AssistantMessage, intent: Intent?, sessionMark: Int) {
-		calls += "addAssistantMessage"
-		assistantMessages += message to intent
 	}
 
 	override fun markIntentResolved(
@@ -608,10 +602,15 @@ internal class RecordingImageEncoderRepository : ImageEncoderRepository {
 	var content = byteArrayOf(1, 2, 3)
 	val specs = mutableListOf<ImageEncodingSpec>()
 
+	// With [distinctByName], each file encodes to bytes of its own name, so two files are two pictures.
+	var distinctByName = false
+
 	override suspend fun encode(file: PlatformFile, spec: ImageEncodingSpec): EncodedImage {
 		specs += spec
 
-		return EncodedImage(content = content, mimeType = "image/jpeg")
+		val bytes = if (distinctByName) content + file.name.encodeToByteArray() else content
+
+		return EncodedImage(content = bytes, mimeType = "image/jpeg")
 	}
 }
 

@@ -154,6 +154,9 @@
 	<string name="assistant_attachment_page_one">1 página</string>
 	<string name="assistant_attachment_pages">%1$d páginas</string>
 	<string name="assistant_attachment_limit">Puedes adjuntar hasta 4.</string>
+	<string name="assistant_attachment_message_too_large">Los adjuntos de un mensaje no pueden pasar de 16 MB.</string>
+	<string name="assistant_attachments_refused">Los adjuntos no caben en un mensaje. Quita alguno y vuelve a enviar.</string>
+	<string name="assistant_attachment_expired">Un adjunto ya no está disponible; vuelve a adjuntarlo.</string>
 	<string name="assistant_attach_add">Adjuntar</string>
 	<string name="assistant_attach_take_photo">Tomar foto</string>
 	<string name="assistant_attach_pick_photos">Elegir fotos</string>

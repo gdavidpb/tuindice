@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-11-02 16:52:02 -0300_
+_Generated automatically on 2026-11-02 18:46:43 -0300_
 
 ## Summary by module
 
@@ -117,13 +117,13 @@ _Generated automatically on 2026-11-02 16:52:02 -0300_
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AcademicComponentRenderer.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AcademicComponentRendererUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantAgentMessageView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantAgentMessageViewUiTest.kt` | 10 | PASS threshold (2) |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantAppealActionView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantAppealActionViewUiTest.kt` | 0 | MISSING TEST |
-| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachButtonView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachButtonViewUiTest.kt` | 4 | PASS threshold (2) |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachButtonView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachButtonViewUiTest.kt` | 5 | PASS threshold (2) |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentItemView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentItemViewUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentRemoveView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentRemoveViewUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentStateView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentStateViewUiTest.kt` | 0 | MISSING TEST |
-| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentTrayView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentTrayViewUiTest.kt` | 3 | PASS threshold (2) |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentTrayView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentTrayViewUiTest.kt` | 7 | PASS threshold (2) |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatBubbleAttachmentsView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatBubbleAttachmentsViewUiTest.kt` | 0 | MISSING TEST |
-| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatComposerView.kt` | 6 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatComposerViewUiTest.kt` | 12 | PASS threshold (2) |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatComposerView.kt` | 6 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatComposerViewUiTest.kt` | 13 | PASS threshold (2) |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatContent.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatContentUiTest.kt` | 10 | PASS threshold (2) |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatConversationView.kt` | 7 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatConversationViewUiTest.kt` | 27 | PASS threshold (2) |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatFollow.kt` | 3 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatFollowUiTest.kt` | 0 | MISSING TEST |

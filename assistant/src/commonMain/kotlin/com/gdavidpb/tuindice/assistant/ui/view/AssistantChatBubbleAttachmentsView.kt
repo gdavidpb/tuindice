@@ -25,15 +25,19 @@ import org.jetbrains.compose.resources.stringResource as composeStringResource
 
 private val PHOTO_SIZE = 96.dp
 
+// A photo the dialog opens large: its bytes, and the key the large decoding is kept under.
+internal class OpenedPhoto(val bytes: ByteArray, val cacheKey: String)
+
 // The files of a sent message, above its text: the photos in a grid of two, each one opened large when tapped, and the
-// PDF files as cards under them.
+// PDF files as cards under them. A photo whose image is no longer kept opens its thumbnail large.
 @Composable
 fun AssistantChatBubbleAttachmentsView(
+	messageId: String,
 	attachments: List<ChatUserAttachmentItem>,
-	onOpenPhoto: (ByteArray) -> Unit,
+	onOpenPhoto: (image: ByteArray, cacheKey: String) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	val photos = attachments.filter { item -> item.kind == AssistantAttachmentKind.PHOTO }
+	val photos = attachments.withIndex().filter { (_, item) -> item.kind == AssistantAttachmentKind.PHOTO }
 	val documents = attachments.filter { item -> item.kind == AssistantAttachmentKind.PDF }
 	val photoDescription = composeStringResource(Res.string.assistant_attachment_photo)
 	val openDescription = composeStringResource(Res.string.assistant_attachment_open_photo)
@@ -45,19 +49,22 @@ fun AssistantChatBubbleAttachmentsView(
 	) {
 		photos.chunked(2).forEach { pair ->
 			Row(horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)) {
-				pair.forEach { photo ->
-					val image = photo.image
+				pair.forEach { (index, photo) ->
+					val cacheKey = "$messageId-$index"
+					val large = photo.image ?: photo.thumbnail
 
 					Row(
 						modifier = Modifier
 							.size(PHOTO_SIZE)
 							.clip(RoundedCornerShape(TuIndiceRadius.Medium))
-							.clickable(enabled = image != null) { image?.let(onOpenPhoto) }
-							.testTag(AssistantUiTags.Message.bubble(photo.name))
+							.clickable(enabled = large != null) {
+								large?.let { bytes -> onOpenPhoto(bytes, "open-$cacheKey") }
+							}
+							.testTag(AssistantUiTags.Message.attachment(messageId, index))
 					) {
 						AssistantChatThumbnailView(
 							bytes = photo.thumbnail,
-							key = photo.name,
+							cacheKey = cacheKey,
 							contentDescription = "$photoDescription. $openDescription"
 						)
 					}

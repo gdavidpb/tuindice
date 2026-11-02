@@ -12,11 +12,10 @@ import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantIntentRepositor
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantQueuedMutationsRepository
 import com.gdavidpb.tuindice.assistant.testing.assistantIntent
 import com.gdavidpb.tuindice.assistant.testing.lastState
+import com.gdavidpb.tuindice.chatcontract.event.IntentProposed
 import com.gdavidpb.tuindice.chatcontract.intent.EditEvaluationArgs
 import com.gdavidpb.tuindice.chatcontract.intent.MutationOutcome
 import com.gdavidpb.tuindice.chatcontract.intent.OutcomeKind
-import com.gdavidpb.tuindice.chatcontract.message.AssistantMessage
-import com.gdavidpb.tuindice.chatcontract.message.Text
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import kotlinx.coroutines.test.runTest
@@ -50,11 +49,7 @@ class AssistantQueuedFollowAfterSessionTest {
 			args = EditEvaluationArgs(mutationId = "m1", evaluationId = "e1", grade = 14.0),
 			mutationIds = listOf("m1")
 		)
-		store.addAssistantMessage(
-			message = AssistantMessage(id = "m0", parts = listOf(Text("Confirma")), createdAtMillis = 1L),
-			intent = intent,
-			sessionMark = store.sessionMark()
-		)
+		store.apply(IntentProposed(seq = 1, turnId = "t0", messageId = "m0", intent = intent), store.sessionMark())
 		evaluations.answer = IntentExecution(outcome = OutcomeKind.QUEUED)
 
 		ConfirmEditEvaluationIntentUseCase(

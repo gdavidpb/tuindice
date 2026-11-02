@@ -30,10 +30,11 @@ import tuindice.assistant.generated.resources.assistant_attach_pick_pdf
 import tuindice.assistant.generated.resources.assistant_attach_pick_photos
 import tuindice.assistant.generated.resources.assistant_attach_take_photo
 
-// The photo button: a clip inside the composer's field, at its start, in a neutral grey circle (the theme's border
+// The attach button: a clip inside the composer's field, at its start, in a neutral grey circle (the theme's border
 // grey) the size of the send button's, so it does not float loose in the field. Its clip is in the send arrow's
-// colour (the accent's on-colour). It opens a small menu: the camera, when the device has one, and the gallery. It is
-// off while a turn or a photo is being read, and then its circle and clip fade.
+// colour (the accent's on-colour). It opens a small menu: the camera, when the device has one, the photos of the
+// gallery, and the PDF files. It is off while a turn runs or an attachment is being read or sent, and then its circle
+// and clip fade.
 @Composable
 fun AssistantChatAttachButtonView(
 	isEnabled: Boolean,

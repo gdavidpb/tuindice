@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ImageEncoderRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentLimits
+import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -52,7 +53,7 @@ class PrepareAssistantAttachmentUseCase(
 
 		return PreparedAssistantAttachment(
 			kind = AssistantAttachmentKind.PHOTO,
-			name = params.file.name.ifBlank { PHOTO_NAME },
+			name = photoName(file = params.file, mediaType = image.mimeType),
 			content = AssistantAttachmentContent(
 				mediaType = image.mimeType,
 				sha256 = image.content.toAttachmentSha256(),
@@ -60,6 +61,15 @@ class PrepareAssistantAttachmentUseCase(
 			),
 			thumbnail = thumbnail
 		)
+	}
+
+	// The name says the type the photo is sent as: a HEIC picked from the device goes as a JPEG, so its name ends in .jpg.
+	private fun photoName(file: PlatformFile, mediaType: String): String {
+		val name = file.name.ifBlank { PHOTO_NAME }
+		val extension = name.substringAfterLast('.', missingDelimiterValue = "").lowercase()
+		val sentAsJpeg = mediaType == JPEG_MEDIA_TYPE && extension != "jpg" && extension != "jpeg"
+
+		return if (sentAsJpeg) name.substringBeforeLast('.', missingDelimiterValue = name) + ".jpg" else name
 	}
 
 	private suspend fun preparePdf(params: PrepareAssistantAttachmentParams): PreparedAssistantAttachment {
@@ -102,6 +112,7 @@ class PrepareAssistantAttachmentUseCase(
 
 		const val PHOTO_NAME = "foto.jpg"
 		const val PDF_NAME = "documento.pdf"
+		const val JPEG_MEDIA_TYPE = "image/jpeg"
 		val PDF_HEADER = "%PDF-".encodeToByteArray()
 	}
 }

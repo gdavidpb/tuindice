@@ -17,6 +17,12 @@ sealed interface SendAssistantMessageError : UseCaseError {
 
 	data object TurnInProgress : SendAssistantMessageError
 
+	/**
+	 * The service refused the attachments of the message and the message is not sent. [expired] says one of them is no
+	 * longer kept, so it has to be attached again; otherwise the message carries too many, or too heavy, attachments.
+	 */
+	data class AttachmentsRefused(val expired: Boolean) : SendAssistantMessageError
+
 	data object InvalidMessage : SendAssistantMessageError
 
 	data object Other : SendAssistantMessageError
