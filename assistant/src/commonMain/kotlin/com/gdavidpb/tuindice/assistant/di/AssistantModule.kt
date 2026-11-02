@@ -12,7 +12,10 @@ import com.gdavidpb.tuindice.assistant.data.source.AssistantIntentOutboxDataSour
 import com.gdavidpb.tuindice.assistant.data.source.AssistantMemoryDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantTurnDataSource
 import com.gdavidpb.tuindice.assistant.data.source.KtorAssistantApiDataSource
+import com.gdavidpb.tuindice.assistant.data.source.PlatformAttachmentFileDataSource
 import com.gdavidpb.tuindice.assistant.data.source.SseAssistantEventsDataSource
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentFileRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
@@ -50,17 +53,21 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantEvaluationCard
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantMemoryUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.GetAssistantStatusUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ObserveAssistantConversationUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.PrepareAssistantAttachmentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.RateAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ReportAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.ResumeAssistantTurnUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageHandling
 import com.gdavidpb.tuindice.assistant.domain.usecase.SendAssistantMessageUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.SyncAssistantUseCase
+import com.gdavidpb.tuindice.assistant.domain.usecase.UploadAssistantAttachmentUseCase
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantAppealExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.AssistantIntentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ExtractEvaluationsFromPhotoExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.PrepareAssistantAttachmentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.ReportAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.SendAssistantMessageExceptionHandler
+import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.UploadAssistantAttachmentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.AppealAssistantRestrictionParamsValidator
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.ReportAssistantMessageParamsValidator
 import com.gdavidpb.tuindice.assistant.domain.usecase.validator.SendAssistantMessageParamsValidator
@@ -107,7 +114,9 @@ val assistantModule = module {
 		bind<AssistantFeedbackRepository>()
 		bind<AssistantStandingRepository>()
 		bind<AssistantExtractionRepository>()
+		bind<AssistantAttachmentRepository>()
 	}
+	factoryOf(::PlatformAttachmentFileDataSource) { bind<AssistantAttachmentFileRepository>() }
 	factoryOf(::AssistantTurnDataSource) { bind<AssistantTurnRepository>() }
 	factoryOf(::AssistantConversationsDataSource) { bind<AssistantConversationsRepository>() }
 	single<AssistantEventsDataRepository> {
@@ -150,6 +159,8 @@ val assistantModule = module {
 	factoryOf(::SendAssistantMessageExceptionHandler)
 	factoryOf(::SendAssistantMessageHandling)
 	factoryOf(::ExtractEvaluationsFromPhotoExceptionHandler)
+	factoryOf(::PrepareAssistantAttachmentExceptionHandler)
+	factoryOf(::UploadAssistantAttachmentExceptionHandler)
 
 	/* Use cases */
 
@@ -158,6 +169,8 @@ val assistantModule = module {
 	factoryOf(::GetAssistantEvaluationCardsUseCase)
 	factoryOf(::SendAssistantMessageUseCase)
 	factoryOf(::ExtractEvaluationsFromPhotoUseCase)
+	factoryOf(::PrepareAssistantAttachmentUseCase)
+	factoryOf(::UploadAssistantAttachmentUseCase)
 	factoryOf(::FollowAssistantTurnUseCase)
 	factoryOf(::ResumeAssistantTurnUseCase)
 	factoryOf(::CancelAssistantTurnUseCase)

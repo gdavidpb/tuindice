@@ -3,12 +3,15 @@ package com.gdavidpb.tuindice.assistant.data.source
 import com.gdavidpb.tuindice.assistant.data.exception.AssistantDisabledException
 import com.gdavidpb.tuindice.assistant.data.mapper.toAssistantException
 import com.gdavidpb.tuindice.assistant.data.repository.AssistantServerDisabledDataRepository
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentContent
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantExtractionRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantIntentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantStandingRepository
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseAppeal
+import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentAccepted
 import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionRequest
 import com.gdavidpb.tuindice.chatcontract.extraction.ExtractionResult
 import com.gdavidpb.tuindice.chatcontract.feedback.MessageFeedback
@@ -27,7 +30,11 @@ import io.ktor.http.isSuccess
 class KtorAssistantApiDataSource(
 	private val httpClient: HttpClient,
 	private val serverDisabled: AssistantServerDisabledDataRepository
-) : AssistantIntentRepository, AssistantFeedbackRepository, AssistantStandingRepository, AssistantExtractionRepository {
+) : AssistantIntentRepository,
+	AssistantFeedbackRepository,
+	AssistantStandingRepository,
+	AssistantExtractionRepository,
+	AssistantAttachmentRepository {
 	override suspend fun decide(decision: IntentDecision): IntentDecisionResult = decideIntent(decision)
 
 	override suspend fun reportOutcome(report: IntentOutcomeReport) = reportIntentOutcome(report)
@@ -41,6 +48,10 @@ class KtorAssistantApiDataSource(
 	override suspend fun appeal(appeal: AbuseAppeal) = postAbuseAppeal(appeal)
 
 	override suspend fun extract(request: ExtractionRequest): ExtractionResult = postExtraction(request)
+
+	override suspend fun upload(content: AssistantAttachmentContent, name: String): AttachmentAccepted {
+		return postAttachment(content = content, name = name)
+	}
 
 	// Runs one request. The client may fail an error answer by itself (expectSuccess): that answer is read from the
 	// exception, so both kinds of failure reach the same mapping. The session of the request is read before it leaves:

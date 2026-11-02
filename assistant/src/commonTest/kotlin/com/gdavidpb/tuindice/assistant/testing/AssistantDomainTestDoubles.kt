@@ -1,11 +1,14 @@
 package com.gdavidpb.tuindice.assistant.testing
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantActiveTurn
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentContent
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentFileRepository
+import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantEvaluationsRepository
@@ -29,6 +32,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseAppeal
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseStanding
 import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
+import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentAccepted
 import com.gdavidpb.tuindice.chatcontract.consent.ConsentStatus
 import com.gdavidpb.tuindice.chatcontract.context.ClientState
 import com.gdavidpb.tuindice.chatcontract.event.AssistantEvent
@@ -569,6 +573,38 @@ internal class RecordingAssistantConsentRepository : AssistantConsentRepository,
 
 // The reading service of the photos: its answer, the requests it took, and a gate that holds the answer while a test
 // looks at the chat in the middle of a reading.
+// The uploads the test sends, with the name each one carries, and the answer the service gives to them.
+internal class RecordingAssistantAttachmentRepository : AssistantAttachmentRepository {
+	var accepted = AttachmentAccepted(
+		attachmentId = "att-1",
+		mediaType = "image/jpeg",
+		sizeBytes = 3,
+		expiresAtMillis = 1_700_000_000_000L,
+		name = "plan.jpg"
+	)
+	var failure: Throwable? = null
+	val uploads = mutableListOf<Pair<AssistantAttachmentContent, String>>()
+
+	override suspend fun upload(content: AssistantAttachmentContent, name: String): AttachmentAccepted {
+		uploads += content to name
+		failure?.let { error -> throw error }
+
+		return accepted
+	}
+}
+
+// The bytes the test's picked file holds, whatever the file is.
+internal class RecordingAssistantAttachmentFileRepository : AssistantAttachmentFileRepository {
+	var bytes = byteArrayOf()
+	val reads = mutableListOf<PlatformFile>()
+
+	override suspend fun readBytes(file: PlatformFile): ByteArray {
+		reads += file
+
+		return bytes
+	}
+}
+
 internal class RecordingAssistantExtractionRepository : AssistantExtractionRepository {
 	var result = ExtractionResult(message = "Encontré 1 evaluación.")
 	var failure: Throwable? = null

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.assistant.domain.usecase.param
 
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import kotlin.uuid.Uuid
 
@@ -15,5 +16,7 @@ data class SendAssistantMessageParams(
 	// question leaves the conversation in the same send, before the retry's question is stored; a session that has ended
 	// since leaves the conversation as it is. Both are set together, or neither is.
 	val replacesMessageId: String? = null,
-	val replacesSessionMark: Int? = null
+	val replacesSessionMark: Int? = null,
+	// The attachments the message carries. Each must be kept already (Ready): their ids go with the turn.
+	val attachments: List<AssistantAttachment> = emptyList()
 )

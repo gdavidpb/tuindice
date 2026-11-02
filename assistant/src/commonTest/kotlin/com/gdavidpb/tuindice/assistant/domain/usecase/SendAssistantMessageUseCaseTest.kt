@@ -1,6 +1,10 @@
 package com.gdavidpb.tuindice.assistant.domain.usecase
 
 import com.gdavidpb.tuindice.assistant.domain.exception.AssistantRequestRefusedException
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentContent
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentState
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.SendAssistantMessageExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.SendAssistantMessageParams
@@ -25,7 +29,9 @@ import com.gdavidpb.tuindice.chatcontract.turn.TurnAccepted
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SendAssistantMessageUseCaseTest {
@@ -205,6 +211,92 @@ class SendAssistantMessageUseCaseTest {
 		assertEquals(listOf("retry-1"), conversation.userMessages.map { message -> message.id })
 		assertEquals(listOf("failed-1" to 0), conversation.replacements)
 	}
+
+	@Test
+	fun aMessageOfAttachmentsAloneIsSentWithTheirIdsAndKeepsThemInTheConversation() = runTest {
+		val photo = readyAttachment(localId = "l1", kind = AssistantAttachmentKind.PHOTO, attachmentId = "att-1")
+		val pdf = readyAttachment(localId = "l2", kind = AssistantAttachmentKind.PDF, attachmentId = "att-2")
+
+		val state = sendWithAttachments(text = null, attachments = listOf(photo, pdf))
+
+		val request = turns.requests.single()
+		val stored = conversation.userMessages.single().attachments
+
+		assertTrue(state is UseCaseState.Data<*>)
+		assertNull(request.message.text)
+		assertEquals(listOf("att-1", "att-2"), request.message.attachmentIds)
+		assertEquals(
+			listOf(AssistantAttachmentKind.PHOTO, AssistantAttachmentKind.PDF),
+			stored.map { attachment -> attachment.kind }
+		)
+		assertEquals(listOf("l1.jpg", "l2.pdf"), stored.map { attachment -> attachment.name })
+		assertEquals(listOf<Int?>(null, 12), stored.map { attachment -> attachment.pageCount })
+		assertContentEquals(byteArrayOf(1, 2, 3), stored.first().image)
+		assertNull(stored.last().image)
+	}
+
+	@Test
+	fun aMessageWithTextAndAttachmentsCarriesBoth() = runTest {
+		sendWithAttachments(
+			text = "¿Cuánto vale cada parcial?",
+			attachments = listOf(readyAttachment(localId = "l1", kind = AssistantAttachmentKind.PHOTO, attachmentId = "att-1"))
+		)
+
+		val message = turns.requests.single().message
+
+		assertEquals("¿Cuánto vale cada parcial?", message.text)
+		assertEquals(listOf("att-1"), message.attachmentIds)
+	}
+
+	@Test
+	fun aMessageOfFourAttachmentsIsSent() = runTest {
+		val four = (1..4).map { index -> readyAttachment("l$index", AssistantAttachmentKind.PDF, "att-$index") }
+
+		sendWithAttachments(text = null, attachments = four)
+
+		assertEquals(listOf("att-1", "att-2", "att-3", "att-4"), turns.requests.single().message.attachmentIds)
+	}
+
+	@Test
+	fun aMessageOfMoreThanFourAttachmentsOrOneNotKeptIsRefusedBeforeAnythingIsStored() = runTest {
+		val five = (1..5).map { index -> readyAttachment("l$index", AssistantAttachmentKind.PHOTO, "att-$index") }
+		val notKept = readyAttachment("l1", AssistantAttachmentKind.PHOTO, "att-1")
+			.copy(state = AssistantAttachmentState.Uploading)
+
+		assertEquals(
+			UseCaseState.Error(SendAssistantMessageError.InvalidMessage),
+			sendWithAttachments(text = null, attachments = five)
+		)
+		assertEquals(
+			UseCaseState.Error(SendAssistantMessageError.InvalidMessage),
+			sendWithAttachments(text = null, attachments = listOf(notKept))
+		)
+
+		assertTrue(conversation.userMessages.isEmpty())
+		assertTrue(turns.requests.isEmpty())
+	}
+
+	private fun readyAttachment(
+		localId: String,
+		kind: AssistantAttachmentKind,
+		attachmentId: String
+	) = AssistantAttachment(
+		localId = localId,
+		kind = kind,
+		name = if (kind == AssistantAttachmentKind.PHOTO) "$localId.jpg" else "$localId.pdf",
+		sizeBytes = 3,
+		pageCount = if (kind == AssistantAttachmentKind.PDF) 12 else null,
+		thumbnail = if (kind == AssistantAttachmentKind.PHOTO) byteArrayOf(9) else null,
+		state = AssistantAttachmentState.Ready(attachmentId),
+		content = AssistantAttachmentContent(mediaType = "image/jpeg", sha256 = "", bytes = byteArrayOf(1, 2, 3))
+	)
+
+	private suspend fun sendWithAttachments(
+		text: String?,
+		attachments: List<AssistantAttachment>
+	) = useCase().execute(
+		SendAssistantMessageParams(text = text, suggestionId = null, screenContext = null, attachments = attachments)
+	).lastState()
 
 	private companion object {
 		const val NOW_MILLIS = 1_700_000_000_000L

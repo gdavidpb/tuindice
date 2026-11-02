@@ -2,12 +2,16 @@ package com.gdavidpb.tuindice.assistant.data.source
 
 import com.gdavidpb.tuindice.assistant.data.exception.AssistantApiException
 import com.gdavidpb.tuindice.assistant.data.exception.AssistantDisabledException
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentContent
 import com.gdavidpb.tuindice.assistant.testing.RecordingServerDisabledRepository
 import com.gdavidpb.tuindice.assistant.testing.assistantHttpClient
 import com.gdavidpb.tuindice.assistant.testing.jsonAnswer
 import com.gdavidpb.tuindice.chatcontract.ChatContract
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseStanding
 import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
+import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentAccepted
+import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentHeaders
+import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentName
 import com.gdavidpb.tuindice.chatcontract.consent.ConsentDecision
 import com.gdavidpb.tuindice.chatcontract.consent.ConsentStatus
 import com.gdavidpb.tuindice.chatcontract.context.EntityKind
@@ -27,9 +31,11 @@ import com.gdavidpb.tuindice.chatcontract.turn.UserMessage
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.OutgoingContent
 import io.ktor.http.content.TextContent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
@@ -274,7 +280,73 @@ class KtorAssistantApiDataSourceTest {
 	}
 
 	@Test
-	fun unreadableErrorBodyBecomesAnUnknownApiException() = runTest {
+	fun postAttachmentSendsTheBytesWithTheirMediaTypeIdAndNameAndReadsTheAcceptance() = runTest {
+			var sentPath = ""
+			var sentMethod = ""
+			var sentType: String? = null
+			var sentId: String? = null
+			var sentName: String? = null
+			var sentBytes: ByteArray? = null
+			val client = assistantHttpClient { call ->
+				sentPath = call.url.encodedPath
+				sentMethod = call.method.value
+				sentType = call.body.contentType?.toString()
+				sentId = call.headers[AttachmentHeaders.CLIENT_ATTACHMENT_ID]
+				sentName = call.headers[AttachmentHeaders.NAME]
+				sentBytes = (call.body as? OutgoingContent.ByteArrayContent)?.bytes()
+				jsonAnswer(
+					HttpStatusCode.Created,
+					"""{"attachmentId":"att-1","mediaType":"image/jpeg","sizeBytes":3,""" +
+							""""expiresAtMillis":1700000000000,"name":"plan.jpg"}"""
+				)
+			}
+			val api = KtorAssistantApiDataSource(client, RecordingServerDisabledRepository())
+			val content = AssistantAttachmentContent(
+				mediaType = "image/jpeg",
+				sha256 = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+				bytes = "abc".encodeToByteArray()
+			)
+
+			val accepted = api.upload(content = content, name = "Plan de estudio.jpg")
+
+			assertEquals(
+				AttachmentAccepted(
+					attachmentId = "att-1",
+					mediaType = "image/jpeg",
+					sizeBytes = 3,
+					expiresAtMillis = 1_700_000_000_000L,
+					name = "plan.jpg"
+				),
+				accepted
+			)
+			assertEquals("/assistant/v1/attachments", sentPath)
+			assertEquals("POST", sentMethod)
+			assertEquals("image/jpeg", sentType)
+			assertEquals(content.sha256, sentId)
+			assertEquals(AttachmentName.encode("Plan de estudio.jpg"), sentName)
+			assertContentEquals("abc".encodeToByteArray(), sentBytes)
+		}
+
+		@Test
+		fun aRefusedAttachmentReadsAsAnAssistantErrorWithItsCode() = runTest {
+			val client = assistantHttpClient {
+				jsonAnswer(HttpStatusCode.PayloadTooLarge, """{"code":"attachment_too_large"}""")
+			}
+			val api = KtorAssistantApiDataSource(client, RecordingServerDisabledRepository())
+			val content = AssistantAttachmentContent(
+				mediaType = "application/pdf",
+				sha256 = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+				bytes = "%PDF-".encodeToByteArray()
+			)
+
+			val failure = assertFailsWith<AssistantApiException> { api.upload(content = content, name = "programa.pdf") }
+
+			assertEquals("attachment_too_large", failure.code)
+			assertEquals(413, failure.httpStatus)
+		}
+
+		@Test
+		fun unreadableErrorBodyBecomesAnUnknownApiException() = runTest {
 		val client = assistantHttpClient {
 			respond(content = "boom", status = HttpStatusCode.InternalServerError)
 		}

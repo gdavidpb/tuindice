@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.assistant.domain.usecase
 
+import com.gdavidpb.tuindice.assistant.domain.mapper.attachmentIds
 import com.gdavidpb.tuindice.assistant.domain.mapper.toScreenContext
+import com.gdavidpb.tuindice.assistant.domain.mapper.toUserAttachment
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
@@ -22,7 +24,8 @@ import kotlin.time.Clock
 /**
  * Starts a turn with the user's message, stored before the request leaves, so a failed send keeps it for a retry. The
  * message is stored under the client turn id of the params, which is the id the request carries. A retry also takes the
- * question it replaces out of the conversation, in the same send and before its own question is stored.
+ * question it replaces out of the conversation, in the same send and before its own question is stored. A message with
+ * attachments carries their ids, and keeps them for the chat to show.
  */
 class SendAssistantMessageUseCase(
 	private val conversationRepository: AssistantConversationRepository,
@@ -47,7 +50,8 @@ class SendAssistantMessageUseCase(
 			AssistantUserMessage(
 				id = clientTurnId,
 				text = text.orEmpty(),
-				createdAtMillis = clock.now().toEpochMilliseconds()
+				createdAtMillis = clock.now().toEpochMilliseconds(),
+				attachments = params.attachments.map { attachment -> attachment.toUserAttachment() }
 			),
 			replacesMessageId = params.replacesMessageId,
 			replacesSessionMark = params.replacesSessionMark
@@ -56,7 +60,11 @@ class SendAssistantMessageUseCase(
 		val request = TurnRequest(
 			conversationId = conversationRepository.currentConversation().conversationId,
 			clientTurnId = clientTurnId,
-			message = UserMessage(text = text, suggestionId = params.suggestionId),
+			message = UserMessage(
+				text = text,
+				suggestionId = params.suggestionId,
+				attachmentIds = params.attachments.attachmentIds()
+			),
 			screenContext = params.screenContext?.toScreenContext(),
 			clientState = clientStateRepository.clientState(),
 			supportedCatalogs = ChatCatalogs.supported
