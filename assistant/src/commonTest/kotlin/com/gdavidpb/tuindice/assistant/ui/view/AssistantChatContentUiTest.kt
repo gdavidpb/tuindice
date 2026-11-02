@@ -108,7 +108,7 @@ class AssistantChatContentUiTest {
 	}
 
 	@Test
-	fun when_aPhotoIsBeingRead_then_theProgressShowsAndThePhotoButtonIsOff() = runTuIndiceUiTest {
+	fun when_aSendIsWaiting_then_theProgressShowsAndTheAttachButtonIsOff() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatContent(
 				state = contentState(
@@ -127,11 +127,11 @@ class AssistantChatContentUiTest {
 		}
 
 		assertNodeVisible(AssistantUiTags.ProgressLabel)
-		assertNodeDisabled(AssistantUiTags.PhotoButton)
+		assertNodeDisabled(AssistantUiTags.AttachButton)
 	}
 
 	@Test
-	fun when_theComposerIsOff_then_thePhotoButtonIsNotShown() = runTuIndiceUiTest {
+	fun when_theComposerIsOff_then_theAttachButtonIsNotShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatContent(
 				state = contentState(
@@ -143,7 +143,7 @@ class AssistantChatContentUiTest {
 			)
 		}
 
-		assertNodeHidden(AssistantUiTags.PhotoButton)
+		assertNodeHidden(AssistantUiTags.AttachButton)
 	}
 
 	@Test

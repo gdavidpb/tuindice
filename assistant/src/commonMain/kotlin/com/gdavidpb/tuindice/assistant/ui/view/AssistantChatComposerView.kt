@@ -71,7 +71,7 @@ fun AssistantChatComposerView(
 	val textStyle = composerTextStyle()
 	val isFocused by interactionSource.collectIsFocusedAsState()
 	// Open while the student is in the field or has text in it; otherwise the field is one compact row.
-	val isOpen = isFocused || composer.text.isNotEmpty()
+	val isOpen = isFocused || composer.text.isNotEmpty() || composer.attachments.isNotEmpty()
 
 	field.syncExternal(composer.text, composer.textRevision)
 
@@ -97,7 +97,12 @@ fun AssistantChatComposerView(
 			OutlinedTextFieldDefaults.DecorationBox(
 				value = field.value.text,
 				innerTextField = {
-					ComposerBody(
+					Column {
+						if (composer.attachments.isNotEmpty()) {
+							AssistantChatAttachmentTrayView(attachments = composer.attachments, onAction = onAction)
+						}
+
+						ComposerBody(
 						isOpen = isOpen,
 						showsPlaceholder = field.value.text.isEmpty(),
 						startIcon = {
@@ -106,6 +111,7 @@ fun AssistantChatComposerView(
 						endIcons = { ComposerEndIcons(composer = composer, onAction = onAction) },
 						innerTextField = innerTextField
 					)
+					}
 				},
 				enabled = composer.isEnabled,
 				singleLine = false,
@@ -185,7 +191,7 @@ private fun ComposerStartIcon(
 	onAction: (AssistantChat.Action) -> Unit
 ) {
 	if (composer.isEnabled && composer.showsAttach) {
-		AssistantChatPhotoButtonView(
+		AssistantChatAttachButtonView(
 			isEnabled = composer.isAttachEnabled,
 			isCameraAvailable = isCameraAvailable,
 			onAction = onAction

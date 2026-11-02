@@ -46,10 +46,28 @@ object ActionDispositions {
 				"el escenario no puede comprobar lo que abre el sistema, y si no se abre, el chat lo dice en su aviso"
 		),
 		ActionDisposition.PlatformEdge(
-			action = "assistant.AssistantChat.AttachPhoto",
+			action = "assistant.AssistantChat.RequestAttachment",
 			reason =
-				"Abre la cámara o la galería del sistema; se prueba a mano " +
-				"(ver e2e/platform/*/assistant-photo-picker.md)"
+				"Abre el selector del sistema (cámara, fotos o PDF); se prueba a mano " +
+				"(ver e2e/platform/*/assistant-attachment-picker.md)"
+		),
+		ActionDisposition.PlatformEdge(
+			action = "assistant.AssistantChat.AddAttachments",
+			reason =
+				"Abre el selector del sistema (cámara, fotos o PDF); se prueba a mano " +
+				"(ver e2e/platform/*/assistant-attachment-picker.md)"
+		),
+		ActionDisposition.PlatformEdge(
+			action = "assistant.AssistantChat.RemoveAttachment",
+			reason =
+				"Quitar o reintentar actúa sobre un adjunto que el estudiante eligió en el selector del sistema; " +
+				"se prueba a mano (ver e2e/platform/*/assistant-attachment-picker.md)"
+		),
+		ActionDisposition.PlatformEdge(
+			action = "assistant.AssistantChat.RetryAttachment",
+			reason =
+				"Quitar o reintentar actúa sobre un adjunto que el estudiante eligió en el selector del sistema; " +
+				"se prueba a mano (ver e2e/platform/*/assistant-attachment-picker.md)"
 		),
 		ActionDisposition.PlatformEdge(
 			action = "assistant.AssistantChat.DismissNotificationOffer",
@@ -61,12 +79,6 @@ object ActionDispositions {
 			action = "assistant.AssistantChat.Open",
 			reason = "la hoja se abre desde una pantalla con el contexto que esa pantalla declara; la ruta la despacha, " +
 				"no la hace ningún usuario"
-		),
-		ActionDisposition.PlatformEdge(
-			action = "assistant.AssistantChat.RequestPhoto",
-			reason =
-				"Abre la cámara o la galería del sistema; se prueba a mano " +
-				"(ver e2e/platform/*/assistant-photo-picker.md)"
 		),
 		ActionDisposition.Internal(
 			action = "assistant.AssistantComponentSheet.Open",

@@ -16,11 +16,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalTestApi::class)
-class AssistantChatPhotoButtonViewUiTest {
+class AssistantChatAttachButtonViewUiTest {
 	@Test
 	fun when_theButtonIsOn_then_itOpensTheMenuWithTheCameraAndTheGallery() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			AssistantChatPhotoButtonView(
+			AssistantChatAttachButtonView(
 				isEnabled = true,
 				isCameraAvailable = true,
 				onAction = {},
@@ -28,17 +28,17 @@ class AssistantChatPhotoButtonViewUiTest {
 			)
 		}
 
-		assertNodeHidden(AssistantUiTags.PhotoTake)
-		onNodeWithTag(AssistantUiTags.PhotoButton).performClick()
+		assertNodeHidden(AssistantUiTags.AttachTakePhoto)
+		onNodeWithTag(AssistantUiTags.AttachButton).performClick()
 
-		assertNodeVisible(AssistantUiTags.PhotoTake)
-		assertNodeVisible(AssistantUiTags.PhotoPick)
+		assertNodeVisible(AssistantUiTags.AttachTakePhoto)
+		assertNodeVisible(AssistantUiTags.AttachPickPhotos)
 	}
 
 	@Test
 	fun when_theDeviceHasNoCamera_then_theMenuOffersOnlyTheGallery() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			AssistantChatPhotoButtonView(
+			AssistantChatAttachButtonView(
 				isEnabled = true,
 				isCameraAvailable = false,
 				onAction = {},
@@ -46,17 +46,17 @@ class AssistantChatPhotoButtonViewUiTest {
 			)
 		}
 
-		onNodeWithTag(AssistantUiTags.PhotoButton).performClick()
+		onNodeWithTag(AssistantUiTags.AttachButton).performClick()
 
-		assertNodeHidden(AssistantUiTags.PhotoTake)
-		assertNodeVisible(AssistantUiTags.PhotoPick)
+		assertNodeHidden(AssistantUiTags.AttachTakePhoto)
+		assertNodeVisible(AssistantUiTags.AttachPickPhotos)
 	}
 
 	@Test
 	fun when_theGalleryIsPicked_then_itRequestsAPhotoFromTheGallery() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
 		setTuIndiceTestContent {
-			AssistantChatPhotoButtonView(
+			AssistantChatAttachButtonView(
 				isEnabled = true,
 				isCameraAvailable = true,
 				onAction = { actions.add(it) },
@@ -64,8 +64,8 @@ class AssistantChatPhotoButtonViewUiTest {
 			)
 		}
 
-		onNodeWithTag(AssistantUiTags.PhotoButton).performClick()
-		onNodeWithTag(AssistantUiTags.PhotoPick).performClick()
+		onNodeWithTag(AssistantUiTags.AttachButton).performClick()
+		onNodeWithTag(AssistantUiTags.AttachPickPhotos).performClick()
 
 		val request = assertIs<AssistantChat.Action.RequestAttachment>(actions.single())
 		assertEquals(AssistantChat.AttachmentSource.GALLERY, request.source)
@@ -74,7 +74,7 @@ class AssistantChatPhotoButtonViewUiTest {
 	@Test
 	fun when_aTurnOrAPhotoIsBeingRead_then_theButtonIsDisabled() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			AssistantChatPhotoButtonView(
+			AssistantChatAttachButtonView(
 				isEnabled = false,
 				isCameraAvailable = true,
 				onAction = {},
@@ -82,7 +82,7 @@ class AssistantChatPhotoButtonViewUiTest {
 			)
 		}
 
-		assertNodeVisible(AssistantUiTags.PhotoButton)
-		assertNodeDisabled(AssistantUiTags.PhotoButton)
+		assertNodeVisible(AssistantUiTags.AttachButton)
+		assertNodeDisabled(AssistantUiTags.AttachButton)
 	}
 }

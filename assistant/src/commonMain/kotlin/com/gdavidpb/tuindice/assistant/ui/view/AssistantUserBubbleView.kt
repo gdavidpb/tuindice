@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
@@ -36,6 +38,7 @@ fun AssistantUserBubbleView(
 	animateEntrance: Boolean = false
 ) {
 	Box(modifier = modifier.fillMaxWidth()) {
+		val openedImage = remember { mutableStateOf<ByteArray?>(null) }
 		val shape = RoundedCornerShape(TuIndiceRadius.Large)
 
 		Column(
@@ -46,6 +49,14 @@ fun AssistantUserBubbleView(
 			horizontalAlignment = Alignment.End,
 			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)
 		) {
+			if (item.attachments.isNotEmpty()) {
+				AssistantChatBubbleAttachmentsView(
+					attachments = item.attachments,
+					onOpenPhoto = { image -> openedImage.value = image }
+				)
+			}
+
+			if (item.text.isNotEmpty()) {
 			Text(
 				text = item.text,
 				modifier = Modifier
@@ -56,6 +67,7 @@ fun AssistantUserBubbleView(
 				style = MaterialTheme.typography.bodyLarge,
 				color = MaterialTheme.colorScheme.onSurface
 			)
+			}
 			if (item.isFailed) {
 				Text(
 					text = stringResource(Res.string.assistant_chat_user_failed),
@@ -64,6 +76,9 @@ fun AssistantUserBubbleView(
 					color = MaterialTheme.colorScheme.error
 				)
 			}
+		}
+		openedImage.value?.let { image ->
+			AssistantChatImageDialogView(image = image, onDismiss = { openedImage.value = null })
 		}
 	}
 }

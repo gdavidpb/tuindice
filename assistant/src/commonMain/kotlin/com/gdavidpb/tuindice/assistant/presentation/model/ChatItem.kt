@@ -7,12 +7,14 @@ import androidx.compose.runtime.Immutable
 sealed interface ChatItem {
 	val id: String
 
-	// The student's bubble, on the right. [isFailed] when its turn could not start or failed.
+	// The student's bubble, on the right. [isFailed] when its turn could not start or failed. [attachments] are the files
+	// it carried, shown above the text.
 	@Immutable
 	data class User(
 		override val id: String,
 		val text: String,
-		val isFailed: Boolean
+		val isFailed: Boolean,
+		val attachments: List<ChatUserAttachmentItem> = emptyList()
 	) : ChatItem
 
 	// The agent's message, full width and without a bubble, with its actions under it.

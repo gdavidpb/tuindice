@@ -1,13 +1,13 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-11-01 23:28:48 -0300_
+_Generated automatically on 2026-11-02 16:52:02 -0300_
 
 ## Summary by module
 
 | Module | when_ threshold | commonMain composable files | @Composable occurrences | commonTest UI tests | Nominal tests | UiTest files meeting threshold |
 |---|---:|---:|---:|---:|---:|---:|
 | `about` | 2 | 22 | 22 | 12 | 10 | 10 |
-| `assistant` | 2 | 109 | 144 | 65 | 57 | 57 |
+| `assistant` | 2 | 117 | 152 | 67 | 58 | 58 |
 | `auth` | 2 | 19 | 24 | 21 | 19 | 19 |
 | `base` | 2 | 58 | 90 | 56 | 50 | 50 |
 | `config` | 2 | 0 | 0 | 0 | 0 | 0 |
@@ -117,18 +117,26 @@ _Generated automatically on 2026-11-01 23:28:48 -0300_
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AcademicComponentRenderer.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AcademicComponentRendererUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantAgentMessageView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantAgentMessageViewUiTest.kt` | 10 | PASS threshold (2) |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantAppealActionView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantAppealActionViewUiTest.kt` | 0 | MISSING TEST |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachButtonView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachButtonViewUiTest.kt` | 4 | PASS threshold (2) |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentItemView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentItemViewUiTest.kt` | 0 | MISSING TEST |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentRemoveView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentRemoveViewUiTest.kt` | 0 | MISSING TEST |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentStateView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentStateViewUiTest.kt` | 0 | MISSING TEST |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentTrayView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatAttachmentTrayViewUiTest.kt` | 3 | PASS threshold (2) |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatBubbleAttachmentsView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatBubbleAttachmentsViewUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatComposerView.kt` | 6 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatComposerViewUiTest.kt` | 12 | PASS threshold (2) |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatContent.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatContentUiTest.kt` | 10 | PASS threshold (2) |
-| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatConversationView.kt` | 7 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatConversationViewUiTest.kt` | 21 | PASS threshold (2) |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatConversationView.kt` | 7 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatConversationViewUiTest.kt` | 27 | PASS threshold (2) |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatFollow.kt` | 3 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatFollowUiTest.kt` | 0 | MISSING TEST |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatImageDialogView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatImageDialogViewUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatInlineProgressView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatInlineProgressViewUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatNoticeView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatNoticeViewUiTest.kt` | 9 | PASS threshold (2) |
-| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatPhotoButtonView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatPhotoButtonViewUiTest.kt` | 4 | PASS threshold (2) |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatPdfCardView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatPdfCardViewUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatScrollToEndButtonView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatScrollToEndButtonViewUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatSendButtonView.kt` | 2 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatSendButtonViewUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatSlotView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatSlotViewUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatSnackbarView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatSnackbarViewUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatSuggestionsView.kt` | 2 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatSuggestionsViewUiTest.kt` | 2 | PASS threshold (2) |
+| `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatThumbnailView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantChatThumbnailViewUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantConsentLineView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantConsentLineViewUiTest.kt` | 0 | MISSING TEST |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantConsentView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantConsentViewUiTest.kt` | 8 | PASS threshold (2) |
 | `assistant/src/commonMain/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantEmbeddedCardView.kt` | 1 | `assistant/src/commonTest/kotlin/com/gdavidpb/tuindice/assistant/ui/view/AssistantEmbeddedCardViewUiTest.kt` | 0 | MISSING TEST |

@@ -2,9 +2,11 @@ package com.gdavidpb.tuindice.assistant.presentation.mapper
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
+import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserAttachment
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatSession
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
+import com.gdavidpb.tuindice.assistant.presentation.model.ChatUserAttachmentItem
 import com.gdavidpb.tuindice.assistant.presentation.model.IntentCardStatus
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
 import com.gdavidpb.tuindice.base.presentation.model.UiText
@@ -38,7 +40,8 @@ internal suspend fun AssistantConversation.toChatItems(
 			is AssistantConversationItem.User -> ChatItem.User(
 				id = item.message.id,
 				text = item.message.text,
-				isFailed = item.message.id in session.failedMessages
+				isFailed = item.message.id in session.failedMessages,
+				attachments = item.message.attachments.map { attachment -> attachment.toUserItem(texts) }
 			)
 
 			is AssistantConversationItem.Agent -> ChatItem.Agent(
@@ -155,4 +158,15 @@ private fun AssistantConversation.addedReceipt(intent: Intent, outcome: OutcomeK
 
 		else -> null
 	}
+}
+
+// A file the student sent, as its bubble shows it: its pages are read once the service reads the file.
+private suspend fun AssistantUserAttachment.toUserItem(texts: AssistantChatTexts): ChatUserAttachmentItem {
+	return ChatUserAttachmentItem(
+		kind = kind,
+		name = name,
+		detail = pageCount?.let { pages -> texts.attachmentPages(pages) },
+		thumbnail = thumbnail,
+		image = image
+	)
 }

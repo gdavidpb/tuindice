@@ -88,11 +88,11 @@ class AssistantChatComposerViewUiTest {
 			)
 		}
 
-		onNode(hasTestTag(AssistantUiTags.PhotoButton) and hasAnyAncestor(hasTestTag(AssistantUiTags.Composer)))
+		onNode(hasTestTag(AssistantUiTags.AttachButton) and hasAnyAncestor(hasTestTag(AssistantUiTags.Composer)))
 			.assertIsDisplayed()
 		onNodeWithContentDescription(PHOTO_DESCRIPTION).assertIsDisplayed()
 		val field = onNodeWithTag(AssistantUiTags.Composer).fetchSemanticsNode().boundsInRoot
-		val clip = onNodeWithTag(AssistantUiTags.PhotoButton).fetchSemanticsNode().boundsInRoot
+		val clip = onNodeWithTag(AssistantUiTags.AttachButton).fetchSemanticsNode().boundsInRoot
 		val send = onNodeWithTag(AssistantUiTags.SendButton).fetchSemanticsNode().boundsInRoot
 		assertTrue(clip.left >= field.left && clip.right <= field.right)
 		assertTrue(clip.top >= field.top && clip.bottom <= field.bottom)
@@ -107,10 +107,10 @@ class AssistantChatComposerViewUiTest {
 		assertTrue(text.left >= clip.right && text.right <= send.left)
 		assertEquals(clip.center.y, text.center.y, absoluteTolerance = PIXEL_TOLERANCE)
 
-		assertNodeEnabled(AssistantUiTags.PhotoButton)
-		onNodeWithTag(AssistantUiTags.PhotoButton).performClick()
-		assertNodeVisible(AssistantUiTags.PhotoTake)
-		assertNodeVisible(AssistantUiTags.PhotoPick)
+		assertNodeEnabled(AssistantUiTags.AttachButton)
+		onNodeWithTag(AssistantUiTags.AttachButton).performClick()
+		assertNodeVisible(AssistantUiTags.AttachTakePhoto)
+		assertNodeVisible(AssistantUiTags.AttachPickPhotos)
 	}
 
 	@Test
@@ -129,8 +129,8 @@ class AssistantChatComposerViewUiTest {
 			)
 		}
 
-		assertNodeVisible(AssistantUiTags.PhotoButton)
-		assertNodeDisabled(AssistantUiTags.PhotoButton)
+		assertNodeVisible(AssistantUiTags.AttachButton)
+		assertNodeDisabled(AssistantUiTags.AttachButton)
 	}
 
 	@Test
@@ -149,7 +149,7 @@ class AssistantChatComposerViewUiTest {
 			)
 		}
 
-		assertNodeHidden(AssistantUiTags.PhotoButton)
+		assertNodeHidden(AssistantUiTags.AttachButton)
 		assertNodeVisible(AssistantUiTags.SendButton)
 	}
 
@@ -171,7 +171,7 @@ class AssistantChatComposerViewUiTest {
 		composer = composer.copy(isEnabled = false)
 		waitForIdle()
 
-		assertNodeHidden(AssistantUiTags.PhotoButton)
+		assertNodeHidden(AssistantUiTags.AttachButton)
 		val textWithoutClip = onNodeWithText(PLACEHOLDER, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.left
 		assertEquals(textWithClip, textWithoutClip, absoluteTolerance = PIXEL_TOLERANCE)
 	}
@@ -197,7 +197,7 @@ class AssistantChatComposerViewUiTest {
 
 		val field = onNodeWithTag(AssistantUiTags.Composer).fetchSemanticsNode().boundsInRoot
 		val send = onNodeWithTag(AssistantUiTags.SendButton).fetchSemanticsNode().boundsInRoot
-		val clip = onNodeWithTag(AssistantUiTags.PhotoButton).fetchSemanticsNode().boundsInRoot
+		val clip = onNodeWithTag(AssistantUiTags.AttachButton).fetchSemanticsNode().boundsInRoot
 		val text = onNodeWithText(PLACEHOLDER, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
 
 		val gap = minOf(clip.top, send.top) - text.bottom
@@ -312,7 +312,7 @@ class AssistantChatComposerViewUiTest {
 
 	private companion object {
 		const val STOP_DESCRIPTION = "Detener respuesta"
-		const val PHOTO_DESCRIPTION = "Agregar evaluaciones desde una foto"
+		const val PHOTO_DESCRIPTION = "Adjuntar"
 		const val PLACEHOLDER = "Escribe tu pregunta"
 		const val PIXEL_TOLERANCE = 1f
 	}

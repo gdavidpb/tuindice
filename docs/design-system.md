@@ -234,6 +234,10 @@ Comportamiento:
   - **Campo de escribir**: enviar ↔ detener hace un fundido cruzado de 150 ms, y los tonos del botón (encendido/apagado) se interpolan en 150 ms. La tarjeta de una intención que se resuelve cambia de alto (`animateContentSize`) y su zona de estado (acciones → recibo) hace un fundido cruzado de 200 ms. Los mensajes que cambian de lugar en la lista se deslizan (`Modifier.animateItem`), sin fundido propio.
   - **Etiqueta de progreso**: entra con fundido en 200 ms y sale en 150 ms; si el texto cambia, hace un fundido cruzado; el brillo que la barre sigue igual.
 
+- **Clip**: «Adjuntar» abre un menú con «Tomar foto» (si el dispositivo tiene cámara), «Elegir fotos» y «Elegir PDF». Con cuatro adjuntos el clip se apaga y el aviso dice «Puedes adjuntar hasta 4.».
+- **Bandeja de adjuntos** (`AssistantChatAttachmentTrayView`): va sobre el texto, dentro del campo, en una fila que se desplaza. Una foto es un cuadro de 56 dp con su miniatura y esquinas `TuIndiceRadius.Medium`. Un PDF es una tarjeta de 56 dp de alto, `surfaceVariant` con borde `outlineVariant`, con ícono de documento, nombre en una línea y sus páginas. La × va arriba a la derecha con un área táctil de 48 dp. Mientras se lee o se sube, el adjunto se cubre con un velo y un indicador circular; si falló, el velo es de `error` y ofrece reintentar.
+- **Adjuntos en la burbuja** (`AssistantChatBubbleAttachmentsView`): las fotos van arriba del texto, en cuadrícula de dos de 96 dp; tocar una la abre en grande. Los PDF van como tarjetas bajo ellas, sin ×. Sin texto, la burbuja muestra solo sus adjuntos.
+
 ## Tarjetas del chat
 
 Las 36 tarjetas que el asistente muestra (`assistant/.../ui/component/**`) se arman con un kit común en `assistant/.../ui/component/common/`; ninguna tarjeta reimplementa una pieza del kit. Decisiones del dueño del 2026-10-19 y 20, tras la auditoría de UI/UX de las tarjetas.

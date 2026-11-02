@@ -88,11 +88,11 @@ private val assistantSmoke = scenario(
 	waitGone(AssistantUiTags.ProgressContainer, Within.Action)
 	waitGone(AssistantUiTags.Chat.suggestion("sq.summary.term"), Within.Action)
 	waitGone(AssistantUiTags.Chat.suggestion("sq.summary.attention"), Within.Action)
-	// The photo and send buttons are in the tree with the composer closed too, so this checks only that they are still
+	// The attach and send buttons are in the tree with the composer closed too, so this checks only that they are still
 	// there once the field is focused. Their row under the text when the field opens and grows is checked by
 	// AssistantChatComposerViewUiTest; this scenario does not check their position above the keyboard.
 	tap(AssistantUiTags.Composer)
-	waitVisible(AssistantUiTags.PhotoButton, Within.Action)
+	waitVisible(AssistantUiTags.AttachButton, Within.Action)
 	waitVisible(AssistantUiTags.SendButton, Within.Action)
 	sendText("¿Y mis evaluaciones?")
 	waitAgentMessage("msg-followup")
