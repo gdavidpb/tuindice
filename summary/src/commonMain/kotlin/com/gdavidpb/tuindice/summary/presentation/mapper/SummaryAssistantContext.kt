@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantSuggestionFacts
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
@@ -48,6 +49,11 @@ internal fun summaryAssistantContext(content: Summary.State.Content): AssistantS
 				put("totalWeeks", week.totalWeeks.toString())
 			}
 		},
-		filters = emptyMap()
+		filters = emptyMap(),
+		suggestionFacts = AssistantSuggestionFacts(
+			hasCurrentTerm = term?.let { it.termId != null || it.linkText is UiText.Raw },
+			hasVisibleAttention = hub.week?.let { hub.attention.isNotEmpty() },
+			hasCreditPace = hub.hasCreditPace
+		)
 	)
 }

@@ -47,6 +47,8 @@ class SummaryAssistantContextTest {
 			context.visibleFields
 		)
 		assertEquals(emptyMap<String, String>(), context.filters)
+		assertEquals(true, context.suggestionFacts.hasCurrentTerm)
+		assertEquals(true, context.suggestionFacts.hasVisibleAttention)
 	}
 
 	@Test
@@ -70,6 +72,7 @@ class SummaryAssistantContextTest {
 		assertEquals(AssistantScreen.SUMMARY, context.screen)
 		assertEquals(emptyList<AssistantEntityRef>(), context.entities)
 		assertEquals(mapOf("attentionCount" to "0"), context.visibleFields)
+		assertEquals(false, context.suggestionFacts.hasCurrentTerm)
 	}
 
 	@Test

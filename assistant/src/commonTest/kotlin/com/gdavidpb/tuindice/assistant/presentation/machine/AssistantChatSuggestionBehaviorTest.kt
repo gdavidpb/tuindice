@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantAvailability
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantMode
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantSuggestionFacts
 import com.gdavidpb.tuindice.chatcontract.context.ScreenId
 import com.gdavidpb.tuindice.chatcontract.message.SuggestedReply
 import com.gdavidpb.tuindice.chatcontract.message.Suggestions
@@ -25,9 +26,7 @@ import kotlin.test.assertTrue
 
 // The questions of the shared catalog (SuggestedQuestions): the chat offers them when it starts and in guided mode.
 private val generalQuestions = listOf(
-	ChatSuggestionItem(id = "sq.general.term", label = "¿Cómo voy este trimestre?"),
-	ChatSuggestionItem(id = "sq.general.goal", label = "¿Qué índice necesito para llegar a mi meta?"),
-	ChatSuggestionItem(id = "sq.general.next", label = "¿Qué materias puedo inscribir el próximo trimestre?")
+	ChatSuggestionItem(id = "sq.about.what", label = "¿Qué puedes hacer por mí?")
 )
 
 private val summaryQuestions = listOf(
@@ -36,12 +35,17 @@ private val summaryQuestions = listOf(
 	ChatSuggestionItem(id = "sq.summary.pace", label = "¿Cuál es mi ritmo de créditos?")
 )
 
+private val summaryContext = AssistantScreenContext(
+	screen = AssistantScreen.SUMMARY,
+	suggestionFacts = AssistantSuggestionFacts(hasCurrentTerm = true, hasVisibleAttention = true, hasCreditPace = true)
+)
+
 class AssistantChatSuggestionBehaviorTest {
 	@Test
 	fun emptyConversation_offersTheThreeQuestionsOfItsScreen() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 
-		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
+		viewModel.openAction(summaryContext)
 
 		assertEquals(summaryQuestions, viewModel.content().suggestions)
 	}
@@ -68,7 +72,7 @@ class AssistantChatSuggestionBehaviorTest {
 			)
 		)
 
-		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
+		viewModel.openAction(summaryContext)
 
 		assertTrue(viewModel.content().suggestions.isEmpty())
 	}
@@ -76,7 +80,7 @@ class AssistantChatSuggestionBehaviorTest {
 	@Test
 	fun firstUserMessage_hidesTheQuestions_andAnEmptyConversationOffersThemAgain() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
-		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
+		viewModel.openAction(summaryContext)
 		assertEquals(summaryQuestions, viewModel.content().suggestions)
 
 		fixture.conversation.conversation.value = assistantConversation(
@@ -94,7 +98,7 @@ class AssistantChatSuggestionBehaviorTest {
 		fixture.availability.availability.value =
 			AssistantAvailability(mode = AssistantMode.GUIDED, serverDisabled = false)
 
-		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
+		viewModel.openAction(summaryContext)
 
 		val content = viewModel.content()
 		assertTrue(content.isGuided)
@@ -110,7 +114,7 @@ class AssistantChatSuggestionBehaviorTest {
 			items = listOf(agentMessage("a1", Text("Elige una de estas preguntas.")))
 		)
 
-		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
+		viewModel.openAction(summaryContext)
 
 		assertEquals(summaryQuestions, viewModel.content().suggestions)
 	}
@@ -130,9 +134,32 @@ class AssistantChatSuggestionBehaviorTest {
 			)
 		)
 
-		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
+		viewModel.openAction(summaryContext)
 
 		assertEquals(summaryQuestions, viewModel.content().suggestions)
+	}
+
+	@Test
+	fun guidedFollowUp_usesTheCatalogLabelAndTextEvenIfTheAgentReplyDiffers() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.availability.availability.value =
+			AssistantAvailability(mode = AssistantMode.GUIDED, serverDisabled = false)
+		fixture.conversation.conversation.value = assistantConversation(
+			items = listOf(
+				agentMessage(
+					"a1",
+					Text("Listo."),
+					Suggestions(listOf(SuggestedReply(id = "sq.summary.term", label = "Otra etiqueta", text = "Otro texto")))
+				)
+			)
+		)
+
+		viewModel.openAction(summaryContext)
+		assertEquals(listOf(summaryQuestions.first()), viewModel.content().suggestions)
+		viewModel.pickSuggestionAction("sq.summary.term")
+
+		assertEquals("¿Cómo voy este trimestre?", fixture.turns.requests.single().message.text)
+		assertEquals("sq.summary.term", fixture.turns.requests.single().message.suggestionId)
 	}
 
 	@Test
@@ -142,7 +169,7 @@ class AssistantChatSuggestionBehaviorTest {
 			items = listOf(agentMessage("a1", Text("Listo.")))
 		)
 
-		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
+		viewModel.openAction(summaryContext)
 
 		assertEquals(emptyList(), viewModel.content().suggestions)
 	}
@@ -161,7 +188,7 @@ class AssistantChatSuggestionBehaviorTest {
 			)
 		)
 
-		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
+		viewModel.openAction(summaryContext)
 
 		assertEquals(emptyList(), viewModel.content().suggestions)
 	}
@@ -169,7 +196,7 @@ class AssistantChatSuggestionBehaviorTest {
 	@Test
 	fun pickSuggestion_ofTheScreen_sendsItsTextAndItsId() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
-		viewModel.openAction(AssistantScreenContext(AssistantScreen.SUMMARY))
+		viewModel.openAction(summaryContext)
 
 		viewModel.pickSuggestionAction("sq.summary.pace")
 

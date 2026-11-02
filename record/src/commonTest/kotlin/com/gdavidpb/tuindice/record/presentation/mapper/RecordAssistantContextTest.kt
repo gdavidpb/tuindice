@@ -63,7 +63,39 @@ class RecordAssistantContextTest {
 		)
 		assertEquals("Enero - Marzo 2024", past.visibleFields["termLabel"])
 		assertEquals("3.0000", past.visibleFields["termIndex"])
+		assertEquals(true, past.suggestionFacts.selectedTermIsLatestClosed)
+		assertEquals(false, past.suggestionFacts.selectedTermIsCurrent)
+		assertEquals(true, now.suggestionFacts.selectedTermIsCurrent)
 		assertNotEquals(now.entities, past.entities)
+	}
+
+	@Test
+	fun contextReadsTheSelectedTermEvenWhenTheScreensCachedFlagsAreStale() {
+		val state = content(selectedTermId = "term-past").copy(
+			isSelectedTermCurrent = true,
+			isSelectedTermSynthetic = true
+		)
+
+		assertEquals(false, state.assistantContext.suggestionFacts.selectedTermIsCurrent)
+		assertEquals("false", state.assistantContext.visibleFields["isSynthetic"])
+	}
+
+	@Test
+	fun onlyTheMostRecentClosedTermIsMarkedAsTheLastOne() {
+		val record = recordWithPastAndCurrentTerm()
+		val olderTerm = academicTerm(
+			id = "term-older",
+			kind = TermKind.HISTORICAL,
+			periodYear = 2023,
+			periodCode = AcademicTermPeriod.JAN_MAR,
+			attempts = listOf(scoredAttempt(id = "older-mat", subjectCode = "MAT101", credits = 4, grade = 4))
+		)
+		val withHistory = record.copy(terms = record.terms + olderTerm)
+
+		val olderFacts = content("term-older", record = withHistory).assistantContext.suggestionFacts
+		val pastFacts = content("term-past", record = withHistory).assistantContext.suggestionFacts
+		assertEquals(false, olderFacts.selectedTermIsLatestClosed)
+		assertEquals(true, pastFacts.selectedTermIsLatestClosed)
 	}
 
 	@Test
@@ -193,6 +225,7 @@ class RecordAssistantContextTest {
 			viewMode = viewMode,
 			record = record,
 			selectedTermId = selectedTermId,
+			isSelectedTermCurrent = selectedTermId == "term-now",
 			isSelectedTermSynthetic = isSelectedTermSynthetic
 		)
 	}

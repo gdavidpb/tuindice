@@ -16,5 +16,7 @@ data class SummaryHubItem(
 	val term: SummaryTermItem? = null,
 	val career: SummaryCareerItem? = null,
 	val statistics: SummaryStatisticsSectionItem? = null,
-	val termReport: SummaryTermReportItem? = null
+	val termReport: SummaryTermReportItem? = null,
+	// Null until the record is ready; false when no regular term has a credit pace yet.
+	val hasCreditPace: Boolean? = null
 )

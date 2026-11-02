@@ -25,6 +25,7 @@ final class AssistantScenarioTests: ScenarioTestCase {
     func test_assistant_confirm_add_evaluation() { runScenario("assistant-confirm-add-evaluation") }
     func test_assistant_confirm_destructive_delete() { runScenario("assistant-confirm-destructive-delete") }
     func test_assistant_consent_privacy_policy() { runScenario("assistant-consent-privacy-policy") }
+    func test_assistant_contextual_suggestions() { runScenario("assistant-contextual-suggestions") }
     func test_assistant_decline_consent() { runScenario("assistant-decline-consent") }
     func test_assistant_dismiss_intent() { runScenario("assistant-dismiss-intent") }
     func test_assistant_evaluations_card() { runScenario("assistant-evaluations-card") }

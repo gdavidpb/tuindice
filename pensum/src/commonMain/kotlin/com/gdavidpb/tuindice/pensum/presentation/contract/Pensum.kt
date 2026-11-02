@@ -4,11 +4,13 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantSuggestionFacts
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_failed_message
@@ -51,6 +53,9 @@ object Pensum {
 					visibleFields = mapOf(
 						"approvedCredits" to model.approvedCredits.toString(),
 						"totalCredits" to model.totalCredits.toString()
+					),
+					suggestionFacts = AssistantSuggestionFacts(
+						hasAvailableSubjects = model.nodes.any { it.status.type == PensumNodeStatusType.AVAILABLE }
 					)
 				)
 		}

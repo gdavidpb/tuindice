@@ -15,6 +15,7 @@ fun SummaryHub.toSummaryHubItem(): SummaryHubItem {
 		week = week?.toSummaryWeekItem(),
 		term = term?.toSummaryTermItem(),
 		career = career.toSummaryCareerItem(),
-		statistics = toSummaryStatisticsSectionItem()
+		statistics = toSummaryStatisticsSectionItem(),
+		hasCreditPace = statistics?.let { it.pace.averageCredits != null }
 	)
 }

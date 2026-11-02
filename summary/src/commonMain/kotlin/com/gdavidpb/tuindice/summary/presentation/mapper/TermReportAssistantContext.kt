@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantSuggestionFacts
 import com.gdavidpb.tuindice.summary.domain.model.SummaryTermReport
 import com.gdavidpb.tuindice.summary.presentation.model.TermReportSectionItem
 
@@ -27,7 +28,8 @@ internal fun termReportAssistantContextOf(
 			put("reportId", report.insightId)
 			put("reportTitle", report.title.take(REPORT_TITLE_LIMIT))
 			put("reportText", reportTextOf(sections = sections))
-		}
+		},
+		suggestionFacts = AssistantSuggestionFacts(hasCreditPace = report.averageCredits != null)
 	)
 }
 

@@ -112,6 +112,7 @@ class TermReportItemMapperTest {
 		val pace = assertIs<TermReportPaceItem.Data>(item.pace)
 		assertNull(pace.reference.label)
 		assertEquals(UiText.Resource(Res.string.term_report_pace_average, listOf("13.8")), pace.averageLegend)
+		assertEquals(true, item.assistantContext.suggestionFacts.hasCreditPace)
 	}
 
 	@Test
@@ -145,6 +146,7 @@ class TermReportItemMapperTest {
 
 		val pace = assertIs<TermReportPaceItem.Empty>(item.pace)
 		assertEquals(UiText.Resource(Res.string.term_report_pace_empty), pace.text)
+		assertEquals(false, item.assistantContext.suggestionFacts.hasCreditPace)
 	}
 
 	@Test

@@ -14,7 +14,8 @@ class AssistantScreenContextSerializationTest {
 				AssistantEntityRef(kind = AssistantEntityKind.SUBJECT, id = "subject-9")
 			),
 			visibleFields = mapOf("grade" to "17", "date" to "2026-10-01"),
-			filters = mapOf("term" to "2026-II")
+			filters = mapOf("term" to "2026-II"),
+			suggestionFacts = AssistantSuggestionFacts(selectedWeekIsCurrent = false, hasEvaluations = true)
 		)
 
 		val decoded = Json.decodeFromString<AssistantScreenContext>(Json.encodeToString(context))

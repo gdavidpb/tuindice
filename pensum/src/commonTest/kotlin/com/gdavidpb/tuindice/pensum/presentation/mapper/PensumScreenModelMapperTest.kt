@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityKind
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantEntityRef
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantSuggestionFacts
 import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
 import com.gdavidpb.tuindice.pensum.domain.model.PensumGraph
 import com.gdavidpb.tuindice.pensum.domain.model.PensumModality
@@ -325,7 +326,8 @@ class PensumScreenModelMapperTest {
 						id = "computacion-2019-degree-project"
 					)
 				),
-				visibleFields = mapOf("approvedCredits" to "0", "totalCredits" to "8")
+				visibleFields = mapOf("approvedCredits" to "0", "totalCredits" to "8"),
+				suggestionFacts = AssistantSuggestionFacts(hasAvailableSubjects = true)
 			),
 			Pensum.State.Content(model = model).assistantContext
 		)

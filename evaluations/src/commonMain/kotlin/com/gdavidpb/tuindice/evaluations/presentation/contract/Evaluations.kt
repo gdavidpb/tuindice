@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.contract
 
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantSuggestionFacts
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
@@ -62,7 +63,13 @@ object Evaluations {
 					screen = AssistantScreen.EVALUATIONS,
 					filters = selectedWeekKey.toStorageValue(weekOneStart = weekOneStart)
 						?.let { key -> mapOf("week" to key) }
-						.orEmpty()
+						.orEmpty(),
+					suggestionFacts = AssistantSuggestionFacts(
+						selectedWeekIsCurrent = weekItems.firstOrNull { it.key == selectedWeekKey }?.isCurrent,
+						hasEvaluations = evaluationWeekGroups.any { week ->
+							week.groups.any { group -> group.items.isNotEmpty() }
+						}
+					)
 				)
 		}
 
@@ -70,6 +77,12 @@ object Evaluations {
 		data class Empty(
 			val hasSchedule: Boolean = false
 		) : State() {
+			override val assistantContext: AssistantScreenContext
+				get() = AssistantScreenContext(
+					screen = AssistantScreen.EVALUATIONS,
+					suggestionFacts = AssistantSuggestionFacts(hasEvaluations = false)
+				)
+
 			override val topBarConfig: TopBarConfig?
 				get() = if (hasSchedule) TopBarConfig.EvaluationsWithSchedule else null
 		}

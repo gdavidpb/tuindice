@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.changeTextAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.chatTest
 import com.gdavidpb.tuindice.assistant.presentation.testing.content
 import com.gdavidpb.tuindice.assistant.presentation.testing.openAction
-import com.gdavidpb.tuindice.assistant.presentation.testing.pickSuggestionAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.sendMessageAction
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.assistant.testing.assistantStatus
@@ -145,12 +144,13 @@ class AssistantChatRestrictionBehaviorTest {
 		assertIs<ChatNoticeItem.Restricted>(viewModel.content().notice)
 		fixture.clock.nowMillis = NOON + 2 * MINUTE
 		fixture.standing.answer = assistantStatus()
-		// The end has passed; the suggestions come back with the next change of the conversation, and the student picks one.
+		// The restriction lifts on the next observation; the student can write again.
 		fixture.conversation.conversation.value = studentMessageOnly()
 		fixture.turns.events = listOf(RunFinished(seq = 1, turnId = "t1"))
 		val readsBefore = fixture.standing.statusReads
 
-		viewModel.pickSuggestionAction(viewModel.content().suggestions.first().id)
+		viewModel.changeTextAction("Hola")
+		viewModel.sendMessageAction()
 
 		assertEquals(readsBefore + 1, fixture.standing.statusReads)
 		assertEquals(1, fixture.turns.requests.size)
@@ -162,14 +162,15 @@ class AssistantChatRestrictionBehaviorTest {
 	fun aSendAfterTheEnd_whoseStandingGivesANewEnd_keepsTheChatPaused() = chatTest { fixture, viewModel ->
 		openWith(fixture, viewModel, AbuseStanding(level = StandingLevel.COOLDOWN, untilMillis = NOON + MINUTE))
 		fixture.clock.nowMillis = NOON + 2 * MINUTE
-		// The end has passed; the suggestions come back with the next change of the conversation, and the student picks one.
+		// The end has passed; the next message reads the standing again.
 		fixture.conversation.conversation.value = studentMessageOnly()
 		fixture.standing.answer = assistantStatus().copy(
 			standing = AbuseStanding(level = StandingLevel.SUSPENDED, untilMillis = TWO_DAYS_LATER)
 		)
 		fixture.turns.sendError = AssistantRequestRefusedException(AssistantErrorCodes.SUSPENDED, 30, "suspended")
 
-		viewModel.pickSuggestionAction(viewModel.content().suggestions.first().id)
+		viewModel.changeTextAction("Hola")
+		viewModel.sendMessageAction()
 
 		assertEquals(Res.string.assistant_chat_restricted_suspended_until, viewModel.restrictedMessage().resource)
 		assertFalse(viewModel.content().composer.isEnabled)
@@ -218,16 +219,16 @@ class AssistantChatRestrictionBehaviorTest {
 		assertFalse(assertIs<ChatNoticeItem.Restricted>(viewModel.content().notice).canAppeal)
 	}
 
-	// A restriction in force offers no suggestion, neither in the chat nor in its sheet; once it lifts, they return.
+	// The restriction does not make suggestions return to an open conversation with messages.
 	@Test
-	fun aRestrictionInForce_offersNoSuggestions_andTheyReturnWhenItLifts() = chatTest { fixture, viewModel ->
+	fun aRestrictionAndItsEnd_doNotShowSuggestionsInAnOpenConversation() = chatTest { fixture, viewModel ->
 		openWith(fixture, viewModel, AbuseStanding(level = StandingLevel.COOLDOWN, untilMillis = NOON + MINUTE))
 		assertTrue(viewModel.content().suggestions.isEmpty())
 
 		fixture.clock.nowMillis = NOON + 2 * MINUTE
 		fixture.conversation.conversation.value = studentMessageOnly()
 
-		assertTrue(viewModel.content().suggestions.isNotEmpty())
+		assertTrue(viewModel.content().suggestions.isEmpty())
 	}
 
 	private fun snackBarOf(fixture: AssistantChatFixture): String {

@@ -124,12 +124,10 @@ internal class AssistantChatSession {
 		if (!guided) guidedByServer = false
 	}
 
-	// The replies the chat shows come first. A question of the shared catalog is sent with its own text even when it is
-	// not shown, because the service accepts those in guided mode.
+	// Catalog ids always use the shared text: the service also resolves those ids to the catalog, regardless of the reply.
 	fun suggestionText(suggestionId: String): String? {
-		val shown = conversation?.lastAgentSuggestions()?.firstOrNull { suggestion -> suggestion.id == suggestionId }
-
-		return shown?.text ?: SuggestedQuestions.byId(suggestionId)?.text
+		return SuggestedQuestions.byId(suggestionId)?.text
+			?: conversation?.lastAgentSuggestions()?.firstOrNull { suggestion -> suggestion.id == suggestionId }?.text
 	}
 
 	// The thumbs of [messageId] go back to [previous] when the service refused [rejected], unless the student has rated

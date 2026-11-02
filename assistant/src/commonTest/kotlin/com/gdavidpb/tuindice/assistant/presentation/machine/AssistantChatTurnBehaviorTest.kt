@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
-import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.agentMessage
 import com.gdavidpb.tuindice.assistant.presentation.testing.assistantConversation
 import com.gdavidpb.tuindice.assistant.presentation.testing.bubbles
@@ -541,7 +540,7 @@ class AssistantChatTurnBehaviorTest {
 	}
 
 	@Test
-	fun suggestionsOfTheLastAgentMessage_areOffered_andSentWithTheirText() = chatTest { fixture, viewModel ->
+	fun suggestionsOfTheLastAgentMessage_areNotOfferedInAnOpenConversation() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
 		fixture.conversation.conversation.value = assistantConversation(
 			items = listOf(
@@ -555,16 +554,9 @@ class AssistantChatTurnBehaviorTest {
 		viewModel.openAction(null)
 
 		val content = viewModel.content()
-		assertEquals(listOf(ChatSuggestionItem(id = "s1", label = "Sí")), content.suggestions)
+		assertTrue(content.suggestions.isEmpty())
 		val agent = content.items.single() as ChatItem.Agent
 		assertEquals(listOf<ChatPartItem>(ChatPartItem.Text("¿Quieres ver tu promedio?")), agent.parts)
-
-		viewModel.pickSuggestionAction("s1")
-
-		val request = fixture.turns.requests.single()
-		assertEquals("Sí, quiero verlo", request.message.text)
-		assertEquals("s1", request.message.suggestionId)
-		assertEquals("Sí, quiero verlo", viewModel.content().bubbles().single().text)
 	}
 
 	@Test

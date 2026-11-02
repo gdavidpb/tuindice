@@ -24,15 +24,23 @@ import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenarios.fixture.Copy
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
+import com.gdavidpb.tuindice.scenarios.fixture.E2eInputs
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.showGradedEvaluation
 import com.gdavidpb.tuindice.scenarios.shared.showWeekOfGradedEvaluation
+import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
 /** Taps the assistant's sparkle in the top bar and waits for the chat screen. */
 private fun StepBuilder.openAssistant() {
 	tap(BaseUiTags.topBarActionButton(TopBarAction.AssistantAction))
 	waitVisible(AssistantUiTags.ChatScreen, Within.Wait)
+}
+
+/** Waits for the current term before capturing the summary context for the assistant. */
+private fun StepBuilder.waitSummaryTerm() {
+	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
+	scrollUntilVisible(SummaryUiTags.sectionLink(SummaryUiTags.TermSection), Scroll.ContentDown, Within.Long)
 }
 
 /** Accepts the consent the sheet asks for at its first opening, then waits for the composer. */
@@ -69,12 +77,14 @@ private val assistantSmoke = scenario(
 	)
 	account(E2eAccounts.Canonical.id)
 
+	waitSummaryTerm()
 	openAssistant()
 	acceptConsent()
-	waitVisible(AssistantUiTags.Chat.suggestion("sq.summary.attention"), Within.Action)
+	waitVisible(AssistantUiTags.Chat.suggestion("sq.summary.term"), Within.Action)
 	tap(AssistantUiTags.Chat.suggestion("sq.summary.term"))
 	waitAgentMessage("msg-suggestion")
 	waitGone(AssistantUiTags.ProgressContainer, Within.Action)
+	waitGone(AssistantUiTags.Chat.suggestion("sq.summary.term"), Within.Action)
 	waitGone(AssistantUiTags.Chat.suggestion("sq.summary.attention"), Within.Action)
 	// Focusing expands the composer; both controls remain reachable above the keyboard.
 	tap(AssistantUiTags.Composer)
@@ -229,6 +239,7 @@ private val assistantGuidedSuggestions = scenario(
 	covers("assistant.AssistantChat.PickSuggestion")
 	account(E2eAccounts.Canonical.id)
 
+	waitSummaryTerm()
 	openAssistant()
 	acceptConsent()
 	mockState("assistant-turns", "Guided")
@@ -237,6 +248,38 @@ private val assistantGuidedSuggestions = scenario(
 	waitGone(AssistantUiTags.Composer, Within.Assert)
 	tap(AssistantUiTags.Chat.suggestion("sq.summary.term"))
 	waitAgentMessage("msg-suggestion")
+}
+
+// The open and guided chat keep the questions about the selected week meaningful after the student changes weeks.
+private val assistantContextualSuggestions = scenario(
+	"assistant-contextual-suggestions",
+	"assistant",
+	Start.Seeded(E2eAccounts.SummaryHub, section = MainSection.EVALUATIONS).toLaunchSpec()
+) {
+	covers(
+		"assistant.AssistantChat.AcceptConsent",
+		"assistant.AssistantChat.ChangeText",
+		"assistant.AssistantChat.Send",
+		"assistant.AssistantChat.PickSuggestion"
+	)
+	account(E2eAccounts.SummaryHub.id)
+
+	waitVisible(EvaluationsUiTags.evaluationsWeekPage(E2eInputs.HubWeek3), Within.Long)
+	tap(EvaluationsUiTags.evaluationsWeekChip(E2eInputs.HubWeek2))
+	waitVisible(EvaluationsUiTags.evaluationsWeekPage(E2eInputs.HubWeek2), Within.Action)
+	openAssistant()
+	acceptConsent()
+	waitVisible(AssistantUiTags.Chat.suggestion("sq.evaluations.heavy"), Within.Action)
+	waitGone(AssistantUiTags.Chat.suggestion("sq.evaluations.week"), Within.Assert)
+	mockState("assistant-turns", "Guided")
+	sendText("Hola guiado")
+	waitVisible(AssistantUiTags.Notice, Within.Action)
+	waitGone(AssistantUiTags.Composer, Within.Assert)
+	waitGone(AssistantUiTags.Chat.suggestion("sq.evaluations.week"), Within.Assert)
+	tap(AssistantUiTags.Chat.suggestion("sq.evaluations.heavy"))
+	waitAgentMessage("msg-suggestion")
+	waitGone(AssistantUiTags.ProgressContainer, Within.Action)
+	waitVisible(AssistantUiTags.Chat.suggestion("sq.evaluations.heavy"), Within.Action)
 }
 
 private val assistantDeclineConsent = scenario(
@@ -479,6 +522,7 @@ val assistantScenarios: List<Scenario> = listOf(
 	assistantAskAboutEvaluation,
 	assistantServerDisabled,
 	assistantGuidedSuggestions,
+	assistantContextualSuggestions,
 	assistantDeclineConsent,
 	assistantConsentPrivacyPolicy,
 	assistantRetryTurn,

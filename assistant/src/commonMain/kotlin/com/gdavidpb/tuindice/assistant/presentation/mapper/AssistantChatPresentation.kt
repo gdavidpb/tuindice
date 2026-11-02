@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.assistant.presentation.mapper
 
-import com.gdavidpb.tuindice.assistant.domain.mapper.toScreenContext
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.machine.AssistantChatInternalEvent
@@ -17,9 +15,8 @@ import com.gdavidpb.tuindice.assistant.presentation.model.ChatPartItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatSuggestionItem
 import com.gdavidpb.tuindice.assistant.presentation.model.StillAppliesItem
 import com.gdavidpb.tuindice.assistant.presentation.resource.AssistantChatTexts
-import com.gdavidpb.tuindice.chatcontract.context.ScreenId
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
 import com.gdavidpb.tuindice.chatcontract.event.RunErrorCode
-import com.gdavidpb.tuindice.chatcontract.message.SuggestedQuestions
 import kotlin.time.Clock
 
 // The presentation of the chat, derived from the conversation and the extended state. Every screen state the rows
@@ -39,9 +36,6 @@ internal suspend fun AssistantChatSession.presentedContent(
 	val guided = guidedByMode || guidedByServer
 	// A restriction whose end has passed no longer holds the composer: the next send reads the standing again.
 	val restricted = restrictionAt(clock.now().toEpochMilliseconds())
-	// The opening screen still chooses the suggested questions even though its context is not shown in the chat.
-	val screen = content.context?.toScreenContext()?.screen
-
 	val items = presentedItems(texts, nowMillis = clock.now().toEpochMilliseconds())
 	// Guided mode needs suggestions to keep asking. In open chat they belong only to the empty conversation.
 	val showSuggestions = !busy && restricted == null && (guided || items.isEmpty())
@@ -54,7 +48,7 @@ internal suspend fun AssistantChatSession.presentedContent(
 		// Once the student writes, the card steps aside for the rest of the sheet: it is only for the empty chat.
 		notificationOffer = notificationOfferShown && items.isEmpty() && !sending,
 		composer = presentedComposer(draftText = draftText, draftRevision = draftRevision, restricted = restricted),
-		suggestions = if (showSuggestions) presentedSuggestions(screen = screen, guided = guided) else emptyList(),
+		suggestions = if (showSuggestions) presentedSuggestions(context = content.context, guided = guided) else emptyList(),
 		notice = presentedNotice(texts = texts, guided = guided, restricted = restricted, clock = clock),
 		isGuided = guided
 	)
@@ -134,25 +128,15 @@ internal suspend fun AssistantChatSession.presentedNotice(
 	}
 }
 
-// The replies the student can tap. The last agent message's come first. Without them, the questions of the screen the
-// sheet came from are offered while the conversation has no agent message yet, and always in guided mode. Guided mode
-// only takes questions of the shared catalog, so a reply of the agent outside it is not offered there.
+// Guided follow-ups can only narrow the questions the opening screen can actually support.
 internal fun AssistantChatSession.presentedSuggestions(
-	screen: ScreenId?,
+	context: AssistantScreenContext?,
 	guided: Boolean
 ): List<ChatSuggestionItem> {
-	val agentReplies = conversation?.lastAgentSuggestions().orEmpty()
-	val noAgentMessageYet = conversation?.items?.none { item -> item is AssistantConversationItem.Agent } ?: true
-
-	val replies = when {
-		guided ->
-			agentReplies
-				.filter { reply -> SuggestedQuestions.byId(reply.id) != null }
-				.ifEmpty { SuggestedQuestions.forScreen(screen) }
-		agentReplies.isNotEmpty() -> agentReplies
-		noAgentMessageYet -> SuggestedQuestions.forScreen(screen)
-		else -> emptyList()
-	}
+	val suitable = contextualSuggestions(context, guided)
+	val agentIds = conversation?.lastAgentSuggestions().orEmpty().map { it.id }.toSet()
+	val followUps = suitable.filter { it.id in agentIds }
+	val replies = if (guided && followUps.isNotEmpty()) followUps else suitable
 
 	return replies.map { reply -> ChatSuggestionItem(id = reply.id, label = reply.label) }
 }

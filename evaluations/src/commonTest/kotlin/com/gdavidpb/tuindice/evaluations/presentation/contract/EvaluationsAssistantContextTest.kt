@@ -2,7 +2,9 @@ package com.gdavidpb.tuindice.evaluations.presentation.contract
 
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantSuggestionFacts
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
+import com.gdavidpb.tuindice.evaluations.testing.evaluationsGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsWeekItemFixture
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
@@ -22,7 +24,8 @@ class EvaluationsAssistantContextTest {
 		assertEquals(
 			AssistantScreenContext(
 				screen = AssistantScreen.EVALUATIONS,
-				filters = mapOf("week" to "academic:2026-09-28:8")
+				filters = mapOf("week" to "academic:2026-09-28:8"),
+				suggestionFacts = AssistantSuggestionFacts(selectedWeekIsCurrent = true, hasEvaluations = false)
 			),
 			content.assistantContext
 		)
@@ -41,13 +44,31 @@ class EvaluationsAssistantContextTest {
 	}
 
 	@Test
+	fun assistantContext_distinguishesAnotherSelectedWeekFromTheCurrentOne() {
+		val content = Evaluations.State.Content(
+			weekItem = evaluationsWeekItemFixture().copy(isCurrent = false),
+			evaluationGroups = evaluationsGroupItemsFixture(),
+			weekOneStart = weekOneStart
+		)
+
+		assertEquals(false, content.assistantContext.suggestionFacts.selectedWeekIsCurrent)
+		assertEquals(true, content.assistantContext.suggestionFacts.hasEvaluations)
+	}
+
+	@Test
 	fun assistantContext_ofAContentWithoutAnAnchorLeavesTheWeekOut() {
 		val content = Evaluations.State.Content(
 			weekItem = evaluationsWeekItemFixture(),
 			evaluationGroups = emptyList()
 		)
 
-		assertEquals(AssistantScreenContext(screen = AssistantScreen.EVALUATIONS), content.assistantContext)
+		assertEquals(
+			AssistantScreenContext(
+				screen = AssistantScreen.EVALUATIONS,
+				suggestionFacts = AssistantSuggestionFacts(selectedWeekIsCurrent = true, hasEvaluations = false)
+			),
+			content.assistantContext
+		)
 	}
 
 	@Test
@@ -55,12 +76,12 @@ class EvaluationsAssistantContextTest {
 		val states = listOf(
 			Evaluations.State.Idle,
 			Evaluations.State.Loading,
-			Evaluations.State.Empty(),
 			Evaluations.State.Failed(message = "Error")
 		)
 
 		states.forEach { state ->
 			assertEquals(AssistantScreenContext(screen = AssistantScreen.EVALUATIONS), state.assistantContext)
 		}
+		assertEquals(false, Evaluations.State.Empty().assistantContext.suggestionFacts.hasEvaluations)
 	}
 }

@@ -50,6 +50,9 @@ class SummaryStatisticsAssistantContextTest {
 			context.visibleFields
 		)
 		assertEquals(emptyMap<String, String>(), context.filters)
+		assertEquals(true, statisticsHubOf(statistics = statistics).toSummaryHubItem().hasCreditPace)
+		assertEquals(true, context.suggestionFacts.hasBestTerm)
+		assertEquals(false, context.suggestionFacts.hasIndexHistory)
 	}
 
 	@Test
@@ -58,6 +61,8 @@ class SummaryStatisticsAssistantContextTest {
 
 		assertEquals(AssistantScreen.STATISTICS, context.screen)
 		assertEquals(emptyMap<String, String>(), context.visibleFields)
+		assertEquals(false, statisticsHubOf(statistics = statisticsOf()).toSummaryHubItem().hasCreditPace)
+		assertEquals(false, context.suggestionFacts.hasCreditPace)
 	}
 
 	@Test

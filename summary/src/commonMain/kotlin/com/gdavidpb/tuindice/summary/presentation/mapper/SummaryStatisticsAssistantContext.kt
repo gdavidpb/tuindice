@@ -2,8 +2,10 @@ package com.gdavidpb.tuindice.summary.presentation.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreen
 import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantScreenContext
+import com.gdavidpb.tuindice.base.domain.model.assistant.AssistantSuggestionFacts
 import com.gdavidpb.tuindice.summary.presentation.contract.SummaryStatistics
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsCreditsItem
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsIndexItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsOutcome
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsPaceItem
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryStatisticsSubjectsItem
@@ -15,6 +17,7 @@ internal fun summaryStatisticsAssistantContext(content: SummaryStatistics.State.
 	val subjects = statistics.subjects.content as? SummaryStatisticsSubjectsItem.Content.Data
 	val credits = statistics.credits.content as? SummaryStatisticsCreditsItem.Content.Data
 	val pace = statistics.pace.content as? SummaryStatisticsPaceItem.Content.Data
+	val index = statistics.index.content as? SummaryStatisticsIndexItem.Content.Data
 
 	return AssistantScreenContext(
 		screen = AssistantScreen.STATISTICS,
@@ -27,7 +30,13 @@ internal fun summaryStatisticsAssistantContext(content: SummaryStatistics.State.
 
 			if (pace != null) put("averageApprovedCreditsPerTerm", pace.figure.value)
 		},
-		filters = emptyMap()
+		filters = emptyMap(),
+		suggestionFacts = AssistantSuggestionFacts(
+			hasIndexHistory = index != null && index.points.size > 1,
+			hasBestTerm = index?.best != null,
+			hasCreditPace = pace != null,
+			canProjectRemainingTerms = pace?.projection is SummaryStatisticsPaceItem.Projection.Remaining
+		)
 	)
 }
 
