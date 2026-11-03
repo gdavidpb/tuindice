@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -16,11 +17,15 @@ import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatAttachmentItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
 import tuindice.assistant.generated.resources.assistant_attachment_photo
 
 private val TILE_SIZE = 56.dp
+
+// The corners of an attached photo, in the tray and in the sent message.
+internal val PhotoShape = RoundedCornerShape(TuIndiceRadius.Medium)
 
 // How far the × reaches past the photo's top and end edges. Its 48 dp touch target is centred on the photo's top-right
 // corner, so half of it lies outside the photo. The tray gives that room once, to its row.
@@ -38,8 +43,10 @@ fun AssistantChatAttachmentItemView(
 		Box(
 			modifier = Modifier
 				.size(TILE_SIZE)
-				.clip(RoundedCornerShape(TuIndiceRadius.Medium))
+				.clip(PhotoShape)
 				.background(MaterialTheme.colorScheme.surfaceVariant)
+				// A light photo on the field's light surface keeps its edge.
+				.border(TuIndiceSpacing.Hairline, MaterialTheme.colorScheme.outlineVariant, PhotoShape)
 		) {
 			AssistantChatThumbnailView(
 				bytes = item.thumbnail,

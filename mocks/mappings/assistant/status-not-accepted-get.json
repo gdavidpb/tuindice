@@ -29,7 +29,8 @@
         "remainingHour": 20,
         "remainingDay": 50,
         "remainingMonth": 400
-      }
+      },
+      "attachmentsEnabled": true
     }
   }
 }

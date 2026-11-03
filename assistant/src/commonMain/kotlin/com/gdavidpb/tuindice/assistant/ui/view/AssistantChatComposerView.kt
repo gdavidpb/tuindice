@@ -99,7 +99,12 @@ fun AssistantChatComposerView(
 				innerTextField = {
 					Column {
 						if (composer.attachments.isNotEmpty()) {
-							AssistantChatAttachmentTrayView(attachments = composer.attachments, onAction = onAction)
+							// The photos start where the text starts.
+							AssistantChatAttachmentTrayView(
+								attachments = composer.attachments,
+								onAction = onAction,
+								modifier = Modifier.padding(start = TEXT_PADDING)
+							)
 						}
 
 						ComposerBody(

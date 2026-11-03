@@ -1,11 +1,12 @@
 package com.gdavidpb.tuindice.assistant.ui.view
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,7 +15,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatUserAttachmentItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
@@ -52,7 +52,9 @@ fun AssistantChatBubbleAttachmentsView(
 					Row(
 						modifier = Modifier
 							.size(PHOTO_SIZE)
-							.clip(RoundedCornerShape(TuIndiceRadius.Medium))
+							.clip(PhotoShape)
+							// A light photo on the conversation's light surface keeps its edge.
+							.border(TuIndiceSpacing.Hairline, MaterialTheme.colorScheme.outlineVariant, PhotoShape)
 							.clickable(enabled = large != null) {
 								large?.let { bytes -> onOpenPhoto(bytes, "open-$cacheKey") }
 							}
