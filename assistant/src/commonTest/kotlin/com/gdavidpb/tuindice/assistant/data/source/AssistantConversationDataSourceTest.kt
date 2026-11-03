@@ -194,10 +194,10 @@ class AssistantConversationDataSourceTest {
 		assertEquals(AssistantConversationState(sessionGeneration = 1), store.observeConversation().value)
 	}
 
-	// The photos of the newest nine messages: the image of the oldest one leaves memory, and its thumbnail stays, so its
-	// bubble still shows the photo and opens the thumbnail large.
+	// The newest nine photos: the image of the oldest one leaves memory once eight newer photos came after it. Its
+	// thumbnail stays, so its bubble still shows the photo and opens the thumbnail large.
 	@Test
-	fun theImageOfAPhotoLeavesMemoryOnceNineNewerPhotosCameAfterIt() = runTest {
+	fun theImageOfAPhotoLeavesMemoryOnceEightNewerPhotosCameAfterIt() = runTest {
 		val store = AssistantConversationDataSource()
 
 		repeat(9) { index ->

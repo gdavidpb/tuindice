@@ -2,11 +2,13 @@ package com.gdavidpb.tuindice.assistant.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatAttachmentItem
 import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
@@ -45,6 +47,24 @@ class AssistantChatAttachmentTrayViewUiTest {
 		assertEquals("l1", assertIs<AssistantChat.Action.RetryAttachment>(actions.single()).localId)
 	}
 
+	// The × of a failed photo that can retry is pressed where its touch target covers the retry's. The × is drawn
+	// over the veil, so such a tap is the ×'s: it takes the photo out, and never retries it.
+	@Test
+	fun when_theXOfAFailedPhotoIsPressedWhereItCoversTheRetry_then_ThePhotoIsTakenOut() = runTuIndiceUiTest {
+		val actions = mutableListOf<AssistantChat.Action>()
+		setTuIndiceTestContent {
+			AssistantChatAttachmentTrayView(
+				attachments = listOf(photo(isFailed = true, canRetry = true, failureText = "No se pudo adjuntar.")),
+				onAction = { actions += it }
+			)
+		}
+
+		// The lower-left part of the × is the part the retry's touch target covers too.
+		onNodeWithTag(AssistantUiTags.AttachmentRemove).performTouchInput { click(percentOffset(0.2f, 0.8f)) }
+
+		assertEquals("l1", assertIs<AssistantChat.Action.RemoveAttachment>(actions.single()).localId)
+	}
+
 	@Test
 	fun when_aPhotoFailedAndCannotRetry_then_ItsXTakesItOut_andNoRetryIsOffered() = runTuIndiceUiTest {
 		val actions = mutableListOf<AssistantChat.Action>()
@@ -73,6 +93,18 @@ class AssistantChatAttachmentTrayViewUiTest {
 		}
 
 		onNodeWithContentDescription("Subiendo foto.jpg").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_aPhotoFailed_then_ItsVeilSaysItWasNotSentWithoutTheReason() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AssistantChatAttachmentTrayView(
+				attachments = listOf(photo(isFailed = true, canRetry = true, failureText = "No se pudo adjuntar.")),
+				onAction = {}
+			)
+		}
+
+		onNodeWithContentDescription("foto.jpg: no se pudo subir").assertIsDisplayed()
 	}
 
 	@Test

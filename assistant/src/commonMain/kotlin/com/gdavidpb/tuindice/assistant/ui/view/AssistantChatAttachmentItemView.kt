@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.assistant.ui.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -23,10 +22,9 @@ import tuindice.assistant.generated.resources.assistant_attachment_photo
 
 private val TILE_SIZE = 56.dp
 
-// The × is its 48 dp touch target, centred on the photo's top-right corner: half of it lies outside the photo, and the
-// padding at the top and the end of the item holds that half. Centred there, it stays off the photo's middle, where the
-// retry of a failed photo sits.
-private val REMOVE_REACH = 24.dp
+// How far the × reaches past the photo's top and end edges. Its 48 dp touch target is centred on the photo's top-right
+// corner, so half of it lies outside the photo. The tray gives that room once, to its row.
+internal val REMOVE_REACH = 24.dp
 
 // One photo of the tray: its thumbnail, with its × on the corner. While it is read or sent, or when it failed, the veil
 // covers it; the × is drawn over the veil, so a failed photo can always be taken out.
@@ -36,11 +34,7 @@ fun AssistantChatAttachmentItemView(
 	onAction: (AssistantChat.Action) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	Box(
-		modifier = modifier
-			.testTag(AssistantUiTags.AttachmentTray)
-			.padding(top = REMOVE_REACH, end = REMOVE_REACH)
-	) {
+	Box(modifier = modifier.testTag(AssistantUiTags.AttachmentTray)) {
 		Box(
 			modifier = Modifier
 				.size(TILE_SIZE)

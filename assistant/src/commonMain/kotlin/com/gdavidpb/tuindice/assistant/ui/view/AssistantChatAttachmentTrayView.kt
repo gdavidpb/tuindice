@@ -17,7 +17,8 @@ import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
 // The tray of the message being written: its attachments in a row above the text, scrolled sideways when they do not
-// fit. Under the row, the reason the first attachment that failed did, so the student knows what to do about it.
+// fit. The row gives the room the × of each photo reaches into, once: above the row and at its end. Between two photos
+// there are 8 dp. Under the row, the reason the first attachment that failed did, so the student knows what to do.
 @Composable
 fun AssistantChatAttachmentTrayView(
 	attachments: List<ChatAttachmentItem>,
@@ -26,8 +27,10 @@ fun AssistantChatAttachmentTrayView(
 ) {
 	Column(modifier = modifier.padding(bottom = TuIndiceSpacing.Small)) {
 		Row(
-			modifier = Modifier.horizontalScroll(rememberScrollState()),
-			horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Small)
+			modifier = Modifier
+				.horizontalScroll(rememberScrollState())
+				.padding(top = REMOVE_REACH, end = REMOVE_REACH),
+			horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 		) {
 			attachments.forEach { item ->
 				AssistantChatAttachmentItemView(item = item, onAction = onAction)

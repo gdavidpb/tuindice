@@ -129,7 +129,7 @@ internal fun AssistantConversationDataSource.applyOwn(event: AssistantStreamEven
 	}
 }
 
-// The photos of the last [RECENT_PHOTO_IMAGES] messages keep the image they were sent as, in memory. An older photo
+// The last [RECENT_PHOTO_IMAGES] photos keep the image they were sent as, in memory. An older photo
 // keeps its thumbnail only: its bubble opens that large instead.
 private fun List<AssistantUserMessage>.keepingRecentImages(): List<AssistantUserMessage> {
 	var photosSeen = 0

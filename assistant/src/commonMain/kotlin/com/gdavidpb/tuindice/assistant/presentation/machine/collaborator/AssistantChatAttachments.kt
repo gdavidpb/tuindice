@@ -94,6 +94,16 @@ class AssistantChatAttachments(
 		digestOf.remove(localId)
 	}
 
+	// The attachments a send takes out of the tray: their reads and uploads are over, so what the chat kept for them goes.
+	// A refused send that gives them back keeps their digest in the attachment itself, so the check on the read's event
+	// still sees it.
+	fun release(localIds: Collection<String>) {
+		localIds.forEach { localId -> remove(localId) }
+	}
+
+	// The ids the chat still keeps anything for. A test checks that a sent attachment leaves none behind.
+	internal fun trackedIds(): Set<String> = jobs.keys + digestOf.keys + files.keys
+
 	// The chat leaves its content: the reads and uploads stop, and each one in flight fails, so its retry is there on the
 	// next opening. The files of the reads that did not finish are kept for that retry.
 	fun stop(draft: AssistantChatDraft) {

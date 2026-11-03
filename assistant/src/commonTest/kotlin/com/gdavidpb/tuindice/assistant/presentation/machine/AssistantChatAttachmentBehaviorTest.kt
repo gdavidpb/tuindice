@@ -21,6 +21,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class AssistantChatAttachmentBehaviorTest {
@@ -109,6 +110,54 @@ class AssistantChatAttachmentBehaviorTest {
 		assertFalse(failed.canRetry)
 		assertEquals("failure:TooLarge", failed.failureText)
 		assertTrue(fixture.attachmentRepository.uploads.isEmpty())
+	}
+
+	// The service refuses the send as unavailable: the photo leaves the tray with the failed send, and its retry is
+	// offered. A retry refused as a quota gives nothing back: the photo is not in the tray, so the tray stays empty.
+	@Test
+	fun when_aSendRefusedAsUnavailable_then_aRetryRefusedAsQuotaLeavesTheTrayEmpty() = chatTest { fixture, viewModel ->
+		openChat(fixture, viewModel)
+		addPhotos(viewModel, listOf(photo()))
+		fixture.turns.sendError =
+			AssistantRequestRefusedException(code = "unavailable", retryAfterSeconds = null, message = "down")
+
+		viewModel.sendMessageAction()
+
+		assertTrue(viewModel.content().composer.attachments.isEmpty())
+
+		fixture.turns.sendError =
+			AssistantRequestRefusedException(code = "quota_exhausted", retryAfterSeconds = 30, message = "quota")
+		viewModel.dispatch(AssistantChat.Action.RetryTurn)
+
+		assertEquals(2, fixture.turns.requests.size)
+		assertTrue(viewModel.content().composer.attachments.isEmpty())
+	}
+
+	// Five photos are picked for four places, and two of them are the same picture. The copy leaves the tray, and the
+	// room it leaves is room again, so the limit the picks reached is not said any more.
+	@Test
+	fun when_fiveArePickedWithTwoEqual_then_TheLimitIsNotSaidOnceTheCopyLeaves() = chatTest { fixture, viewModel ->
+		openChat(fixture, viewModel)
+
+		addPhotos(viewModel, listOf("a.jpg", "b.jpg", "c.jpg", "a.jpg", "d.jpg").map { name -> PlatformFile(name) })
+
+		val content = viewModel.content()
+		assertEquals(3, content.composer.attachments.size)
+		assertEquals(3, fixture.attachmentRepository.uploads.size)
+		assertTrue(content.composer.isAttachEnabled)
+		assertNotEquals(ChatNoticeItem.TurnFailed(message = "attachment-limit", canRetry = false), content.notice)
+	}
+
+	// A sent photo leaves nothing behind in the chat: its read and its upload are over, so what the chat kept for it goes.
+	@Test
+	fun when_aPhotoIsSent_then_TheChatKeepsNothingForIt() = chatTest { fixture, viewModel ->
+		openChat(fixture, viewModel)
+		addPhotos(viewModel, listOf(photo()))
+
+		viewModel.sendMessageAction()
+
+		assertEquals(listOf("att-1"), fixture.turns.requests.single().message.attachmentIds)
+		assertTrue(fixture.machine.turns.attachments.trackedIds().isEmpty())
 	}
 
 	@Test

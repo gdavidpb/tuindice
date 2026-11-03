@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.assistant.ui.AssistantUiTags
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import org.jetbrains.compose.resources.stringResource
 import tuindice.assistant.generated.resources.Res
+import tuindice.assistant.generated.resources.assistant_attachment_not_uploaded
 import tuindice.assistant.generated.resources.assistant_attachment_retry
 import tuindice.assistant.generated.resources.assistant_attachment_uploading
 
@@ -32,7 +33,7 @@ private const val VEIL_ALPHA = 0.45f
 
 // The veil over an attachment of the tray, the size of the attachment (the caller fills it): a progress while it is
 // read or sent, and the error's colour for one that failed. A failure that can clear on its own offers the retry; the
-// veil says the reason to a reader of the tray.
+// veil names the attachment and says it was not sent; the reason is the line under the tray.
 @Composable
 fun AssistantChatAttachmentStateView(
 	item: ChatAttachmentItem,
@@ -40,6 +41,7 @@ fun AssistantChatAttachmentStateView(
 	modifier: Modifier = Modifier
 ) {
 	val uploadingDescription = stringResource(Res.string.assistant_attachment_uploading, item.name)
+	val failedDescription = stringResource(Res.string.assistant_attachment_not_uploaded, item.name)
 
 	if (item.isUploading) {
 		Box(
@@ -60,7 +62,7 @@ fun AssistantChatAttachmentStateView(
 	if (item.isFailed) {
 		Box(
 			modifier = modifier
-				.semantics { contentDescription = item.failureText ?: item.name }
+				.semantics { contentDescription = failedDescription }
 				.clip(RoundedCornerShape(TuIndiceRadius.Medium))
 				.background(MaterialTheme.colorScheme.error.copy(alpha = VEIL_ALPHA)),
 			contentAlignment = Alignment.Center

@@ -160,6 +160,7 @@
 	<string name="assistant_attachment_remove">Quitar %1$s</string>
 	<string name="assistant_attachment_retry">Reintentar subir %1$s</string>
 	<string name="assistant_attachment_uploading">Subiendo %1$s</string>
+	<string name="assistant_attachment_not_uploaded">%1$s: no se pudo subir</string>
 	<string name="assistant_attachment_open_photo">Ver la foto en grande</string>
 	<string name="assistant_attachment_close">Cerrar</string>
 	<string name="assistant_chat_rated">Gracias por tu opinión</string>

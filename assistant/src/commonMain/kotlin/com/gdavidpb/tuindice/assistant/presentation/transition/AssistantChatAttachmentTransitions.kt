@@ -90,6 +90,8 @@ internal fun AttachmentTransitions.contentAttachmentResultRows(
 		if (sameBytes) {
 			machine.turns.attachments.remove(localId = event.localId)
 			machine.draft.removeAttachment(event.localId)
+			// The copy leaves the tray, so the tray has room again: the limit the picks reached is not said any more.
+			machine.session.attachmentLimitHit = false
 			return@on machine.refreshed(state)
 		}
 

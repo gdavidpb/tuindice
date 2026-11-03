@@ -109,6 +109,8 @@ internal fun AssistantChatMachine.retryFailedSend(
 	session.lastFailedSend = null
 	session.recoveredFailure = null
 	session.failedMessages -= failed.clientTurnId
+	// The record the failed run kept goes too: the retry is a new request, and that record would answer for the run.
+	session.sentByTurn.entries.removeAll { entry -> entry.value.clientTurnId == failed.clientTurnId }
 
 	// The question the retry replaces leaves the conversation in the same write that stores the retry's question, so the
 	// two are not split by the end of the chat. The retry's session is the one it was decided in: a session that has
@@ -150,4 +152,5 @@ internal fun AssistantChatMachine.takeAttachmentsFromTray(attachments: List<Assi
 	val carried = attachments.map { attachment -> attachment.localId }.toSet()
 
 	draft.setAttachments(draft.attachments.value.filterNot { attachment -> attachment.localId in carried })
+	turns.attachments.release(carried)
 }

@@ -278,6 +278,26 @@ class AssistantChatTurnBehaviorTest {
 		assertEquals(ChatNoticeItem.TurnFailed(message = "failure:TRANSIENT", canRetry = true), viewModel.content().notice)
 	}
 
+	// The retry of a run that failed is a new request: the record the failed run kept goes with it, so no record answers
+	// for a run the chat no longer retries.
+	@Test
+	fun aRetryOfAFailedRun_leavesNoRecordOfTheRunItRetried() = chatTest { fixture, viewModel ->
+		fixture.consent.setAssistantConsentGranted(true)
+		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t1", conversationId = "c1", lastSeq = 0)
+		fixture.turns.events = listOf(RunError(seq = 1, turnId = "t1", code = RunErrorCode.TRANSIENT, retryable = true))
+		viewModel.openAction(null)
+		viewModel.changeTextAction("¿Cuánto vale cada parcial?")
+		viewModel.sendMessageAction()
+		val failedClientTurnId = fixture.turns.requests.single().clientTurnId
+
+		fixture.turns.acceptedTurn = TurnAccepted(turnId = "t2", conversationId = "c1", lastSeq = 0)
+		fixture.turns.events = emptyList()
+		viewModel.retryTurnAction()
+
+		assertEquals(2, fixture.turns.requests.size)
+		assertTrue(fixture.machine.session.sentByTurn.values.none { record -> record.clientTurnId == failedClientTurnId })
+	}
+
 	@Test
 	fun aRunErrorKeepsTheSuggestionOfTheTurn_forItsRetry() = chatTest { fixture, viewModel ->
 		fixture.consent.setAssistantConsentGranted(true)
