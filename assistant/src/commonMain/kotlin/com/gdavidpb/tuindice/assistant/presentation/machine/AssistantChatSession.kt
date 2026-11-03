@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversation
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantTurnPhase
@@ -301,11 +300,3 @@ internal fun AssistantChatSession.endSendUnconfirmed(turnId: String) {
 
 // A send waits while a message is on its way or a turn runs; a suggestion and a retry wait too.
 internal fun AssistantChatSession.sendIsBusy(): Boolean = sending || isRunning()
-
-// The attachments a record keeps: the service keeps a PDF under its id, so a record keeps no bytes of a PDF. A photo
-// keeps its bytes, which its bubble shows.
-internal fun List<AssistantAttachment>.withoutPdfContent(): List<AssistantAttachment> {
-	return map { attachment ->
-		if (attachment.kind == AssistantAttachmentKind.PDF) attachment.copy(content = null) else attachment
-	}
-}

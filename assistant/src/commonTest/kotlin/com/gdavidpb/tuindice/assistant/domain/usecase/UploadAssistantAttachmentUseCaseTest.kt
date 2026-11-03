@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.assistant.domain.usecase
 
 import com.gdavidpb.tuindice.assistant.domain.exception.AssistantRequestRefusedException
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentContent
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.domain.model.PreparedAssistantAttachment
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.UploadAssistantAttachmentError
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.UploadAssistantAttachmentExceptionHandler
@@ -27,7 +26,6 @@ class UploadAssistantAttachmentUseCaseTest {
 	)
 
 	private fun photo() = PreparedAssistantAttachment(
-		kind = AssistantAttachmentKind.PHOTO,
 		name = "plan.jpg",
 		content = AssistantAttachmentContent(
 			mediaType = "image/jpeg",
@@ -68,7 +66,7 @@ class UploadAssistantAttachmentUseCaseTest {
 			"guided_only" to UploadAssistantAttachmentError.GuidedOnly,
 			"attachment_too_large" to UploadAssistantAttachmentError.TooLarge,
 			"attachment_unsupported" to UploadAssistantAttachmentError.Unsupported,
-			"attachment_unreadable" to UploadAssistantAttachmentError.Unreadable,
+			"attachment_unreadable" to UploadAssistantAttachmentError.Other,
 			"attachment_daily_limit" to UploadAssistantAttachmentError.DailyLimit(retryAfterSeconds = 120),
 			"attachment_expired" to UploadAssistantAttachmentError.Other,
 			"unavailable" to UploadAssistantAttachmentError.Other

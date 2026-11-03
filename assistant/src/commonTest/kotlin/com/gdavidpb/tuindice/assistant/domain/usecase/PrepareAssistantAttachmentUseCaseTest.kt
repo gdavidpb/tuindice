@@ -1,11 +1,9 @@
 package com.gdavidpb.tuindice.assistant.domain.usecase
 
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.domain.model.PreparedAssistantAttachment
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.PrepareAssistantAttachmentError
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.PrepareAssistantAttachmentExceptionHandler
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.PrepareAssistantAttachmentParams
-import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantAttachmentFileRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingImageEncoderRepository
 import com.gdavidpb.tuindice.assistant.testing.lastState
 import com.gdavidpb.tuindice.base.domain.model.ImageEncodingSpec
@@ -15,32 +13,29 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class PrepareAssistantAttachmentUseCaseTest {
 	private val encoder = RecordingImageEncoderRepository()
-	private val files = RecordingAssistantAttachmentFileRepository()
 
 	private fun useCase() = PrepareAssistantAttachmentUseCase(
 		imageEncoderRepository = encoder,
-		fileRepository = files,
 		reportingRepository = RecordingReportingRepository(),
 		exceptionHandler = PrepareAssistantAttachmentExceptionHandler()
 	)
 
-	private suspend fun prepare(file: PlatformFile, kind: AssistantAttachmentKind) =
-		useCase().execute(PrepareAssistantAttachmentParams(file = file, kind = kind)).lastState()
+	private suspend fun prepare(file: PlatformFile) =
+		useCase().execute(PrepareAssistantAttachmentParams(file = file)).lastState()
 
-	private suspend fun preparedOf(file: PlatformFile, kind: AssistantAttachmentKind): PreparedAssistantAttachment {
-		return (prepare(file, kind) as UseCaseState.Data<*>).value as PreparedAssistantAttachment
+	private suspend fun preparedOf(file: PlatformFile): PreparedAssistantAttachment {
+		return (prepare(file) as UseCaseState.Data<*>).value as PreparedAssistantAttachment
 	}
 
 	@Test
 	fun aPhotoIsEncodedToTheLimitsOfTheServiceAndToASmallThumbnail() = runTest {
-		prepare(PlatformFile("plan.jpg"), AssistantAttachmentKind.PHOTO)
+		prepare(PlatformFile("plan.jpg"))
 
 		assertEquals(
 			listOf(
@@ -59,14 +54,13 @@ class PrepareAssistantAttachmentUseCaseTest {
 	fun aPhotoIsSentAsItsEncodedBytesWithTheirDigestAndItsThumbnail() = runTest {
 		encoder.content = "abc".encodeToByteArray()
 
-		val prepared = preparedOf(PlatformFile("plan.jpg"), AssistantAttachmentKind.PHOTO)
+		val prepared = preparedOf(PlatformFile("plan.jpg"))
 
-		assertEquals(AssistantAttachmentKind.PHOTO, prepared.kind)
 		assertEquals("plan.jpg", prepared.name)
 		assertEquals("image/jpeg", prepared.content.mediaType)
 		assertEquals(ABC_SHA256, prepared.content.sha256)
-		assertContentEquals("abc".encodeToByteArray(), prepared.content.bytes)
-		assertContentEquals("abc".encodeToByteArray(), prepared.thumbnail)
+		assertEquals("abc", prepared.content.bytes.decodeToString())
+		assertEquals("abc", prepared.thumbnail?.decodeToString())
 	}
 
 	@Test
@@ -75,70 +69,31 @@ class PrepareAssistantAttachmentUseCaseTest {
 
 		assertEquals(
 			UseCaseState.Error(PrepareAssistantAttachmentError.TooLarge),
-			prepare(PlatformFile("plan.jpg"), AssistantAttachmentKind.PHOTO)
+			prepare(PlatformFile("plan.jpg"))
 		)
 	}
 
 	// A photo is sent as the JPEG the app encodes it to, so the name says jpg, whatever the file was called.
 	@Test
 	fun aPhotoOfAnotherTypeIsNamedAsTheJpegItIsSentAs() = runTest {
-		assertEquals("IMG_2041.jpg", preparedOf(PlatformFile("IMG_2041.HEIC"), AssistantAttachmentKind.PHOTO).name)
-		assertEquals("plan.JPEG", preparedOf(PlatformFile("plan.JPEG"), AssistantAttachmentKind.PHOTO).name)
-		assertEquals("sin-extension.jpg", preparedOf(PlatformFile("sin-extension"), AssistantAttachmentKind.PHOTO).name)
+		assertEquals("IMG_2041.jpg", preparedOf(PlatformFile("IMG_2041.HEIC")).name)
+		assertEquals("plan.JPEG", preparedOf(PlatformFile("plan.JPEG")).name)
+		assertEquals("sin-extension.jpg", preparedOf(PlatformFile("sin-extension")).name)
 	}
 
+	// The encoder does not read a file that is not a photo: that read fails with no reason the chat can name, so the
+	// attachment says it failed for another reason, and nothing is sent for it.
 	@Test
-	fun aPdfIsSentAsItIsAndNoPhotoIsEncoded() = runTest {
-		files.bytes = PDF_BYTES
+	fun aFileTheEncoderCannotReadFailsTheReadWithNoNamedReason() = runTest {
+		encoder.failure = IllegalArgumentException("Image content is not a supported image.")
 
-		val prepared = preparedOf(PlatformFile("programa.pdf"), AssistantAttachmentKind.PDF)
+		val state = prepare(PlatformFile("notas.jpg"))
 
-		assertEquals(AssistantAttachmentKind.PDF, prepared.kind)
-		assertEquals("programa.pdf", prepared.name)
-		assertEquals("application/pdf", prepared.content.mediaType)
-		assertContentEquals(PDF_BYTES, prepared.content.bytes)
-		assertNull(prepared.thumbnail)
-		assertTrue(encoder.specs.isEmpty())
-	}
-
-	@Test
-	fun aPdfOfExactlyTheLimitIsKeptAndOneByteMoreIsRefusedAsTooLarge() = runTest {
-		files.bytes = PDF_HEADER + ByteArray(AttachmentLimits.MAX_PDF_BYTES - PDF_HEADER.size)
-
-		assertEquals(
-			AssistantAttachmentKind.PDF,
-			preparedOf(PlatformFile("programa.pdf"), AssistantAttachmentKind.PDF).kind
-		)
-
-		files.bytes = PDF_HEADER + ByteArray(AttachmentLimits.MAX_PDF_BYTES - PDF_HEADER.size + 1)
-
-		assertEquals(
-			UseCaseState.Error(PrepareAssistantAttachmentError.TooLarge),
-			prepare(PlatformFile("programa.pdf"), AssistantAttachmentKind.PDF)
-		)
-	}
-
-	@Test
-	fun aFileWithoutThePdfHeaderIsRefusedAsUnsupportedAndAnEmptyOneToo() = runTest {
-		files.bytes = "Hola, esto es texto".encodeToByteArray()
-
-		assertEquals(
-			UseCaseState.Error(PrepareAssistantAttachmentError.Unsupported),
-			prepare(PlatformFile("notas.pdf"), AssistantAttachmentKind.PDF)
-		)
-
-		files.bytes = byteArrayOf()
-
-		assertEquals(
-			UseCaseState.Error(PrepareAssistantAttachmentError.Unsupported),
-			prepare(PlatformFile("notas.pdf"), AssistantAttachmentKind.PDF)
-		)
+		assertIs<UseCaseState.Error<PrepareAssistantAttachmentError>>(state)
+		assertNull(state.error)
 	}
 
 	private companion object {
-		val PDF_HEADER = "%PDF-".encodeToByteArray()
-		val PDF_BYTES = "%PDF-1.7\n%prueba\n".encodeToByteArray()
-
 		// The SHA-256 of "abc", the test vector of the standard.
 		const val ABC_SHA256 = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
 	}

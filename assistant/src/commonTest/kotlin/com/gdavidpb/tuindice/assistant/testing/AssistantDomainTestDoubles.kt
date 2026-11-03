@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
 import com.gdavidpb.tuindice.assistant.domain.model.IntentDecisionResult
 import com.gdavidpb.tuindice.assistant.domain.model.IntentExecution
 import com.gdavidpb.tuindice.assistant.domain.model.IntentResolvedCount
-import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentFileRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
@@ -586,18 +585,6 @@ internal class RecordingAssistantAttachmentRepository : AssistantAttachmentRepos
 	}
 }
 
-// The bytes the test's picked file holds, whatever the file is.
-internal class RecordingAssistantAttachmentFileRepository : AssistantAttachmentFileRepository {
-	var bytes = byteArrayOf()
-	val reads = mutableListOf<PlatformFile>()
-
-	override suspend fun readBytes(file: PlatformFile): ByteArray {
-		reads += file
-
-		return bytes
-	}
-}
-
 internal class RecordingImageEncoderRepository : ImageEncoderRepository {
 	var content = byteArrayOf(1, 2, 3)
 	val specs = mutableListOf<ImageEncodingSpec>()
@@ -605,8 +592,13 @@ internal class RecordingImageEncoderRepository : ImageEncoderRepository {
 	// With [distinctByName], each file encodes to bytes of its own name, so two files are two pictures.
 	var distinctByName = false
 
+	// The failure the encoder raises for a file it cannot read, when the test sets one.
+	var failure: Throwable? = null
+
 	override suspend fun encode(file: PlatformFile, spec: ImageEncodingSpec): EncodedImage {
 		specs += spec
+
+		failure?.let { error -> throw error }
 
 		val bytes = if (distinctByName) content + file.name.encodeToByteArray() else content
 

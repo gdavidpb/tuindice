@@ -108,9 +108,9 @@ internal suspend fun AssistantChatSession.presentedComposer(
 	)
 }
 
-// The tray of the message being written, as the student sees it: each attachment with its state, its detail once the
-// service reads its pages, and the reason it failed when it did. Only a failure that can clear on its own, such as a
-// lost connection, offers the retry: the others would fail again, so the student takes the attachment out instead.
+// The tray of the message being written, as the student sees it: each photo with its state, and the reason it failed
+// when it did. Only a failure that can clear on its own, such as a lost connection, offers the retry: the others would
+// fail again, so the student takes the photo out instead.
 internal suspend fun List<AssistantAttachment>.presentedAttachments(
 	texts: AssistantChatTexts
 ): List<ChatAttachmentItem> {
@@ -119,9 +119,7 @@ internal suspend fun List<AssistantAttachment>.presentedAttachments(
 
 		ChatAttachmentItem(
 			localId = attachment.localId,
-			kind = attachment.kind,
 			name = attachment.name,
-			detail = attachment.pageCount?.let { pages -> texts.attachmentPages(pages) },
 			thumbnail = attachment.thumbnail,
 			isUploading = attachment.state == AssistantAttachmentState.Preparing ||
 				attachment.state == AssistantAttachmentState.Uploading,

@@ -1,18 +1,15 @@
 package com.gdavidpb.tuindice.assistant.domain.mapper
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentState
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserAttachment
 
-// The attachment as the message keeps it: a photo keeps the image it was sent as, a PDF only its name and its pages.
+// The photo as the message keeps it: its name, its thumbnail, and the image it was sent as.
 internal fun AssistantAttachment.toUserAttachment(): AssistantUserAttachment {
 	return AssistantUserAttachment(
-		kind = kind,
 		name = name,
-		pageCount = pageCount,
 		thumbnail = thumbnail,
-		image = content?.bytes?.takeIf { kind == AssistantAttachmentKind.PHOTO }
+		image = content?.bytes
 	)
 }
 

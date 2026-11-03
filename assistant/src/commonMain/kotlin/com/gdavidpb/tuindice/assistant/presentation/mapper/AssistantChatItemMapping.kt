@@ -41,7 +41,7 @@ internal suspend fun AssistantConversation.toChatItems(
 				id = item.message.id,
 				text = item.message.text,
 				isFailed = item.message.id in session.failedMessages,
-				attachments = item.message.attachments.map { attachment -> attachment.toUserItem(texts) }
+				attachments = item.message.attachments.map { attachment -> attachment.toUserItem() }
 			)
 
 			is AssistantConversationItem.Agent -> ChatItem.Agent(
@@ -160,12 +160,10 @@ private fun AssistantConversation.addedReceipt(intent: Intent, outcome: OutcomeK
 	}
 }
 
-// A file the student sent, as its bubble shows it: its pages are read once the service reads the file.
-private suspend fun AssistantUserAttachment.toUserItem(texts: AssistantChatTexts): ChatUserAttachmentItem {
+// A photo the student sent, as its bubble shows it.
+private fun AssistantUserAttachment.toUserItem(): ChatUserAttachmentItem {
 	return ChatUserAttachmentItem(
-		kind = kind,
 		name = name,
-		detail = pageCount?.let { pages -> texts.attachmentPages(pages) },
 		thumbnail = thumbnail,
 		image = image
 	)

@@ -21,13 +21,12 @@ internal fun AttachmentTransitions.contentAttachmentRows(
 	machine: AssistantChatMachine,
 	host: MachineHost<AssistantChat.Effect>
 ) {
-	// The clip asks for a source: the camera, the photos of the gallery, or the PDF files. A picker takes at most the room
-	// the message has left. With no room left the clip is off, and the notice says why (see presentedNotice).
+	// The clip asks for a source: the camera, or the photos of the gallery. A picker takes at most the room the message
+	// has left. With no room left the clip is off, and the notice says why (see presentedNotice).
 	on<AssistantChat.Action.RequestAttachment>(
 		emits = setOf(
 			AssistantChat.Effect.OpenCamera::class,
-			AssistantChat.Effect.OpenPhotoPicker::class,
-			AssistantChat.Effect.OpenDocumentPicker::class
+			AssistantChat.Effect.OpenPhotoPicker::class
 		)
 	) { state, action ->
 		if (!state.composer.isAttachEnabled) return@on state
@@ -38,7 +37,6 @@ internal fun AttachmentTransitions.contentAttachmentRows(
 			when (action.source) {
 				AssistantChat.AttachmentSource.CAMERA -> AssistantChat.Effect.OpenCamera
 				AssistantChat.AttachmentSource.GALLERY -> AssistantChat.Effect.OpenPhotoPicker(maxItems = room)
-				AssistantChat.AttachmentSource.FILES -> AssistantChat.Effect.OpenDocumentPicker(maxItems = room)
 			}
 		)
 
@@ -52,8 +50,7 @@ internal fun AttachmentTransitions.contentAttachmentRows(
 			host = host,
 			draft = machine.draft,
 			session = machine.session,
-			picked = action.files,
-			kind = action.kind
+			picked = action.files
 		)
 		machine.refreshed(state)
 	}
@@ -99,7 +96,6 @@ internal fun AttachmentTransitions.contentAttachmentResultRows(
 		machine.draft.updateAttachment(event.localId) { attachment ->
 			attachment.copy(
 				name = event.prepared.name,
-				sizeBytes = event.prepared.content.bytes.size.toLong(),
 				thumbnail = event.prepared.thumbnail,
 				state = AssistantAttachmentState.Uploading,
 				content = event.prepared.content
@@ -110,10 +106,7 @@ internal fun AttachmentTransitions.contentAttachmentResultRows(
 
 	on<AssistantChatInternalEvent.AttachmentUploaded> { state, event ->
 		machine.draft.updateAttachment(event.localId) { attachment ->
-			attachment.copy(
-				pageCount = event.accepted.pageCount,
-				state = AssistantAttachmentState.Ready(event.accepted.attachmentId)
-			)
+			attachment.copy(state = AssistantAttachmentState.Ready(event.accepted.attachmentId))
 		}
 		machine.refreshed(state)
 	}

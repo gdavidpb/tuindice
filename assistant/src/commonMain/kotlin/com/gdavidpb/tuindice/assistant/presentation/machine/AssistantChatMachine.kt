@@ -235,7 +235,7 @@ class AssistantChatMachine(
 			session.markSendFailed(event.sentText)
 			session.lastFailedSend = AssistantChatSession.FailedSend(
 				text = event.sentText,
-				attachments = if (expired) emptyList() else event.attachments.withoutPdfContent(),
+				attachments = if (expired) emptyList() else event.attachments,
 				suggestionId = event.suggestionId,
 				clientTurnId = event.clientTurnId
 			)
@@ -268,7 +268,7 @@ class AssistantChatMachine(
 		// The message the turn answers is kept under the turn, as it was sent: the retry of the turn sends it again.
 		session.sentByTurn[event.turnId] = AssistantChatSession.FailedSend(
 			text = event.text,
-			attachments = event.attachments.withoutPdfContent(),
+			attachments = event.attachments,
 			suggestionId = event.suggestionId,
 			clientTurnId = event.clientTurnId
 		)

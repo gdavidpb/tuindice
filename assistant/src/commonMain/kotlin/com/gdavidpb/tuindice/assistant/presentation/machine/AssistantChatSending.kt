@@ -31,12 +31,11 @@ internal fun AssistantChatMachine.sendNewMessage(
 	if (draftText != null) draft.replace("")
 	takeAttachmentsFromTray(params.attachments)
 
-	// A record keeps no bytes of a PDF: the send needs the ids its attachments were kept under, and nothing else.
 	session.pendingSend = AssistantChatSession.PendingSend(
 		turnId = unconfirmed.turnId,
-		params = params.copy(attachments = params.attachments.withoutPdfContent()),
+		params = params,
 		restoreText = draftText,
-		restoreAttachments = if (draftText != null) params.attachments.withoutPdfContent() else emptyList()
+		restoreAttachments = if (draftText != null) params.attachments else emptyList()
 	)
 
 	turns.recoverTurn(host = host, turnId = unconfirmed.turnId)

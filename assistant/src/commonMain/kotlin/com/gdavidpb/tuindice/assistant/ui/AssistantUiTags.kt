@@ -16,7 +16,6 @@ object AssistantUiTags {
 	const val AttachButton = "assistant_attach_button"
 	const val AttachTakePhoto = "assistant_attach_take_photo"
 	const val AttachPickPhotos = "assistant_attach_pick_photos"
-	const val AttachPickPdf = "assistant_attach_pick_pdf"
 	const val AttachmentTray = "assistant_attachment_tray"
 	const val AttachmentRemove = "assistant_attachment_remove"
 	const val AttachmentRetry = "assistant_attachment_retry"

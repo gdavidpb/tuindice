@@ -18,11 +18,8 @@ sealed interface UploadAssistantAttachmentError : UseCaseError {
 	/** The file is larger than the service takes. */
 	data object TooLarge : UploadAssistantAttachmentError
 
-	/** The file is not a photo or a PDF the service reads. */
+	/** The file is not a photo the service reads. */
 	data object Unsupported : UploadAssistantAttachmentError
-
-	/** The PDF has too many pages, is protected with a password, or cannot be opened. */
-	data object Unreadable : UploadAssistantAttachmentError
 
 	/** The student uploaded as many attachments as a day allows; [retryAfterSeconds] is the wait the server gave. */
 	data class DailyLimit(val retryAfterSeconds: Int?) : UploadAssistantAttachmentError

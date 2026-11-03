@@ -1,13 +1,12 @@
 package com.gdavidpb.tuindice.assistant.domain.model
 
 /**
- * An attachment as the student sent it, shown in the message: its [kind], [name] and, for a PDF, its [pageCount]. A
- * photo has its [thumbnail] and the [image] as it was sent, kept in memory so the message can open it large.
+ * A photo as the student sent it, shown in the message: its [name], its [thumbnail], and the [image] as it was sent.
+ * The image is kept in memory for the newest photos only (see the conversation's data source), so the message can open
+ * it large; an older photo opens its thumbnail.
  */
 data class AssistantUserAttachment(
-	val kind: AssistantAttachmentKind,
 	val name: String,
-	val pageCount: Int?,
 	val thumbnail: ByteArray?,
 	val image: ByteArray?
 )

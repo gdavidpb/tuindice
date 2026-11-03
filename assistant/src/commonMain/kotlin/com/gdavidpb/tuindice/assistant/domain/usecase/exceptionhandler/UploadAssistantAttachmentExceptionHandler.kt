@@ -24,7 +24,6 @@ class UploadAssistantAttachmentExceptionHandler : ExceptionHandler<UploadAssista
 			AssistantErrorCodes.GUIDED_ONLY -> UploadAssistantAttachmentError.GuidedOnly
 			AssistantErrorCodes.ATTACHMENT_TOO_LARGE -> UploadAssistantAttachmentError.TooLarge
 			AssistantErrorCodes.ATTACHMENT_UNSUPPORTED -> UploadAssistantAttachmentError.Unsupported
-			AssistantErrorCodes.ATTACHMENT_UNREADABLE -> UploadAssistantAttachmentError.Unreadable
 			AssistantErrorCodes.ATTACHMENT_DAILY_LIMIT -> UploadAssistantAttachmentError.DailyLimit(retryAfterSeconds)
 			else -> UploadAssistantAttachmentError.Other
 		}

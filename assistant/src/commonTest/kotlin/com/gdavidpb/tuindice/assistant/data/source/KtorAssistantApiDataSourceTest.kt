@@ -334,12 +334,12 @@ class KtorAssistantApiDataSourceTest {
 			}
 			val api = KtorAssistantApiDataSource(client, RecordingServerDisabledRepository())
 			val content = AssistantAttachmentContent(
-				mediaType = "application/pdf",
+				mediaType = "image/jpeg",
 				sha256 = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
-				bytes = "%PDF-".encodeToByteArray()
+				bytes = "abc".encodeToByteArray()
 			)
 
-			val failure = assertFailsWith<AssistantApiException> { api.upload(content = content, name = "programa.pdf") }
+			val failure = assertFailsWith<AssistantApiException> { api.upload(content = content, name = "plan.jpg") }
 
 			assertEquals("attachment_too_large", failure.code)
 			assertEquals(413, failure.httpStatus)

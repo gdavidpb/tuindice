@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.assistant.presentation.contract
 
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.presentation.model.AssistantReportReason
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatComposerItem
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatItem
@@ -50,11 +49,10 @@ object AssistantChat {
 		) : State()
 	}
 
-	// Where the student takes an attachment from: the camera, the photos of the gallery, or the PDF files.
+	// Where the student takes a photo from: the camera, or the photos of the gallery.
 	enum class AttachmentSource {
 		CAMERA,
-		GALLERY,
-		FILES
+		GALLERY
 	}
 
 	sealed class Action : ViewAction {
@@ -64,11 +62,11 @@ object AssistantChat {
 		data object Send : Action()
 		class PickSuggestion(val suggestionId: String) : Action()
 
-		// Opens the camera, or a picker, to add attachments to the message being written: a photo, or a PDF.
+		// Opens the camera, or the photo picker, to add photos to the message being written.
 		class RequestAttachment(val source: AttachmentSource) : Action()
 
-		// The files the student took or picked, all of one [kind]: each one is read and kept with the message being written.
-		class AddAttachments(val files: List<PlatformFile>, val kind: AssistantAttachmentKind) : Action()
+		// The photos the student took or picked: each one is read and kept with the message being written.
+		class AddAttachments(val files: List<PlatformFile>) : Action()
 
 		// Takes an attachment out of the message being written; an upload still running for it is stopped.
 		class RemoveAttachment(val localId: String) : Action()
@@ -136,8 +134,6 @@ object AssistantChat {
 		data object OpenCamera : Effect()
 
 		class OpenPhotoPicker(val maxItems: Int) : Effect()
-
-		class OpenDocumentPicker(val maxItems: Int) : Effect()
 
 		// The system's request for the notification permission, asked on the student's word from the card.
 		data object RequestNotificationPermission : Effect()

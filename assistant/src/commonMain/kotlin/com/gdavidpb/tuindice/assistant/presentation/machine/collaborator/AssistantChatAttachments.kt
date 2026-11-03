@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.assistant.presentation.machine.collaborator
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentFailure
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentState
 import com.gdavidpb.tuindice.assistant.domain.model.PreparedAssistantAttachment
 import com.gdavidpb.tuindice.assistant.domain.usecase.PrepareAssistantAttachmentUseCase
@@ -24,7 +23,7 @@ import kotlinx.coroutines.isActive
 import kotlin.uuid.Uuid
 
 /**
- * The attachments of the message being written. Each file the student adds is read on the device and then sent to the
+ * The photos of the message being written. Each photo the student adds is read on the device and then sent to the
  * service, in one job of its own; the outcome of each step comes back to the machine as an event. The files are kept
  * until they are read, so a read that failed can start again, and an upload that failed sends what was read.
  */
@@ -34,23 +33,19 @@ class AssistantChatAttachments(
 ) {
 	private val jobs = mutableMapOf<String, Job>()
 
-	// The file of each attachment not read yet. It leaves when the file is read, so a read that failed keeps it.
+	// The file of each photo not read yet. It leaves when the file is read, so a read that failed keeps it.
 	private val files = mutableMapOf<String, PlatformFile>()
 
-	// The bytes each attachment read sends, by its id: the message's weight is counted from them before an upload starts.
-	private val bytesOf = mutableMapOf<String, Long>()
-
-	// The digest of the bytes each attachment read sends, by its id: the same picture is not sent twice.
+	// The digest of the bytes each photo read sends, by its id: the same picture is not sent twice.
 	private val digestOf = mutableMapOf<String, String>()
 
-	// Adds [picked] files of [kind] to the message as far as it has room. The files past the room are not taken, and the
-	// chat says so; each file taken starts its own read and upload.
+	// Adds [picked] photos to the message as far as it has room. The photos past the room are not taken, and the chat
+	// says so; each photo taken starts its own read and upload.
 	internal fun add(
 		host: MachineHost<AssistantChat.Effect>,
 		draft: AssistantChatDraft,
 		session: AssistantChatSession,
-		picked: List<PlatformFile>,
-		kind: AssistantAttachmentKind
+		picked: List<PlatformFile>
 	) {
 		val room = (AttachmentLimits.MAX_PER_MESSAGE - draft.attachments.value.size).coerceAtLeast(0)
 		val taken = picked.take(room)
@@ -64,10 +59,7 @@ class AssistantChatAttachments(
 			draft.setAttachments(
 				draft.attachments.value + AssistantAttachment(
 					localId = localId,
-					kind = kind,
 					name = file.name,
-					sizeBytes = 0L,
-					pageCount = null,
 					thumbnail = null,
 					state = AssistantAttachmentState.Preparing,
 					content = null
@@ -99,7 +91,6 @@ class AssistantChatAttachments(
 	fun remove(localId: String) {
 		jobs.remove(localId)?.cancel()
 		files.remove(localId)
-		bytesOf.remove(localId)
 		digestOf.remove(localId)
 	}
 
@@ -120,7 +111,7 @@ class AssistantChatAttachments(
 			}
 	}
 
-	// One job per attachment: its read, when it has none yet, and then its upload. Each outcome is reported as it comes.
+	// One job per photo: its read, when it has none yet, and then its upload. Each outcome is reported as it comes.
 	private fun start(host: MachineHost<AssistantChat.Effect>, draft: AssistantChatDraft, localId: String) {
 		jobs[localId]?.cancel()
 
@@ -129,65 +120,45 @@ class AssistantChatAttachments(
 
 			val prepared = attachment.content?.let { content ->
 				PreparedAssistantAttachment(
-					kind = attachment.kind,
 					name = attachment.name,
 					content = content,
 					thumbnail = attachment.thumbnail
 				)
-			} ?: prepare(host = host, localId = localId, kind = attachment.kind)
+			} ?: prepare(host = host, localId = localId)
 
 			if (prepared == null) return@launchMachineJob
 
 			// A file taken out meanwhile, or one the chat took out as the same picture as another, is not sent.
-			if (!isActive || draft.attachments.value.none { attachment -> attachment.localId == localId }) {
+			if (!isActive || draft.attachments.value.none { held -> held.localId == localId }) {
 				return@launchMachineJob
 			}
 
-			// The same picture as another attachment of the message: the chat takes this one out (see the attachment's
-			// read), and nothing is sent for it.
+			// The same picture as another photo of the message: the chat takes this one out (see the read's event), and
+			// nothing is sent for it.
 			if (holdsTheSamePicture(draft, localId, prepared.content.sha256)) return@launchMachineJob
 
 			digestOf[localId] = prepared.content.sha256
-			bytesOf[localId] = prepared.content.bytes.size.toLong()
-
-			// The message carries its attachments together: one that makes it heavier than a message takes is not sent.
-			if (messageIsTooHeavy(draft)) {
-				host.processInternalEvent(
-					AssistantChatInternalEvent.AttachmentFailed(localId, AssistantAttachmentFailure.MessageTooLarge)
-				)
-				return@launchMachineJob
-			}
 
 			upload(host = host, localId = localId, prepared = prepared)
 		}
 	}
 
-	// Another attachment of the message holds the bytes this one reads to.
+	// Another photo of the message holds the bytes this one reads to.
 	private fun holdsTheSamePicture(draft: AssistantChatDraft, localId: String, digest: String): Boolean {
-		return draft.attachments.value.any { attachment ->
-			attachment.localId != localId && digestOf[attachment.localId] == digest
+		return draft.attachments.value.any { held ->
+			held.localId != localId && digestOf[held.localId] == digest
 		}
-	}
-
-	// The attachments of the message being written, the ones read so far, weigh more than one message takes.
-	private fun messageIsTooHeavy(draft: AssistantChatDraft): Boolean {
-		val total = draft.attachments.value.sumOf { attachment -> bytesOf[attachment.localId] ?: 0L }
-
-		return total > AttachmentLimits.MAX_BYTES_PER_MESSAGE
 	}
 
 	// Reads the file of [localId] into what the upload sends. A file that cannot be read fails its attachment, and no
 	// upload starts for it; the file stays, so the retry can read it again.
 	private suspend fun prepare(
 		host: MachineHost<AssistantChat.Effect>,
-		localId: String,
-		kind: AssistantAttachmentKind
+		localId: String
 	): PreparedAssistantAttachment? {
 		val file = files[localId] ?: return null
 
-		val state = prepareAssistantAttachmentUseCase.execute(
-			PrepareAssistantAttachmentParams(file = file, kind = kind)
-		).last()
+		val state = prepareAssistantAttachmentUseCase.execute(PrepareAssistantAttachmentParams(file = file)).last()
 
 		return when (state) {
 			is UseCaseState.Data -> {
@@ -209,7 +180,7 @@ class AssistantChatAttachments(
 		}
 	}
 
-	// Sends what was read. The service keeps the attachment, or refuses it for the reason the event says.
+	// Sends what was read. The service keeps the photo, or refuses it for the reason the event says.
 	private suspend fun upload(
 		host: MachineHost<AssistantChat.Effect>,
 		localId: String,

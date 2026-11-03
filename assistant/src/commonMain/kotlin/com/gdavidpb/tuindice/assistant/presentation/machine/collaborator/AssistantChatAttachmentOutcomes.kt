@@ -12,8 +12,6 @@ internal fun PrepareAssistantAttachmentError?.toFailure(): AssistantAttachmentFa
 	return when (this) {
 		PrepareAssistantAttachmentError.TooLarge -> AssistantAttachmentFailure.TooLarge
 
-		PrepareAssistantAttachmentError.Unsupported -> AssistantAttachmentFailure.Unsupported
-
 		null -> AssistantAttachmentFailure.Other
 	}
 }
@@ -39,9 +37,6 @@ internal fun UploadAssistantAttachmentError?.toUploadEvent(localId: String): Ass
 
 		UploadAssistantAttachmentError.Unsupported ->
 			AssistantChatInternalEvent.AttachmentFailed(localId, AssistantAttachmentFailure.Unsupported)
-
-		UploadAssistantAttachmentError.Unreadable ->
-			AssistantChatInternalEvent.AttachmentFailed(localId, AssistantAttachmentFailure.Unreadable)
 
 		is UploadAssistantAttachmentError.DailyLimit ->
 			AssistantChatInternalEvent.AttachmentFailed(localId, AssistantAttachmentFailure.DailyLimit(retryAfterSeconds))

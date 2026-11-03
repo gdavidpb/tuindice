@@ -12,9 +12,7 @@ import com.gdavidpb.tuindice.assistant.data.source.AssistantIntentOutboxDataSour
 import com.gdavidpb.tuindice.assistant.data.source.AssistantMemoryDataSource
 import com.gdavidpb.tuindice.assistant.data.source.AssistantTurnDataSource
 import com.gdavidpb.tuindice.assistant.data.source.KtorAssistantApiDataSource
-import com.gdavidpb.tuindice.assistant.data.source.PlatformAttachmentFileDataSource
 import com.gdavidpb.tuindice.assistant.data.source.SseAssistantEventsDataSource
-import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentFileRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantAttachmentRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantConversationRepository
 import com.gdavidpb.tuindice.assistant.domain.repository.AssistantFeedbackRepository
@@ -113,7 +111,6 @@ val assistantModule = module {
 		bind<AssistantStandingRepository>()
 		bind<AssistantAttachmentRepository>()
 	}
-	factoryOf(::PlatformAttachmentFileDataSource) { bind<AssistantAttachmentFileRepository>() }
 	factoryOf(::AssistantTurnDataSource) { bind<AssistantTurnRepository>() }
 	factoryOf(::AssistantConversationsDataSource) { bind<AssistantConversationsRepository>() }
 	single<AssistantEventsDataRepository> {

@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentContent
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentFailure
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.domain.model.PreparedAssistantAttachment
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.UploadAssistantAttachmentError
@@ -147,11 +146,7 @@ class AssistantChatStateMachineContractTest {
 			AssistantChat.Action.DismissNotificationOffer,
 			AssistantChat.Action.RequestAttachment(source = AssistantChat.AttachmentSource.CAMERA),
 			AssistantChat.Action.RequestAttachment(source = AssistantChat.AttachmentSource.GALLERY),
-			AssistantChat.Action.RequestAttachment(source = AssistantChat.AttachmentSource.FILES),
-			AssistantChat.Action.AddAttachments(
-				files = listOf(PlatformFile("assistant-plan.jpg")),
-				kind = AssistantAttachmentKind.PHOTO
-			),
+			AssistantChat.Action.AddAttachments(files = listOf(PlatformFile("assistant-plan.jpg"))),
 			AssistantChat.Action.RemoveAttachment(localId = "a1"),
 			AssistantChat.Action.RetryAttachment(localId = "a1")
 		)
@@ -212,7 +207,6 @@ class AssistantChatStateMachineContractTest {
 			AssistantChatInternalEvent.AttachmentPrepared(
 				localId = "a1",
 				prepared = PreparedAssistantAttachment(
-					kind = AssistantAttachmentKind.PHOTO,
 					name = "foto.jpg",
 					content = AssistantAttachmentContent(mediaType = "image/jpeg", sha256 = "", bytes = byteArrayOf(1)),
 					thumbnail = null

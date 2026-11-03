@@ -1,18 +1,12 @@
 package com.gdavidpb.tuindice.assistant.domain.model
 
-/** Why an attachment was not kept: a file the service refuses or cannot read, the day's limit, or anything else. */
+/** Why a photo was not kept: the service refuses it or cannot read it, the day's limit, or anything else. */
 sealed interface AssistantAttachmentFailure {
-	/** Larger than the service takes: a PDF over its size, or a photo still over its size once encoded. */
+	/** Larger than the service takes once encoded. */
 	data object TooLarge : AssistantAttachmentFailure
 
-	/** With the attachments read before it, it makes the message heavier than one message takes; it is not sent. */
-	data object MessageTooLarge : AssistantAttachmentFailure
-
-	/** Not a photo or a PDF the service reads. */
+	/** Not a photo the service reads. */
 	data object Unsupported : AssistantAttachmentFailure
-
-	/** A PDF the service cannot open: too many pages, or protected with a password. */
-	data object Unreadable : AssistantAttachmentFailure
 
 	/** The day's uploads are used up; [retryAfterSeconds] is the wait the service gave, when it gave one. */
 	data class DailyLimit(val retryAfterSeconds: Int?) : AssistantAttachmentFailure

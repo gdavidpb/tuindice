@@ -8,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantDestination
 import com.gdavidpb.tuindice.assistant.presentation.navigation.AssistantNavDependencies
@@ -87,8 +86,7 @@ fun AssistantChatRoute(
 			)
 
 			AssistantChat.Effect.OpenCamera,
-			is AssistantChat.Effect.OpenPhotoPicker,
-			is AssistantChat.Effect.OpenDocumentPicker -> pickAttachments(effect, viewModel)
+			is AssistantChat.Effect.OpenPhotoPicker -> pickAttachments(effect, viewModel)
 
 			AssistantChat.Effect.RequestNotificationPermission -> notificationPermission.requestPermission()
 		}
@@ -102,14 +100,14 @@ fun AssistantChatRoute(
 	)
 }
 
-// The pickers answer with the files the student took. A picker that is closed, or that fails, answers with nothing.
+// The pickers answer with the photos the student took. A picker that is closed, or that fails, answers with nothing.
 private suspend fun pickAttachments(effect: AssistantChat.Effect, viewModel: AssistantChatViewModel) {
 	when (effect) {
 		AssistantChat.Effect.OpenCamera -> {
 			val photo = runCatching { FileKit.openCameraPicker() }.getOrNull()
 
 			if (photo != null) {
-				viewModel.dispatch(AssistantChat.Action.AddAttachments(listOf(photo), AssistantAttachmentKind.PHOTO))
+				viewModel.dispatch(AssistantChat.Action.AddAttachments(listOf(photo)))
 			}
 		}
 
@@ -119,20 +117,7 @@ private suspend fun pickAttachments(effect: AssistantChat.Effect, viewModel: Ass
 			}.getOrNull()
 
 			if (photos != null) {
-				viewModel.dispatch(AssistantChat.Action.AddAttachments(photos, AssistantAttachmentKind.PHOTO))
-			}
-		}
-
-		is AssistantChat.Effect.OpenDocumentPicker -> {
-			val documents = runCatching {
-				FileKit.openFilePicker(
-					type = FileKitType.File(listOf("pdf")),
-					mode = FileKitMode.Multiple(maxItems = effect.maxItems)
-				)
-			}.getOrNull()
-
-			if (documents != null) {
-				viewModel.dispatch(AssistantChat.Action.AddAttachments(documents, AssistantAttachmentKind.PDF))
+				viewModel.dispatch(AssistantChat.Action.AddAttachments(photos))
 			}
 		}
 

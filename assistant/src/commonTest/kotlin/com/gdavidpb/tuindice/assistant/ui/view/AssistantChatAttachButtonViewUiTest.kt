@@ -18,7 +18,7 @@ import kotlin.test.assertIs
 @OptIn(ExperimentalTestApi::class)
 class AssistantChatAttachButtonViewUiTest {
 	@Test
-	fun when_theButtonIsOn_then_itOpensTheMenuWithTheCameraPhotosAndPdf() = runTuIndiceUiTest {
+	fun when_theButtonIsOn_then_itOpensTheMenuWithTheCameraAndThePhotos() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatAttachButtonView(
 				isEnabled = true,
@@ -33,11 +33,10 @@ class AssistantChatAttachButtonViewUiTest {
 
 		assertNodeVisible(AssistantUiTags.AttachTakePhoto)
 		assertNodeVisible(AssistantUiTags.AttachPickPhotos)
-		assertNodeVisible(AssistantUiTags.AttachPickPdf)
 	}
 
 	@Test
-	fun when_theDeviceHasNoCamera_then_theMenuOffersThePhotosAndThePdf() = runTuIndiceUiTest {
+	fun when_theDeviceHasNoCamera_then_theMenuOffersOnlyThePhotos() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			AssistantChatAttachButtonView(
 				isEnabled = true,
@@ -51,7 +50,6 @@ class AssistantChatAttachButtonViewUiTest {
 
 		assertNodeHidden(AssistantUiTags.AttachTakePhoto)
 		assertNodeVisible(AssistantUiTags.AttachPickPhotos)
-		assertNodeVisible(AssistantUiTags.AttachPickPdf)
 	}
 
 	@Test
@@ -71,25 +69,6 @@ class AssistantChatAttachButtonViewUiTest {
 
 		val request = assertIs<AssistantChat.Action.RequestAttachment>(actions.single())
 		assertEquals(AssistantChat.AttachmentSource.GALLERY, request.source)
-	}
-
-	@Test
-	fun when_thePdfIsPicked_then_itRequestsAPdfFromTheFiles() = runTuIndiceUiTest {
-		val actions = mutableListOf<AssistantChat.Action>()
-		setTuIndiceTestContent {
-			AssistantChatAttachButtonView(
-				isEnabled = true,
-				isCameraAvailable = true,
-				onAction = { actions.add(it) },
-				modifier = Modifier
-			)
-		}
-
-		onNodeWithTag(AssistantUiTags.AttachButton).performClick()
-		onNodeWithTag(AssistantUiTags.AttachPickPdf).performClick()
-
-		val request = assertIs<AssistantChat.Action.RequestAttachment>(actions.single())
-		assertEquals(AssistantChat.AttachmentSource.FILES, request.source)
 	}
 
 	@Test

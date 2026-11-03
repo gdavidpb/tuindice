@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.assistant.domain.usecase
 import com.gdavidpb.tuindice.assistant.domain.exception.AssistantRequestRefusedException
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachment
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentContent
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentState
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
 import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.SendAssistantMessageExceptionHandler
@@ -213,11 +212,11 @@ class SendAssistantMessageUseCaseTest {
 	}
 
 	@Test
-	fun aMessageOfAttachmentsAloneIsSentWithTheirIdsAndKeepsThemInTheConversation() = runTest {
-		val photo = readyAttachment(localId = "l1", kind = AssistantAttachmentKind.PHOTO, attachmentId = "att-1")
-		val pdf = readyAttachment(localId = "l2", kind = AssistantAttachmentKind.PDF, attachmentId = "att-2")
+	fun aMessageOfPhotosAloneIsSentWithTheirIdsAndKeepsThemInTheConversation() = runTest {
+		val first = readyAttachment(localId = "l1", attachmentId = "att-1")
+		val second = readyAttachment(localId = "l2", attachmentId = "att-2")
 
-		val state = sendWithAttachments(text = null, attachments = listOf(photo, pdf))
+		val state = sendWithAttachments(text = null, attachments = listOf(first, second))
 
 		val request = turns.requests.single()
 		val stored = conversation.userMessages.single().attachments
@@ -225,21 +224,16 @@ class SendAssistantMessageUseCaseTest {
 		assertTrue(state is UseCaseState.Data<*>)
 		assertNull(request.message.text)
 		assertEquals(listOf("att-1", "att-2"), request.message.attachmentIds)
-		assertEquals(
-			listOf(AssistantAttachmentKind.PHOTO, AssistantAttachmentKind.PDF),
-			stored.map { attachment -> attachment.kind }
-		)
-		assertEquals(listOf("l1.jpg", "l2.pdf"), stored.map { attachment -> attachment.name })
-		assertEquals(listOf<Int?>(null, 12), stored.map { attachment -> attachment.pageCount })
+		assertEquals(listOf("l1.jpg", "l2.jpg"), stored.map { attachment -> attachment.name })
 		assertContentEquals(byteArrayOf(1, 2, 3), stored.first().image)
-		assertNull(stored.last().image)
+		assertContentEquals(byteArrayOf(1, 2, 3), stored.last().image)
 	}
 
 	@Test
 	fun aMessageWithTextAndAttachmentsCarriesBoth() = runTest {
 		sendWithAttachments(
 			text = "¿Cuánto vale cada parcial?",
-			attachments = listOf(readyAttachment(localId = "l1", kind = AssistantAttachmentKind.PHOTO, attachmentId = "att-1"))
+			attachments = listOf(readyAttachment(localId = "l1", attachmentId = "att-1"))
 		)
 
 		val message = turns.requests.single().message
@@ -250,7 +244,7 @@ class SendAssistantMessageUseCaseTest {
 
 	@Test
 	fun aMessageOfFourAttachmentsIsSent() = runTest {
-		val four = (1..4).map { index -> readyAttachment("l$index", AssistantAttachmentKind.PDF, "att-$index") }
+		val four = (1..4).map { index -> readyAttachment("l$index", "att-$index") }
 
 		sendWithAttachments(text = null, attachments = four)
 
@@ -259,8 +253,8 @@ class SendAssistantMessageUseCaseTest {
 
 	@Test
 	fun aMessageOfMoreThanFourAttachmentsOrOneNotKeptIsRefusedBeforeAnythingIsStored() = runTest {
-		val five = (1..5).map { index -> readyAttachment("l$index", AssistantAttachmentKind.PHOTO, "att-$index") }
-		val notKept = readyAttachment("l1", AssistantAttachmentKind.PHOTO, "att-1")
+		val five = (1..5).map { index -> readyAttachment("l$index", "att-$index") }
+		val notKept = readyAttachment("l1", "att-1")
 			.copy(state = AssistantAttachmentState.Uploading)
 
 		assertEquals(
@@ -278,15 +272,11 @@ class SendAssistantMessageUseCaseTest {
 
 	private fun readyAttachment(
 		localId: String,
-		kind: AssistantAttachmentKind,
 		attachmentId: String
 	) = AssistantAttachment(
 		localId = localId,
-		kind = kind,
-		name = if (kind == AssistantAttachmentKind.PHOTO) "$localId.jpg" else "$localId.pdf",
-		sizeBytes = 3,
-		pageCount = if (kind == AssistantAttachmentKind.PDF) 12 else null,
-		thumbnail = if (kind == AssistantAttachmentKind.PHOTO) byteArrayOf(9) else null,
+		name = "$localId.jpg",
+		thumbnail = byteArrayOf(9),
 		state = AssistantAttachmentState.Ready(attachmentId),
 		content = AssistantAttachmentContent(mediaType = "image/jpeg", sha256 = "", bytes = byteArrayOf(1, 2, 3))
 	)

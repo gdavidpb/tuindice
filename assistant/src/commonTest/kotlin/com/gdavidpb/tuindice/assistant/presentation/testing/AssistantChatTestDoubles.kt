@@ -91,8 +91,6 @@ internal class FakeAssistantChatTexts :
 
 	override suspend fun attachmentFailure(failure: AssistantAttachmentFailure): String = "failure:$failure"
 
-	override suspend fun attachmentPages(pages: Int): String = "pages:$pages"
-
 	override suspend fun attachmentLimit(): String = "attachment-limit"
 
 	override suspend fun attachmentsRefused(): String = "attachments-refused"

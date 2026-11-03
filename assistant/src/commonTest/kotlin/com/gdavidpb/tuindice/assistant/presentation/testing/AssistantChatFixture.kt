@@ -53,7 +53,6 @@ import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewM
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantClientStateRepository
 import com.gdavidpb.tuindice.assistant.testing.FakeAssistantEvaluationCardRepository
 import com.gdavidpb.tuindice.assistant.testing.FixedClock
-import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantAttachmentFileRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantAttachmentRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantConsentRepository
 import com.gdavidpb.tuindice.assistant.testing.RecordingAssistantEvaluationsRepository
@@ -114,7 +113,6 @@ internal class AssistantChatFixture(
 	val clientState = FakeAssistantClientStateRepository()
 	val imageEncoder = RecordingImageEncoderRepository().apply { distinctByName = true }
 	val attachmentRepository = RecordingAssistantAttachmentRepository()
-	val attachmentFiles = RecordingAssistantAttachmentFileRepository()
 	val appEnvironment = FakeAppEnvironmentRepository()
 	val effects = mutableListOf<AssistantChat.Effect>()
 
@@ -183,7 +181,6 @@ internal class AssistantChatFixture(
 		return AssistantChatAttachments(
 			prepareAssistantAttachmentUseCase = PrepareAssistantAttachmentUseCase(
 				imageEncoderRepository = imageEncoder,
-				fileRepository = attachmentFiles,
 				reportingRepository = reporting,
 				exceptionHandler = PrepareAssistantAttachmentExceptionHandler()
 			),

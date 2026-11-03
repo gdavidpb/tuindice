@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.exception.AssistantRequestRefusedException
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
 import com.gdavidpb.tuindice.assistant.presentation.model.ChatNoticeItem
 import com.gdavidpb.tuindice.assistant.presentation.testing.AssistantChatFixture
@@ -14,7 +13,6 @@ import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewM
 import com.gdavidpb.tuindice.assistant.testing.assistantStatus
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseStanding
 import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
-import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentAccepted
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.CompletableDeferred
 import kotlin.test.Test
@@ -28,7 +26,7 @@ class AssistantChatAttachmentBehaviorTest {
 	fun when_aPhotoIsPicked_then_itIsReadSentAndKeptAsAReadyAttachment() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
 
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 
 		val content = viewModel.content()
 		val attachment = content.composer.attachments.single()
@@ -39,28 +37,10 @@ class AssistantChatAttachmentBehaviorTest {
 	}
 
 	@Test
-	fun when_aPdfIsPicked_then_itsPagesShowOnceTheServiceHasReadThem() = chatTest { fixture, viewModel ->
-		openChat(fixture, viewModel)
-		fixture.attachmentFiles.bytes = PDF_BYTES
-		fixture.attachmentRepository.accepted = AttachmentAccepted(
-			attachmentId = "att-pdf",
-			mediaType = "application/pdf",
-			sizeBytes = PDF_BYTES.size.toLong(),
-			pageCount = 12,
-			expiresAtMillis = NOW_MILLIS,
-			name = "programa.pdf"
-		)
-
-		addFiles(viewModel, listOf(PlatformFile("programa.pdf")), AssistantAttachmentKind.PDF)
-
-		assertEquals("pages:12", viewModel.content().composer.attachments.single().detail)
-	}
-
-	@Test
 	fun when_moreThanFourAreAdded_then_fourAreKeptAndTheLimitIsSaid() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
 
-		addFiles(viewModel, List(5) { index -> PlatformFile("foto-$index.jpg") }, AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, List(5) { index -> PlatformFile("foto-$index.jpg") })
 
 		val content = viewModel.content()
 		assertEquals(4, content.composer.attachments.size)
@@ -68,22 +48,36 @@ class AssistantChatAttachmentBehaviorTest {
 	}
 
 	@Test
-	fun when_aFileCannotBeRead_then_itFailsWithItsReasonAndTheRetryReadsItAgain() = chatTest { fixture, viewModel ->
+	fun when_fourAttachmentsAreAttached_then_theClipIsOffAndTheLimitIsSaid() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
-		fixture.attachmentFiles.bytes = "texto sin cabecera".encodeToByteArray()
 
-		addFiles(viewModel, listOf(PlatformFile("notas.pdf")), AssistantAttachmentKind.PDF)
+		addPhotos(viewModel, List(4) { index -> PlatformFile("foto-$index.jpg") })
+
+		val content = viewModel.content()
+		assertFalse(content.composer.isAttachEnabled)
+		assertEquals(ChatNoticeItem.TurnFailed(message = "attachment-limit", canRetry = false), content.notice)
+	}
+
+	// The photo cannot be read: its read fails with no reason the chat names, which is a failure the retry can read again.
+	@Test
+	fun when_aPhotoCannotBeRead_then_itFailsWithItsReasonAndTheRetryReadsItAgain() = chatTest { fixture, viewModel ->
+		openChat(fixture, viewModel)
+		fixture.imageEncoder.failure = IllegalArgumentException("Image content is not a supported image.")
+
+		addPhotos(viewModel, listOf(PlatformFile("notas.jpg")))
 
 		val failed = viewModel.content().composer.attachments.single()
 		assertTrue(failed.isFailed)
-		assertEquals("failure:Unsupported", failed.failureText)
+		assertTrue(failed.canRetry)
+		assertEquals("failure:Other", failed.failureText)
 		assertFalse(viewModel.content().composer.isSendEnabled)
 
-		fixture.attachmentFiles.bytes = PDF_BYTES
+		val reads = fixture.imageEncoder.specs.size
+		fixture.imageEncoder.failure = null
 		viewModel.dispatch(AssistantChat.Action.RetryAttachment(localId = failed.localId))
 
-		val retried = viewModel.content().composer.attachments.single()
-		assertFalse(retried.isFailed)
+		assertTrue(fixture.imageEncoder.specs.size > reads)
+		assertFalse(viewModel.content().composer.attachments.single().isFailed)
 		assertTrue(viewModel.content().composer.isSendEnabled)
 	}
 
@@ -93,7 +87,7 @@ class AssistantChatAttachmentBehaviorTest {
 		fixture.attachmentRepository.failure =
 			AssistantRequestRefusedException(code = "attachment_too_large", retryAfterSeconds = null, message = "big")
 
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 
 		assertEquals("failure:TooLarge", viewModel.content().composer.attachments.single().failureText)
 	}
@@ -101,7 +95,7 @@ class AssistantChatAttachmentBehaviorTest {
 	@Test
 	fun when_anAttachmentIsRemoved_then_itLeavesTheTray() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 		val localId = viewModel.content().composer.attachments.single().localId
 
 		viewModel.dispatch(AssistantChat.Action.RemoveAttachment(localId = localId))
@@ -112,7 +106,7 @@ class AssistantChatAttachmentBehaviorTest {
 	@Test
 	fun when_aMessageHasOnlyAttachments_then_itIsSentWithTheirIdsAndTheTrayClears() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 
 		viewModel.sendMessageAction()
 
@@ -123,7 +117,7 @@ class AssistantChatAttachmentBehaviorTest {
 	@Test
 	fun when_aSendIsRefused_then_theTextAndTheAttachmentsReturnToTheTray() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 		viewModel.changeTextAction("¿Cuánto vale cada parcial?")
 		fixture.turns.sendError =
 			AssistantRequestRefusedException(code = "quota_exhausted", retryAfterSeconds = 30, message = "q")
@@ -141,7 +135,7 @@ class AssistantChatAttachmentBehaviorTest {
 		fixture.standing.answer = assistantStatus()
 		viewModel.openAction(null)
 
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 
 		val composer = viewModel.content().composer
 		assertFalse(composer.showsAttach)
@@ -155,7 +149,7 @@ class AssistantChatAttachmentBehaviorTest {
 		fixture.attachmentRepository.failure =
 			AssistantRequestRefusedException(code = "consent_required", retryAfterSeconds = null, message = "consent")
 
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 
 		assertEquals(AssistantChat.State.ConsentRequired, viewModel.state.value)
 	}
@@ -166,7 +160,7 @@ class AssistantChatAttachmentBehaviorTest {
 		val upload = CompletableDeferred<Unit>()
 		fixture.attachmentRepository.gate = upload
 
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 
 		val sending = viewModel.content().composer.attachments.single()
 		assertTrue(sending.isUploading)
@@ -183,7 +177,7 @@ class AssistantChatAttachmentBehaviorTest {
 		openChat(fixture, viewModel)
 		val upload = CompletableDeferred<Unit>()
 		fixture.attachmentRepository.gate = upload
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 		val localId = viewModel.content().composer.attachments.single().localId
 
 		viewModel.dispatch(AssistantChat.Action.RemoveAttachment(localId = localId))
@@ -202,7 +196,7 @@ class AssistantChatAttachmentBehaviorTest {
 			message = "daily"
 		)
 
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 
 		val failed = viewModel.content().composer.attachments.single()
 		assertTrue(failed.isFailed)
@@ -221,7 +215,7 @@ class AssistantChatAttachmentBehaviorTest {
 			message = "guided"
 		)
 
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 
 		assertEquals(ChatNoticeItem.Guided(message = "guided"), viewModel.content().notice)
 		assertTrue(viewModel.content().composer.attachments.single().isFailed)
@@ -242,28 +236,28 @@ class AssistantChatAttachmentBehaviorTest {
 			message = "suspended"
 		)
 
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 
 		assertIs<ChatNoticeItem.Restricted>(viewModel.content().notice)
 	}
 
 	@Test
-	fun when_anUploadFailsForAReasonThatCanClear_then_itsRetryDoesNotReadTheFileAgain() = chatTest { fixture, viewModel ->
+	fun when_anUploadFailsForAReasonThatCanClear_then_itsRetryDoesNotReadThePhotoAgain() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
-		fixture.attachmentFiles.bytes = PDF_BYTES
 		fixture.attachmentRepository.failure = AssistantRequestRefusedException(
 			code = "unavailable",
 			retryAfterSeconds = null,
 			message = "down"
 		)
-		addFiles(viewModel, listOf(PlatformFile("programa.pdf")), AssistantAttachmentKind.PDF)
+		addPhotos(viewModel, listOf(photo()))
 		val failed = viewModel.content().composer.attachments.single()
 		assertTrue(failed.canRetry)
+		val encodes = fixture.imageEncoder.specs.size
 
 		fixture.attachmentRepository.failure = null
 		viewModel.dispatch(AssistantChat.Action.RetryAttachment(localId = failed.localId))
 
-		assertEquals(1, fixture.attachmentFiles.reads.size)
+		assertEquals(encodes, fixture.imageEncoder.specs.size)
 		assertEquals(2, fixture.attachmentRepository.uploads.size)
 		assertFalse(viewModel.content().composer.attachments.single().isFailed)
 	}
@@ -272,36 +266,10 @@ class AssistantChatAttachmentBehaviorTest {
 	fun when_theSamePhotoIsPickedAgain_then_theSecondLeavesTheTray() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
 
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
+		addPhotos(viewModel, listOf(photo()))
 
 		assertEquals(1, viewModel.content().composer.attachments.size)
-		assertEquals(1, fixture.attachmentRepository.uploads.size)
-	}
-
-	@Test
-	fun when_fourAttachmentsAreAttached_then_theClipIsOffAndTheLimitIsSaid() = chatTest { fixture, viewModel ->
-		openChat(fixture, viewModel)
-
-		addFiles(viewModel, List(4) { index -> PlatformFile("foto-$index.jpg") }, AssistantAttachmentKind.PHOTO)
-
-		val content = viewModel.content()
-		assertFalse(content.composer.isAttachEnabled)
-		assertEquals(ChatNoticeItem.TurnFailed(message = "attachment-limit", canRetry = false), content.notice)
-	}
-
-	@Test
-	fun when_theMessageWouldWeighMoreThanAllowed_then_TheFileThatTipsItIsNotSent() = chatTest { fixture, viewModel ->
-		openChat(fixture, viewModel)
-		fixture.attachmentFiles.bytes = PDF_HEADER + ByteArray(NINE_MEGABYTES)
-		addFiles(viewModel, listOf(PlatformFile("uno.pdf")), AssistantAttachmentKind.PDF)
-		fixture.attachmentFiles.bytes = PDF_HEADER + ByteArray(NINE_MEGABYTES) { 1 }
-
-		addFiles(viewModel, listOf(PlatformFile("dos.pdf")), AssistantAttachmentKind.PDF)
-
-		val second = viewModel.content().composer.attachments[1]
-		assertEquals("failure:MessageTooLarge", second.failureText)
-		assertFalse(second.canRetry)
 		assertEquals(1, fixture.attachmentRepository.uploads.size)
 	}
 
@@ -309,7 +277,7 @@ class AssistantChatAttachmentBehaviorTest {
 	fun when_theServiceRefusesTheAttachmentsOfAMessage_then_TheTextAndTheAttachmentsReturnToTheTray() =
 		chatTest { fixture, viewModel ->
 			openChat(fixture, viewModel)
-			addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+			addPhotos(viewModel, listOf(photo()))
 			viewModel.changeTextAction("¿Qué pesa más?")
 			fixture.turns.sendError =
 				AssistantRequestRefusedException(code = "attachment_limit", retryAfterSeconds = null, message = "limit")
@@ -325,7 +293,7 @@ class AssistantChatAttachmentBehaviorTest {
 	@Test
 	fun when_AnAttachmentOfAMessageExpired_then_TheTextReturnsAndTheAttachmentsLeave() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 		viewModel.changeTextAction("¿Qué pesa más?")
 		fixture.turns.sendError =
 			AssistantRequestRefusedException(code = "attachment_expired", retryAfterSeconds = null, message = "expired")
@@ -341,7 +309,7 @@ class AssistantChatAttachmentBehaviorTest {
 	@Test
 	fun when_aRetryIsAccepted_then_TheAttachmentsLeaveTheTrayTheyWereSentFrom() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 		viewModel.changeTextAction("¿Qué pesa más?")
 		fixture.turns.sendError =
 			AssistantRequestRefusedException(code = "turn_in_progress", retryAfterSeconds = null, message = "busy")
@@ -358,7 +326,7 @@ class AssistantChatAttachmentBehaviorTest {
 	@Test
 	fun when_aRetryIsRefused_then_TheAttachmentComesBackOnce() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
-		addFiles(viewModel, listOf(photo()), AssistantAttachmentKind.PHOTO)
+		addPhotos(viewModel, listOf(photo()))
 		val localId = viewModel.content().composer.attachments.single().localId
 		viewModel.changeTextAction("¿Qué pesa más?")
 		fixture.turns.sendError =
@@ -378,17 +346,14 @@ class AssistantChatAttachmentBehaviorTest {
 		viewModel.openAction(null)
 	}
 
-	private fun addFiles(viewModel: AssistantChatViewModel, files: List<PlatformFile>, kind: AssistantAttachmentKind) {
-		viewModel.dispatch(AssistantChat.Action.AddAttachments(files = files, kind = kind))
+	private fun addPhotos(viewModel: AssistantChatViewModel, files: List<PlatformFile>) {
+		viewModel.dispatch(AssistantChat.Action.AddAttachments(files = files))
 	}
 
 	private fun photo() = PlatformFile("foto.jpg")
 
 	private companion object {
-		val PDF_BYTES = "%PDF-1.7\n%prueba\n".encodeToByteArray()
-		val PDF_HEADER = "%PDF-".encodeToByteArray()
 		const val NOW_MILLIS = 1_700_000_000_000L
 		const val ONE_HOUR_MILLIS = 3_600_000L
-		const val NINE_MEGABYTES = 9 * 1024 * 1024
 	}
 }

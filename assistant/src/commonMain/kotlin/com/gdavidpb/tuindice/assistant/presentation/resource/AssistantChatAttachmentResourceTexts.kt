@@ -8,11 +8,7 @@ import tuindice.assistant.generated.resources.assistant_attachment_daily_limit_w
 import tuindice.assistant.generated.resources.assistant_attachment_expired
 import tuindice.assistant.generated.resources.assistant_attachment_failed
 import tuindice.assistant.generated.resources.assistant_attachment_limit
-import tuindice.assistant.generated.resources.assistant_attachment_message_too_large
-import tuindice.assistant.generated.resources.assistant_attachment_page_one
-import tuindice.assistant.generated.resources.assistant_attachment_pages
 import tuindice.assistant.generated.resources.assistant_attachment_too_large
-import tuindice.assistant.generated.resources.assistant_attachment_unreadable
 import tuindice.assistant.generated.resources.assistant_attachment_unsupported
 import tuindice.assistant.generated.resources.assistant_attachments_refused
 
@@ -22,11 +18,7 @@ class AssistantChatAttachmentResourceTexts : AssistantChatAttachmentTexts {
 		return when (failure) {
 			AssistantAttachmentFailure.TooLarge -> getString(Res.string.assistant_attachment_too_large)
 
-			AssistantAttachmentFailure.MessageTooLarge -> getString(Res.string.assistant_attachment_message_too_large)
-
 			AssistantAttachmentFailure.Unsupported -> getString(Res.string.assistant_attachment_unsupported)
-
-			AssistantAttachmentFailure.Unreadable -> getString(Res.string.assistant_attachment_unreadable)
 
 			is AssistantAttachmentFailure.DailyLimit -> failure.retryAfterSeconds?.let { seconds ->
 				getString(Res.string.assistant_attachment_daily_limit_wait, waitText(seconds))
@@ -34,12 +26,6 @@ class AssistantChatAttachmentResourceTexts : AssistantChatAttachmentTexts {
 
 			AssistantAttachmentFailure.Other -> getString(Res.string.assistant_attachment_failed)
 		}
-	}
-
-	override suspend fun attachmentPages(pages: Int): String {
-		if (pages == 1) return getString(Res.string.assistant_attachment_page_one)
-
-		return getString(Res.string.assistant_attachment_pages, pages)
 	}
 
 	override suspend fun attachmentLimit(): String = getString(Res.string.assistant_attachment_limit)

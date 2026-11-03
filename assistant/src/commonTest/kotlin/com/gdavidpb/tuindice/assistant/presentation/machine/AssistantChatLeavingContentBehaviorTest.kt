@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.assistant.presentation.machine
 
 import com.gdavidpb.tuindice.assistant.domain.exception.AssistantRequestRefusedException
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.usecase.error.SendAssistantMessageError
 import com.gdavidpb.tuindice.assistant.presentation.contract.AssistantChat
@@ -458,6 +457,6 @@ class AssistantChatLeavingContentBehaviorTest {
 	private fun photo() = PlatformFile("assistant-plan.jpg")
 
 	private fun addPhoto(viewModel: AssistantChatViewModel) {
-		viewModel.dispatch(AssistantChat.Action.AddAttachments(files = listOf(photo()), kind = AssistantAttachmentKind.PHOTO))
+		viewModel.dispatch(AssistantChat.Action.AddAttachments(files = listOf(photo())))
 	}
 }

@@ -12,7 +12,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 
-// A PDF takes the service longer to read than a text turn, so an upload waits for it longer than the client's default.
+// An upload waits up to two minutes for the service to keep the photo: longer than the client's default for a text
+// turn.
 private const val ATTACHMENT_REQUEST_TIMEOUT_MILLIS = 120_000L
 
 // The bytes go as the body, with their media type and the id the service checks them against, as the contract says.

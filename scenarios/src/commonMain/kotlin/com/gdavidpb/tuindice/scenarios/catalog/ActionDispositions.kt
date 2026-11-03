@@ -48,13 +48,13 @@ object ActionDispositions {
 		ActionDisposition.PlatformEdge(
 			action = "assistant.AssistantChat.RequestAttachment",
 			reason =
-				"Abre el selector del sistema (cámara, fotos o PDF); se prueba a mano " +
+				"Abre el selector del sistema (cámara o fotos); se prueba a mano " +
 				"(ver e2e/platform/*/assistant-attachment-picker.md)"
 		),
 		ActionDisposition.PlatformEdge(
 			action = "assistant.AssistantChat.AddAttachments",
 			reason =
-				"Abre el selector del sistema (cámara, fotos o PDF); se prueba a mano " +
+				"Abre el selector del sistema (cámara o fotos); se prueba a mano " +
 				"(ver e2e/platform/*/assistant-attachment-picker.md)"
 		),
 		ActionDisposition.PlatformEdge(

@@ -1,13 +1,9 @@
 package com.gdavidpb.tuindice.assistant.presentation.model
 
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
-
-// One attachment of a message the student sent, as its bubble shows it: a photo with its thumbnail and the image it was
-// sent as, or a PDF with its name and its pages.
+// One photo of a message the student sent, as its bubble shows it: its [thumbnail], and the [image] it was sent as
+// while the conversation keeps it (an older photo opens its thumbnail large).
 data class ChatUserAttachmentItem(
-	val kind: AssistantAttachmentKind,
 	val name: String,
-	val detail: String?,
 	val thumbnail: ByteArray?,
 	val image: ByteArray?
 )

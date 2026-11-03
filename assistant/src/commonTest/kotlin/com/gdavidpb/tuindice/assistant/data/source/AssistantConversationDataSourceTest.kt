@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.assistant.data.source
 import com.gdavidpb.tuindice.assistant.data.mapper.toAssistantConversation
 import com.gdavidpb.tuindice.assistant.data.model.AssistantConversationState
 import com.gdavidpb.tuindice.assistant.data.model.AssistantTurnStatus
-import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentKind
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantConversationItem
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserAttachment
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantUserMessage
@@ -209,9 +208,7 @@ class AssistantConversationDataSourceTest {
 					createdAtMillis = index.toLong(),
 					attachments = listOf(
 						AssistantUserAttachment(
-							kind = AssistantAttachmentKind.PHOTO,
 							name = "foto-$index.jpg",
-							pageCount = null,
 							thumbnail = byteArrayOf(index.toByte()),
 							image = byteArrayOf(index.toByte(), 1)
 						)

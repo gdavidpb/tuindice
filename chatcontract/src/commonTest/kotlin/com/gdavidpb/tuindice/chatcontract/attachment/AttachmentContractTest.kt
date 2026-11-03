@@ -12,10 +12,10 @@ class AttachmentContractTest {
 
 	@Test
 	fun aNameRoundTripsThroughTheHeader() {
-		val name = "Plan de evaluación (1)+ñ 😀.pdf"
+		val name = "Plan de evaluación (1)+ñ 😀.jpg"
 		val header = AttachmentName.encode(name)
 
-		assertEquals("Plan%20de%20evaluaci%C3%B3n%20%281%29%2B%C3%B1%20%F0%9F%98%80.pdf", header)
+		assertEquals("Plan%20de%20evaluaci%C3%B3n%20%281%29%2B%C3%B1%20%F0%9F%98%80.jpg", header)
 		assertEquals(name, AttachmentName.decode(header))
 	}
 
@@ -43,7 +43,7 @@ class AttachmentContractTest {
 
 		val accepted = ChatContract.json.decodeFromString(AttachmentAccepted.serializer(), json)
 
-		assertEquals(AttachmentAccepted("att-1", "image/jpeg", 10, null, 1), accepted)
+		assertEquals(AttachmentAccepted("att-1", "image/jpeg", 10, 1), accepted)
 	}
 
 	@Test
@@ -54,7 +54,7 @@ class AttachmentContractTest {
 			AssistantErrorCodes.GUIDED_ONLY, AssistantErrorCodes.INTENT_EXPIRED, AssistantErrorCodes.INTENT_CONFLICT,
 			AssistantErrorCodes.APPEAL_NOT_ALLOWED, AssistantErrorCodes.APPEAL_OPEN, AssistantErrorCodes.UNAVAILABLE,
 			AssistantErrorCodes.ATTACHMENT_TOO_LARGE, AssistantErrorCodes.ATTACHMENT_UNSUPPORTED,
-			AssistantErrorCodes.ATTACHMENT_UNREADABLE, AssistantErrorCodes.ATTACHMENT_EXPIRED,
+			AssistantErrorCodes.ATTACHMENT_EXPIRED,
 			AssistantErrorCodes.ATTACHMENT_LIMIT, AssistantErrorCodes.ATTACHMENT_DAILY_LIMIT
 		)
 
@@ -63,12 +63,12 @@ class AttachmentContractTest {
 
 	@Test
 	fun theLimitsHoldTogether() {
-		assertTrue(AttachmentLimits.PDF_MEDIA_TYPE in AttachmentLimits.MEDIA_TYPES)
-		assertTrue(AttachmentLimits.IMAGE_MEDIA_TYPES.all { it in AttachmentLimits.MEDIA_TYPES })
+		assertEquals(AttachmentLimits.IMAGE_MEDIA_TYPES, AttachmentLimits.MEDIA_TYPES)
 		assertEquals(AttachmentLimits.IMAGE_MEDIA_TYPES, ExtractionLimits.MEDIA_TYPES)
 		// A photo as base64 still fits what an extraction accepts.
 		assertTrue((AttachmentLimits.MAX_IMAGE_BYTES + 2) / 3 * 4 <= ExtractionLimits.MAX_IMAGE_BASE64_BYTES)
-		// The largest single attachment fits in what one message allows.
-		assertTrue(AttachmentLimits.MAX_PDF_BYTES <= AttachmentLimits.MAX_BYTES_PER_MESSAGE)
+		// The photos of one message fit in what one request to the model allows.
+		val messageBytes = AttachmentLimits.MAX_PER_MESSAGE * AttachmentLimits.MAX_IMAGE_BYTES
+		assertTrue(messageBytes <= AttachmentLimits.MAX_BYTES_PER_MESSAGE)
 	}
 }

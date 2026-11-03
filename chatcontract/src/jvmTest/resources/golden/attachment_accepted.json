@@ -6,11 +6,10 @@
     "expiresAtMillis": 1767225600000
   },
   {
-    "attachmentId": "att-pdf-1",
-    "mediaType": "application/pdf",
+    "attachmentId": "att-photo-2",
+    "mediaType": "image/png",
     "sizeBytes": 1048576,
-    "pageCount": 12,
     "expiresAtMillis": 1767225600000,
-    "name": "Programa MA1111.pdf"
+    "name": "Planilla MA1111.png"
   }
 ]
