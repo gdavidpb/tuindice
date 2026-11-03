@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.data.source
 
+import com.gdavidpb.tuindice.base.domain.exception.EncodedImageTooLargeException
 import com.gdavidpb.tuindice.base.domain.model.ImageEncodingSpec
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.test.runTest
@@ -90,7 +91,7 @@ class AndroidBitmapImageEncoderDataSourceTest {
 	}
 
 	@Test
-	fun encodeThrowsIllegalStateWhenEncodedImageExceedsMaxBytes() = runTest {
+	fun encodeThrowsEncodedImageTooLargeWhenEncodedImageExceedsMaxBytes() = runTest {
 		val inputFile = createInputFile(
 			prefix = "heavy",
 			extension = "png",
@@ -98,9 +99,12 @@ class AndroidBitmapImageEncoderDataSourceTest {
 		)
 
 		try {
-			assertFailsWith<IllegalStateException> {
+			val exception = assertFailsWith<EncodedImageTooLargeException> {
 				dataSource.encode(file = PlatformFile(inputFile), spec = tinyBytesSpec)
 			}
+
+			assertEquals(TINY_MAX_BYTES, exception.maxBytes)
+			assertTrue(exception.encodedBytes > TINY_MAX_BYTES)
 		} finally {
 			inputFile.delete()
 		}

@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.assistant.domain.usecase
 
-import com.gdavidpb.tuindice.assistant.domain.exception.AssistantAttachmentRejectedException
 import com.gdavidpb.tuindice.assistant.domain.mapper.toAttachmentSha256
 import com.gdavidpb.tuindice.assistant.domain.model.AssistantAttachmentContent
 import com.gdavidpb.tuindice.assistant.domain.model.PreparedAssistantAttachment
@@ -20,7 +19,8 @@ import kotlinx.coroutines.flow.flow
 /**
  * Reads a photo the student picked into the bytes the upload sends. The photo is encoded to the size the service takes
  * and gets a small thumbnail for the message. A file the encoder cannot read is not refused here: the encoder fails,
- * and the read fails with it.
+ * and the read fails with it. A photo still over that size once encoded fails with EncodedImageTooLargeException,
+ * which the exception handler names as too large.
  */
 class PrepareAssistantAttachmentUseCase(
 	private val imageEncoderRepository: ImageEncoderRepository,
@@ -36,11 +36,6 @@ class PrepareAssistantAttachmentUseCase(
 
 	private suspend fun preparePhoto(params: PrepareAssistantAttachmentParams): PreparedAssistantAttachment {
 		val image = imageEncoderRepository.encode(params.file, PHOTO_SPEC)
-
-		if (image.content.size > AttachmentLimits.MAX_IMAGE_BYTES) {
-			throw AssistantAttachmentRejectedException(PrepareAssistantAttachmentError.TooLarge)
-		}
-
 		val thumbnail = imageEncoderRepository.encode(params.file, THUMBNAIL_SPEC).content
 
 		return PreparedAssistantAttachment(
@@ -71,8 +66,9 @@ class PrepareAssistantAttachmentUseCase(
 			jpegQuality = 80
 		)
 
-		// The thumbnail the message shows: small, so the conversation stays light.
-		val THUMBNAIL_SPEC = ImageEncodingSpec(maxDimensionPx = 256, maxBytes = 60_000, jpegQuality = 70)
+		// The thumbnail the message shows: small, so the conversation stays light. It has no byte limit, because the
+		// encoder would refuse an over-limit thumbnail as a photo too large, and the photo itself is fine.
+		val THUMBNAIL_SPEC = ImageEncodingSpec(maxDimensionPx = 256, maxBytes = Int.MAX_VALUE, jpegQuality = 70)
 
 		const val PHOTO_NAME = "foto.jpg"
 		const val JPEG_MEDIA_TYPE = "image/jpeg"

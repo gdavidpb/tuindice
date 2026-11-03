@@ -11,8 +11,10 @@ import com.gdavidpb.tuindice.assistant.presentation.testing.openAction
 import com.gdavidpb.tuindice.assistant.presentation.testing.sendMessageAction
 import com.gdavidpb.tuindice.assistant.presentation.viewmodel.AssistantChatViewModel
 import com.gdavidpb.tuindice.assistant.testing.assistantStatus
+import com.gdavidpb.tuindice.base.domain.exception.EncodedImageTooLargeException
 import com.gdavidpb.tuindice.chatcontract.abuse.AbuseStanding
 import com.gdavidpb.tuindice.chatcontract.abuse.StandingLevel
+import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentLimits
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.CompletableDeferred
 import kotlin.test.Test
@@ -90,6 +92,23 @@ class AssistantChatAttachmentBehaviorTest {
 		addPhotos(viewModel, listOf(photo()))
 
 		assertEquals("failure:TooLarge", viewModel.content().composer.attachments.single().failureText)
+	}
+
+	@Test
+	fun when_aPhotoIsStillTooLargeOnceEncoded_then_itFailsAsTooLargeWithoutRetry() = chatTest { fixture, viewModel ->
+		openChat(fixture, viewModel)
+		fixture.imageEncoder.failure = EncodedImageTooLargeException(
+			encodedBytes = AttachmentLimits.MAX_IMAGE_BYTES + 1,
+			maxBytes = AttachmentLimits.MAX_IMAGE_BYTES
+		)
+
+		addPhotos(viewModel, listOf(photo()))
+
+		val failed = viewModel.content().composer.attachments.single()
+		assertTrue(failed.isFailed)
+		assertFalse(failed.canRetry)
+		assertEquals("failure:TooLarge", failed.failureText)
+		assertTrue(fixture.attachmentRepository.uploads.isEmpty())
 	}
 
 	@Test

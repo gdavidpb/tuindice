@@ -61,9 +61,7 @@ class FileKitSkiaImageEncoderDataSource : ImageEncoderRepository {
 							"Image encoding returned no data."
 						}
 
-						check(encodedData.bytes.size <= spec.maxBytes) {
-							"Image exceeds the maximum size of ${spec.maxBytes} bytes."
-						}
+						spec.checkEncodedSize(encodedData.bytes.size)
 
 						EncodedImage(
 							content = encodedData.bytes,

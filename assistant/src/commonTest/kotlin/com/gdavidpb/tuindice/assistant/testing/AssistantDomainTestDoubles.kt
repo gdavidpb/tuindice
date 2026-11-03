@@ -592,7 +592,7 @@ internal class RecordingImageEncoderRepository : ImageEncoderRepository {
 	// With [distinctByName], each file encodes to bytes of its own name, so two files are two pictures.
 	var distinctByName = false
 
-	// The failure the encoder raises for a file it cannot read, when the test sets one.
+	// The failure the encoder raises for a file it cannot read, or for a photo still over its limit once encoded.
 	var failure: Throwable? = null
 
 	override suspend fun encode(file: PlatformFile, spec: ImageEncodingSpec): EncodedImage {

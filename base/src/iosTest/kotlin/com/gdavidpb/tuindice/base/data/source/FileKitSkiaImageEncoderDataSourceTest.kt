@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.data.source
 
+import com.gdavidpb.tuindice.base.domain.exception.EncodedImageTooLargeException
 import com.gdavidpb.tuindice.base.domain.model.ImageEncodingSpec
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
@@ -94,7 +95,7 @@ class FileKitSkiaImageEncoderDataSourceTest {
 	}
 
 	@Test
-	fun encode_throwsIllegalStateWhenEncodedImageExceedsMaxBytes() = runTest {
+	fun encode_throwsEncodedImageTooLargeWhenEncodedImageExceedsMaxBytes() = runTest {
 		val inputFile = createInputFile(
 			prefix = "heavy",
 			extension = "png",
@@ -102,9 +103,12 @@ class FileKitSkiaImageEncoderDataSourceTest {
 		)
 
 		try {
-			assertFailsWith<IllegalStateException> {
+			val exception = assertFailsWith<EncodedImageTooLargeException> {
 				dataSource.encode(file = inputFile, spec = tinyBytesSpec)
 			}
+
+			assertEquals(TINY_MAX_BYTES, exception.maxBytes)
+			assertTrue(exception.encodedBytes > TINY_MAX_BYTES)
 		} finally {
 			deleteInputFileIfExists(inputFile)
 		}

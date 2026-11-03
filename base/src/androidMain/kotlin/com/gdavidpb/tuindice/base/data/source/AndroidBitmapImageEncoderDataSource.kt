@@ -44,9 +44,7 @@ class AndroidBitmapImageEncoderDataSource : ImageEncoderRepository {
 		try {
 			val encodedBytes = normalizedBitmap.encodeJpeg(spec.jpegQuality)
 
-			check(encodedBytes.size <= spec.maxBytes) {
-				"Image exceeds the maximum size of ${spec.maxBytes} bytes."
-			}
+			spec.checkEncodedSize(encodedBytes.size)
 
 			return EncodedImage(
 				content = encodedBytes,

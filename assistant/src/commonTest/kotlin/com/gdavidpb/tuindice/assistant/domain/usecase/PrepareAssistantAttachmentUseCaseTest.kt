@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.assistant.domain.usecase.exceptionhandler.PrepareAs
 import com.gdavidpb.tuindice.assistant.domain.usecase.param.PrepareAssistantAttachmentParams
 import com.gdavidpb.tuindice.assistant.testing.RecordingImageEncoderRepository
 import com.gdavidpb.tuindice.assistant.testing.lastState
+import com.gdavidpb.tuindice.base.domain.exception.EncodedImageTooLargeException
 import com.gdavidpb.tuindice.base.domain.model.ImageEncodingSpec
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.chatcontract.attachment.AttachmentLimits
@@ -44,7 +45,7 @@ class PrepareAssistantAttachmentUseCaseTest {
 					maxBytes = AttachmentLimits.MAX_IMAGE_BYTES,
 					jpegQuality = 80
 				),
-				ImageEncodingSpec(maxDimensionPx = 256, maxBytes = 60_000, jpegQuality = 70)
+				ImageEncodingSpec(maxDimensionPx = 256, maxBytes = Int.MAX_VALUE, jpegQuality = 70)
 			),
 			encoder.specs
 		)
@@ -65,12 +66,18 @@ class PrepareAssistantAttachmentUseCaseTest {
 
 	@Test
 	fun aPhotoStillOverTheLimitOnceEncodedIsRefusedAsTooLarge() = runTest {
-		encoder.content = ByteArray(AttachmentLimits.MAX_IMAGE_BYTES + 1)
+		encoder.failure = EncodedImageTooLargeException(
+			encodedBytes = AttachmentLimits.MAX_IMAGE_BYTES + 1,
+			maxBytes = AttachmentLimits.MAX_IMAGE_BYTES
+		)
 
 		assertEquals(
 			UseCaseState.Error(PrepareAssistantAttachmentError.TooLarge),
 			prepare(PlatformFile("plan.jpg"))
 		)
+
+		// The thumbnail is not made for a photo that is refused.
+		assertEquals(1, encoder.specs.size)
 	}
 
 	// A photo is sent as the JPEG the app encodes it to, so the name says jpg, whatever the file was called.
