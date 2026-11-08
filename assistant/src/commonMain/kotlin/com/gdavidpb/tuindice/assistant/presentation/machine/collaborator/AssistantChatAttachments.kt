@@ -19,13 +19,16 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.isActive
 import kotlin.uuid.Uuid
 
 /**
  * The photos of the message being written. Each photo the student adds is read on the device and then sent to the
- * service, in one job of its own; the outcome of each step comes back to the machine as an event. The files are kept
- * until they are read, so a read that failed can start again, and an upload that failed sends what was read.
+ * service, each step in a job of its own. A job runs one use case and reports its outcome as an event; the machine's
+ * loop takes the event and decides what it starts, so a copy of a photo the message already holds is taken out before
+ * anything is sent for it. The files are kept until their read is over, so a read that failed can start again, and an
+ * upload that failed sends what was read.
+ *
+ * Only the machine's loop touches [jobs] and [files].
  */
 class AssistantChatAttachments(
 	private val prepareAssistantAttachmentUseCase: PrepareAssistantAttachmentUseCase,
@@ -33,14 +36,12 @@ class AssistantChatAttachments(
 ) {
 	private val jobs = mutableMapOf<String, Job>()
 
-	// The file of each photo not read yet. It leaves when the file is read, so a read that failed keeps it.
+	// The file of each photo whose read is not over. It leaves when the read is over (see readFinished), so a read that
+	// failed keeps it.
 	private val files = mutableMapOf<String, PlatformFile>()
 
-	// The digest of the bytes each photo read sends, by its id: the same picture is not sent twice.
-	private val digestOf = mutableMapOf<String, String>()
-
 	// Adds [picked] photos to the message as far as it has room. The photos past the room are not taken, and the chat
-	// says so; each photo taken starts its own read and upload.
+	// says so; each photo taken starts its own read.
 	internal fun add(
 		host: MachineHost<AssistantChat.Effect>,
 		draft: AssistantChatDraft,
@@ -66,43 +67,70 @@ class AssistantChatAttachments(
 				)
 			)
 
-			start(host = host, draft = draft, localId = localId)
+			startRead(host = host, localId = localId, file = file)
 		}
 	}
 
-	// Tries the attachment [localId] again: one that could not be read starts over, one whose upload failed sends what was
-	// read. Its tray item shows it as being read or sent again.
+	// Tries the attachment [localId] again: one whose upload failed sends what was read, one that could not be read starts
+	// over. Its tray item shows it as being read or sent again.
 	fun retry(host: MachineHost<AssistantChat.Effect>, draft: AssistantChatDraft, localId: String) {
 		val attachment = draft.attachments.value.firstOrNull { it.localId == localId } ?: return
+		val content = attachment.content
 
-		// Without what was read and without the file, there is nothing left to send: the attachment stays failed.
-		if (attachment.content == null && files[localId] == null) return
+		if (content != null) {
+			draft.updateAttachment(localId) { current -> current.copy(state = AssistantAttachmentState.Uploading) }
 
-		draft.updateAttachment(localId) { current ->
-			current.copy(
-				state = if (current.content == null) AssistantAttachmentState.Preparing else AssistantAttachmentState.Uploading
+			startUpload(
+				host = host,
+				localId = localId,
+				prepared = PreparedAssistantAttachment(
+					name = attachment.name,
+					content = content,
+					thumbnail = attachment.thumbnail
+				)
 			)
-		}
+		} else {
+			// Without what was read and without the file, there is nothing left to send: the attachment stays failed.
+			val file = files[localId] ?: return
 
-		start(host = host, draft = draft, localId = localId)
+			draft.updateAttachment(localId) { current -> current.copy(state = AssistantAttachmentState.Preparing) }
+
+			startRead(host = host, localId = localId, file = file)
+		}
 	}
 
 	// Takes the attachment [localId] out: its read or upload stops, and its file is forgotten.
 	fun remove(localId: String) {
 		jobs.remove(localId)?.cancel()
 		files.remove(localId)
-		digestOf.remove(localId)
+	}
+
+	// The read of [localId] is over and its bytes are with the attachment: the file is not held for a retry any more.
+	fun readFinished(localId: String) {
+		files.remove(localId)
+	}
+
+	// Starts the upload of what [localId] read. The machine starts it when the read's event is taken.
+	internal fun startUpload(
+		host: MachineHost<AssistantChat.Effect>,
+		localId: String,
+		prepared: PreparedAssistantAttachment
+	) {
+		jobs[localId]?.cancel()
+
+		jobs[localId] = host.launchMachineJob {
+			upload(host = host, localId = localId, prepared = prepared)
+		}
 	}
 
 	// The attachments a send takes out of the tray: their reads and uploads are over, so what the chat kept for them goes.
-	// A refused send that gives them back keeps their digest in the attachment itself, so the check on the read's event
-	// still sees it.
+	// A refused send that gives them back keeps their bytes in the attachment itself.
 	fun release(localIds: Collection<String>) {
 		localIds.forEach { localId -> remove(localId) }
 	}
 
 	// The ids the chat still keeps anything for. A test checks that a sent attachment leaves none behind.
-	internal fun trackedIds(): Set<String> = jobs.keys + digestOf.keys + files.keys
+	internal fun trackedIds(): Set<String> = jobs.keys + files.keys
 
 	// The chat leaves its content: the reads and uploads stop, and each one in flight fails, so its retry is there on the
 	// next opening. The files of the reads that did not finish are kept for that retry.
@@ -121,72 +149,24 @@ class AssistantChatAttachments(
 			}
 	}
 
-	// One job per photo: its read, when it has none yet, and then its upload. Each outcome is reported as it comes.
-	private fun start(host: MachineHost<AssistantChat.Effect>, draft: AssistantChatDraft, localId: String) {
+	// The read of [localId]: its bytes, or the reason the file cannot be read, come back as the event.
+	private fun startRead(host: MachineHost<AssistantChat.Effect>, localId: String, file: PlatformFile) {
 		jobs[localId]?.cancel()
 
 		jobs[localId] = host.launchMachineJob {
-			val attachment = draft.attachments.value.firstOrNull { it.localId == localId } ?: return@launchMachineJob
+			val state = prepareAssistantAttachmentUseCase.execute(PrepareAssistantAttachmentParams(file = file)).last()
 
-			val prepared = attachment.content?.let { content ->
-				PreparedAssistantAttachment(
-					name = attachment.name,
-					content = content,
-					thumbnail = attachment.thumbnail
-				)
-			} ?: prepare(host = host, localId = localId)
-
-			if (prepared == null) return@launchMachineJob
-
-			// A file taken out meanwhile, or one the chat took out as the same picture as another, is not sent.
-			if (!isActive || draft.attachments.value.none { held -> held.localId == localId }) {
-				return@launchMachineJob
-			}
-
-			// The same picture as another photo of the message: the chat takes this one out (see the read's event), and
-			// nothing is sent for it.
-			if (holdsTheSamePicture(draft, localId, prepared.content.sha256)) return@launchMachineJob
-
-			digestOf[localId] = prepared.content.sha256
-
-			upload(host = host, localId = localId, prepared = prepared)
-		}
-	}
-
-	// Another photo of the message holds the bytes this one reads to.
-	private fun holdsTheSamePicture(draft: AssistantChatDraft, localId: String, digest: String): Boolean {
-		return draft.attachments.value.any { held ->
-			held.localId != localId && digestOf[held.localId] == digest
-		}
-	}
-
-	// Reads the file of [localId] into what the upload sends. A file that cannot be read fails its attachment, and no
-	// upload starts for it; the file stays, so the retry can read it again.
-	private suspend fun prepare(
-		host: MachineHost<AssistantChat.Effect>,
-		localId: String
-	): PreparedAssistantAttachment? {
-		val file = files[localId] ?: return null
-
-		val state = prepareAssistantAttachmentUseCase.execute(PrepareAssistantAttachmentParams(file = file)).last()
-
-		return when (state) {
-			is UseCaseState.Data -> {
-				files.remove(localId)
-				host.processInternalEvent(
+			when (state) {
+				is UseCaseState.Data -> host.processInternalEvent(
 					AssistantChatInternalEvent.AttachmentPrepared(localId, state.value)
 				)
-				state.value
-			}
 
-			is UseCaseState.Error -> {
-				host.processInternalEvent(
+				is UseCaseState.Error -> host.processInternalEvent(
 					AssistantChatInternalEvent.AttachmentFailed(localId, state.error.toFailure())
 				)
-				null
-			}
 
-			is UseCaseState.Loading -> null
+				is UseCaseState.Loading -> Unit
+			}
 		}
 	}
 

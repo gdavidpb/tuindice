@@ -83,6 +83,11 @@ internal fun AttachmentTransitions.contentAttachmentResultRows(
 	// A file read to the bytes of an attachment the message already holds is the same picture: the one already there is
 	// kept, and this one leaves the tray with its read and its upload.
 	on<AssistantChatInternalEvent.AttachmentPrepared> { state, event ->
+		// A photo taken out while it was read is not kept, and nothing is sent for it.
+		if (machine.draft.attachments.value.none { attachment -> attachment.localId == event.localId }) {
+			return@on state
+		}
+
 		val sameBytes = machine.draft.attachments.value.any { other ->
 			other.localId != event.localId && other.content?.sha256 == event.prepared.content.sha256
 		}
@@ -95,6 +100,8 @@ internal fun AttachmentTransitions.contentAttachmentResultRows(
 			return@on machine.refreshed(state)
 		}
 
+		// The read is over and its bytes are with the attachment: the file is not held for a retry any more.
+		machine.turns.attachments.readFinished(localId = event.localId)
 		machine.draft.updateAttachment(event.localId) { attachment ->
 			attachment.copy(
 				name = event.prepared.name,
@@ -103,6 +110,7 @@ internal fun AttachmentTransitions.contentAttachmentResultRows(
 				content = event.prepared.content
 			)
 		}
+		machine.turns.attachments.startUpload(host = host, localId = event.localId, prepared = event.prepared)
 		machine.refreshed(state)
 	}
 
