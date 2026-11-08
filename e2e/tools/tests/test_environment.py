@@ -364,6 +364,31 @@ class PlatformsAllTests(unittest.TestCase):
         self.assertFalse(os.path.exists(ws.state))
 
 
+class SelectionSplitTests(unittest.TestCase):
+    """`--platform all --scenario`: a scenario of one platform does not refuse the selection of the other."""
+
+    def test_each_platform_runs_the_selected_scenarios_of_its_own_scope(self):
+        ws = Workspace(self, [scenario("fix-a"), scenario("fix-b", platforms=("android",))])
+        result = ws.run("run", "--platform", "all", "--mode", "diagnose", "--scenario", "fix-a,fix-b", E2E_PARALLEL="never")
+        self.assertEqual(result.code, 0, result.out + result.err)
+        self.assertEqual(ws.executed("android"), ["fix-a", "fix-b"])
+        self.assertEqual(ws.executed("ios"), ["fix-a"])
+
+    def test_a_platform_with_none_of_the_selected_scenarios_does_not_run(self):
+        ws = Workspace(self, [scenario("fix-a"), scenario("fix-b", platforms=("android",))])
+        result = ws.run("run", "--platform", "all", "--mode", "diagnose", "--scenario", "fix-b", E2E_PARALLEL="never")
+        self.assertEqual(result.code, 0, result.out + result.err)
+        self.assertIn("[e2e ios] none of the selected scenarios is in its catalog scope", result.out)
+        self.assertEqual(ws.executed("android"), ["fix-b"])
+        self.assertEqual(ws.calls(platform="ios"), [])
+
+    def test_a_scenario_no_platform_has_is_still_refused(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        result = ws.run("run", "--platform", "all", "--mode", "diagnose", "--scenario", "fix-a,fix-z")
+        self.assertEqual(result.code, 2, result.out + result.err)
+        self.assertIn("scenarios not in the catalog scope of android or ios: fix-z", result.out + result.err)
+
+
 class PrepareLockTests(unittest.TestCase):
     def child(self, ws, platform, **env):
         return ws.run("run", "--platform", platform, "--mode", "evidence", "--child-of", "parent", **env)

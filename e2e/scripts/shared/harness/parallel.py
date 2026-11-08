@@ -51,7 +51,8 @@ def _child_argv(args, platform, parent, decision, reason, stop_device):
     argv = [sys.executable, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "e2e.py"),
         "run", "--platform", platform, "--mode", args.mode, "--child-of", parent, "--parallel-decision", decision,
         "--parallel-reason", reason]
-    for flag, value in (("--scenario", args.scenario), ("--tag", args.tag), ("--changed-since", args.changed_since)):
+    scenario = getattr(args, "scenario_by_platform", {}).get(platform, args.scenario)
+    for flag, value in (("--scenario", scenario), ("--tag", args.tag), ("--changed-since", args.changed_since)):
         if value:
             argv += [flag, value]
     argv += ["--repeat", str(args.repeat)]

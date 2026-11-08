@@ -55,6 +55,8 @@ class Options:
         # Set for a platform of `--platform all`: the parent run id, whether to stop a device this run booted,
         # and the parent's (decision, reason).
         self.child_of, self.stop_device, self.parallel = child_of, stop_device, None
+        # Set by `--platform all --scenario`: the ids each platform has in its catalog scope (see e2e.split_selection).
+        self.scenarios_by_platform = {}
 
 
 class Adapter:
@@ -297,7 +299,7 @@ class PlatformRun:
     def _select(self, runnable):
         if self.evidence:
             return runnable
-        wanted = self.opts.scenarios or self.cfg.scenario_filter
+        wanted = self.opts.scenarios_by_platform.get(self.platform, self.opts.scenarios) or self.cfg.scenario_filter
         if wanted:
             known = {s.id: s for s in runnable}
             missing = [i for i in wanted if i not in known]

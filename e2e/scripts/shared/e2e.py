@@ -80,10 +80,31 @@ def cmd_run(cfg, args):
     if args.parallel_decision:
         options.parallel = (args.parallel_decision, args.parallel_reason or "")
     platforms = cfg.platforms_for(args.platform)
+    if len(platforms) > 1 and options.scenarios:
+        options.scenarios_by_platform = split_selection(cfg, platforms, options.scenarios)
+        args.scenario_by_platform = {p: ",".join(ids) for p, ids in options.scenarios_by_platform.items()}
+        platforms = [p for p in platforms if p in options.scenarios_by_platform]
     if len(platforms) == 1:
         return runner.PlatformRun(cfg, platforms[0], options).execute()
     failed = set() if args.mode == "diagnose" else {p for p in platforms if has_failed_attempts(cfg, p)}
     return parallel.run_all(cfg, platforms, args, options, failed, combine)
+
+
+def split_selection(cfg, platforms, scenarios):
+    """`--platform all --scenario`: each platform runs the selected ids its catalog scope has. An id that none of the
+    platforms has is refused; a platform that has none of the ids does not run."""
+    by_id = {s.id: s for s in catalog_mod.load(cfg.catalog_path).scenarios}
+    unknown = [i for i in scenarios if i not in by_id or not set(by_id[i].platforms) & set(platforms)]
+    if unknown:
+        raise UsageError("scenarios not in the catalog scope of %s: %s" % (" or ".join(platforms), ", ".join(unknown)))
+    split = {}
+    for platform in platforms:
+        ids = [i for i in scenarios if platform in by_id[i].platforms]
+        if ids:
+            split[platform] = ids
+        else:
+            print("[e2e %s] none of the selected scenarios is in its catalog scope: it does not run" % platform)
+    return split
 
 
 def has_failed_attempts(cfg, platform):

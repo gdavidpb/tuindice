@@ -94,6 +94,8 @@ python3 e2e/scripts/shared/e2e.py list --changed-since origin/production
 python3 e2e/scripts/shared/e2e.py run --platform all --mode diagnose --scenario <id>,<id>
 ```
 
+With `--platform all`, each platform runs the listed ids its catalog scope has: an Android-only id does not stop iOS,
+and a platform that has none of them does not run. An id that no platform has is refused (exit 2).
 `--tag <module>` selects a module's scenarios. `--survey` keeps going after failures and lists them all (diagnose
 only; evidence refuses it with exit 2). `--repeat N` (1 to 50) repeats the selection and prints the pass rate per
 scenario. `--trace` asks the iOS runner for step traces; the Android runner has none today and ignores it. `E2E_SCENARIOS=<id> ./gradlew e2eAndroid` (or `e2eIos`) is
