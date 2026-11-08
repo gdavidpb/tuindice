@@ -8,6 +8,7 @@ import tuindice.assistant.generated.resources.assistant_attachment_daily_limit_w
 import tuindice.assistant.generated.resources.assistant_attachment_expired
 import tuindice.assistant.generated.resources.assistant_attachment_failed
 import tuindice.assistant.generated.resources.assistant_attachment_limit
+import tuindice.assistant.generated.resources.assistant_attachment_refused
 import tuindice.assistant.generated.resources.assistant_attachment_too_large
 import tuindice.assistant.generated.resources.assistant_attachment_unsupported
 import tuindice.assistant.generated.resources.assistant_attachments_refused
@@ -23,6 +24,8 @@ class AssistantChatAttachmentResourceTexts : AssistantChatAttachmentTexts {
 			is AssistantAttachmentFailure.DailyLimit -> failure.retryAfterSeconds?.let { seconds ->
 				getString(Res.string.assistant_attachment_daily_limit_wait, waitText(seconds))
 			} ?: getString(Res.string.assistant_attachment_daily_limit)
+
+			AssistantAttachmentFailure.Refused -> getString(Res.string.assistant_attachment_refused)
 
 			AssistantAttachmentFailure.Other -> getString(Res.string.assistant_attachment_failed)
 		}

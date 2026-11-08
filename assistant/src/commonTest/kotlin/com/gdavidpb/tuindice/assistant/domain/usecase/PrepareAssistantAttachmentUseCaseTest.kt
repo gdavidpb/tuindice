@@ -88,11 +88,22 @@ class PrepareAssistantAttachmentUseCaseTest {
 		assertEquals("sin-extension.jpg", preparedOf(PlatformFile("sin-extension")).name)
 	}
 
-	// The encoder does not read a file that is not a photo: that read fails with no reason the chat can name, so the
-	// attachment says it failed for another reason, and nothing is sent for it.
+	// The encoder does not read a file that is not a photo: that read fails as unreadable, and reading it again would
+	// give the same answer.
 	@Test
-	fun aFileTheEncoderCannotReadFailsTheReadWithNoNamedReason() = runTest {
+	fun aFileTheEncoderCannotReadFailsTheReadAsUnreadable() = runTest {
 		encoder.failure = IllegalArgumentException("Image content is not a supported image.")
+
+		val state = prepare(PlatformFile("notas.jpg"))
+
+		assertIs<UseCaseState.Error<PrepareAssistantAttachmentError>>(state)
+		assertEquals(PrepareAssistantAttachmentError.Unreadable, state.error)
+	}
+
+	// A read that fails for any other reason has no reason the chat names: it may clear, so the chat offers its retry.
+	@Test
+	fun aReadThatFailsForAnotherReasonHasNoNamedReason() = runTest {
+		encoder.failure = IllegalStateException("The file could not be opened.")
 
 		val state = prepare(PlatformFile("notas.jpg"))
 

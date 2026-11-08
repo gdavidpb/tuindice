@@ -130,7 +130,7 @@ internal fun AttachmentTransitions.contentAttachmentResultRows(
 
 	on<AssistantChatInternalEvent.AttachmentRejected> { state, event ->
 		machine.draft.updateAttachment(event.localId) { attachment ->
-			attachment.copy(state = AssistantAttachmentState.Failed(AssistantAttachmentFailure.Other))
+			attachment.copy(state = AssistantAttachmentState.Failed(AssistantAttachmentFailure.Refused))
 		}
 		machine.attachmentRejected(host = host, error = event.error)
 		machine.refreshed(state)

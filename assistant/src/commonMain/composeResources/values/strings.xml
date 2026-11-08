@@ -149,6 +149,7 @@
 	<string name="assistant_attachment_unsupported">Ese archivo no es una foto que podamos leer.</string>
 	<string name="assistant_attachment_daily_limit">Ya usaste todos los adjuntos de hoy.</string>
 	<string name="assistant_attachment_daily_limit_wait">Ya usaste todos los adjuntos de hoy. Podrás adjuntar más en %1$s.</string>
+	<string name="assistant_attachment_refused">No puedes adjuntar fotos en este momento.</string>
 	<string name="assistant_attachment_failed">No se pudo adjuntar. Puedes intentarlo de nuevo.</string>
 	<string name="assistant_attachment_limit">Puedes adjuntar hasta 4.</string>
 	<string name="assistant_attachments_refused">Los adjuntos no caben en un mensaje. Quita alguno y vuelve a enviar.</string>

@@ -8,6 +8,8 @@ class PrepareAssistantAttachmentExceptionHandler : ExceptionHandler<PrepareAssis
 	override fun parseException(throwable: Throwable): PrepareAssistantAttachmentError? {
 		return when (throwable) {
 			is EncodedImageTooLargeException -> PrepareAssistantAttachmentError.TooLarge
+			// Both encoders refuse content they cannot decode as an invalid argument.
+			is IllegalArgumentException -> PrepareAssistantAttachmentError.Unreadable
 			else -> null
 		}
 	}

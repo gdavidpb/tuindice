@@ -61,11 +61,27 @@ class AssistantChatAttachmentBehaviorTest {
 		assertEquals(ChatNoticeItem.TurnFailed(message = "attachment-limit", canRetry = false), content.notice)
 	}
 
-	// The photo cannot be read: its read fails with no reason the chat names, which is a failure the retry can read again.
+	// The file is not a picture the device reads: reading it again gives the same answer, so it says why and offers no
+	// retry, only its ×; nothing is sent for it.
+	@Test
+	fun when_aFileIsNotAPictureTheDeviceReads_then_itFailsAsUnsupportedWithoutRetry() = chatTest { fixture, viewModel ->
+		openChat(fixture, viewModel)
+		fixture.imageEncoder.failure = IllegalArgumentException("Image content is not a supported image.")
+
+		addPhotos(viewModel, listOf(PlatformFile("notas.jpg")))
+
+		val failed = viewModel.content().composer.attachments.single()
+		assertTrue(failed.isFailed)
+		assertFalse(failed.canRetry)
+		assertEquals("failure:Unsupported", failed.failureText)
+		assertTrue(fixture.attachmentRepository.uploads.isEmpty())
+	}
+
+	// The photo's read fails for a reason that can clear: it has no reason the chat names, and the retry reads it again.
 	@Test
 	fun when_aPhotoCannotBeRead_then_itFailsWithItsReasonAndTheRetryReadsItAgain() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
-		fixture.imageEncoder.failure = IllegalArgumentException("Image content is not a supported image.")
+		fixture.imageEncoder.failure = IllegalStateException("The file could not be opened.")
 
 		addPhotos(viewModel, listOf(PlatformFile("notas.jpg")))
 
@@ -272,6 +288,26 @@ class AssistantChatAttachmentBehaviorTest {
 		assertEquals("failure:DailyLimit(retryAfterSeconds=3600)", failed.failureText)
 	}
 
+	// The day's turns are used up: the chat tells the quota, and the photo says it cannot be attached now, with no retry
+	// that would be refused again.
+	@Test
+	fun when_theServiceSaysTheQuotaIsUsedUp_then_theAttachmentIsRefusedWithoutRetry() = chatTest { fixture, viewModel ->
+		openChat(fixture, viewModel)
+		fixture.attachmentRepository.failure = AssistantRequestRefusedException(
+			code = "quota_exhausted",
+			retryAfterSeconds = 120,
+			message = "quota"
+		)
+
+		addPhotos(viewModel, listOf(photo()))
+
+		val failed = viewModel.content().composer.attachments.single()
+		assertTrue(failed.isFailed)
+		assertFalse(failed.canRetry)
+		assertEquals("failure:Refused", failed.failureText)
+		assertIs<ChatNoticeItem.QuotaExhausted>(viewModel.content().notice)
+	}
+
 	@Test
 	fun when_theServiceSaysTheGuidedModeIsOn_then_theChatIsGuided() = chatTest { fixture, viewModel ->
 		openChat(fixture, viewModel)
@@ -286,7 +322,9 @@ class AssistantChatAttachmentBehaviorTest {
 		addPhotos(viewModel, listOf(photo()))
 
 		assertEquals(ChatNoticeItem.Guided(message = "guided"), viewModel.content().notice)
-		assertTrue(viewModel.content().composer.attachments.single().isFailed)
+		val failed = viewModel.content().composer.attachments.single()
+		assertTrue(failed.isFailed)
+		assertFalse(failed.canRetry)
 	}
 
 	@Test

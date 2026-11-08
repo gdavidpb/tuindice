@@ -12,6 +12,8 @@ internal fun PrepareAssistantAttachmentError?.toFailure(): AssistantAttachmentFa
 	return when (this) {
 		PrepareAssistantAttachmentError.TooLarge -> AssistantAttachmentFailure.TooLarge
 
+		PrepareAssistantAttachmentError.Unreadable -> AssistantAttachmentFailure.Unsupported
+
 		null -> AssistantAttachmentFailure.Other
 	}
 }

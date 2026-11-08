@@ -18,9 +18,9 @@ import kotlinx.coroutines.flow.flow
 
 /**
  * Reads a photo the student picked into the bytes the upload sends. The photo is encoded to the size the service takes
- * and gets a small thumbnail for the message. A file the encoder cannot read is not refused here: the encoder fails,
- * and the read fails with it. A photo still over that size once encoded fails with EncodedImageTooLargeException,
- * which the exception handler names as too large.
+ * and gets a small thumbnail for the message. A file the encoder cannot read is not refused here: the encoder fails
+ * with an IllegalArgumentException, which the exception handler names as unreadable. A photo still over that size once
+ * encoded fails with EncodedImageTooLargeException, which the exception handler names as too large.
  */
 class PrepareAssistantAttachmentUseCase(
 	private val imageEncoderRepository: ImageEncoderRepository,
